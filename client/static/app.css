@@ -1,0 +1,68 @@
+@import "reset.css";
+@import "global.css";
+
+:root{
+   --modal-background: rgba(9, 12, 16, 0.5);
+   --background-color: #090c10;
+   --input-color: #0d1117;
+   --area-color: #161b22;
+   --border-color: #21262d;
+   --focus-color: #8b949e;
+   --placeholder-color: #c9d1d9;
+   --white-color: #f0f6fc;
+   --green-color: #2ea043;
+   --darker-green-color: #238636;
+   --orange-color: #f9826c;
+   --red-color: #ac4031;
+   --darker-red-color: #802C20;
+   --yellow-color: #aca031;
+   --blue-color: #3179ac;
+}
+
+*, *:before, *:after {
+   margin: 0;
+	padding: 0;
+	outline: none;
+	border: none;
+	box-sizing: border-box;
+   text-decoration: none;
+   font-family: "Century Gothic";
+   font-size: inherit;
+   color: inherit;
+}
+
+html, body{
+   background-color: var(--background-color);
+   height: 100%;
+   font-family: "Century Gothic";
+   font-size: 16px;
+   line-height: 1.6;
+   color: var(--white-color);
+}
+
+iframe ::-webkit-scrollbar {
+   width: 10px;
+ }
+ 
+ iframe {
+    overflow:hidden
+   }
+ 
+ /* Track */
+ ::-webkit-scrollbar-track {
+   background: #f1f1f1; 
+ }
+  
+ /* Handle */
+ ::-webkit-scrollbar-thumb {
+   background: #888; 
+ }
+ 
+ /* Handle on hover */
+ ::-webkit-scrollbar-thumb:hover {
+   background: #555; 
+ }
+
+#svelte{
+   min-height: 100%;
+}
