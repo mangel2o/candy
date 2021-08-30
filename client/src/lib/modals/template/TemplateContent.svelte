@@ -29,9 +29,8 @@
 		<div class="row">
 			<div class="field">
 				<span class="tag">Documento de ejemplo</span>
-				<input required name="file" id="file" type="file" bind:files on:change={handleChange} />
-
-				<label for="file" class={template.file ? 'uploaded' : 'not-uploaded'}>
+				<label class={template.file ? 'uploaded' : 'not-uploaded'}>
+					<input required name="file" type="file" bind:files on:change={handleChange} />
 					{#if template.file}
 						<span>{template.file.name}</span>
 					{:else}

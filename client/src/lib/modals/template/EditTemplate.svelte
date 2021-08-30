@@ -19,7 +19,7 @@
 		refetch();
 	}
 
-	function cancel() {
+	function handleCancel() {
 		template = {
 			name: '',
 			description: '',
@@ -41,7 +41,7 @@
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<TemplateContent bind:template />
 			<div>
-				<button class="cancel" type="button" on:click={cancel}> Cancelar </button>
+				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Editar </button>
 			</div>
 		</form>

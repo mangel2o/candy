@@ -47,20 +47,24 @@ iframe ::-webkit-scrollbar {
  iframe {
     overflow:hidden
    }
- 
- /* Track */
- ::-webkit-scrollbar-track {
-   background: #f1f1f1; 
- }
-  
- /* Handle */
- ::-webkit-scrollbar-thumb {
-   background: #888; 
+
+
+ body::-webkit-scrollbar {
+   width: 1rem;               /* width of the entire scrollbar */
  }
  
- /* Handle on hover */
- ::-webkit-scrollbar-thumb:hover {
-   background: #555; 
+ body::-webkit-scrollbar-track {
+   background: var(--input-color);        /* color of the tracking area */
+ }
+ 
+ body::-webkit-scrollbar-thumb {
+   background-color: var(--border-color);    /* color of the scroll thumb */
+   border-radius: 1rem;       /* roundness of the scroll thumb */
+   border: 2px solid var(--border-color);  /* creates padding around scroll thumb */
+ }
+
+ body::-webkit-scrollbar-thumb:hover {
+   background-color: var(--focus-color);    /* color of the scroll thumb */
  }
 
 #svelte{
