@@ -10,7 +10,7 @@
 		console.log(template);
 	}
 
-	function cancel() {
+	function handleCancel() {
 		console.log('Delete document canceled');
 	}
 </script>
@@ -29,7 +29,7 @@
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<DeleteContent prop={'este documento'} />
 			<div>
-				<button class="cancel" on:click={cancel}> Cancelar </button>
+				<button class="cancel" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Eliminar </button>
 			</div>
 		</form>
