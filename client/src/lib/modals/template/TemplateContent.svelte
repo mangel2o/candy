@@ -3,8 +3,9 @@
 
 	let files;
 
-	function handleChange() {
+	$: if (files) {
 		template.file = files[0];
+		files = null;
 	}
 </script>
 
@@ -30,7 +31,7 @@
 			<div class="field">
 				<span class="tag">Documento de ejemplo</span>
 				<label class={template.file ? 'uploaded' : 'not-uploaded'}>
-					<input required name="file" type="file" bind:files on:change={handleChange} />
+					<input required name="file" type="file" bind:files />
 					{#if template.file}
 						<span>{template.file.name}</span>
 					{:else}

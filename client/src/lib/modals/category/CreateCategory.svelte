@@ -3,9 +3,9 @@
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
-	import { getContext } from 'svelte';
+	import { getContext, onMount } from 'svelte';
 
-	const refetch: Function = getContext('refetch');
+	let refetch: Function = getContext('refetch');
 
 	let category = {
 		name: '',
@@ -14,15 +14,18 @@
 
 	function handleSubmit() {
 		console.log(category);
+		handleCancel();
 		refetch();
 	}
 
-	function cancel() {
+	function handleCancel() {
 		category = {
 			name: '',
 			description: ''
 		};
 	}
+
+	onMount(() => {});
 </script>
 
 <template>
@@ -39,7 +42,7 @@
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<CategoryContent bind:category />
 			<div>
-				<button class="cancel" on:click={cancel}> Cancelar </button>
+				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Crear </button>
 			</div>
 		</form>

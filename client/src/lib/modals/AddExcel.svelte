@@ -10,7 +10,7 @@
 	}
 
 	function handleCancel() {
-		files = null;
+		files = undefined;
 	}
 </script>
 

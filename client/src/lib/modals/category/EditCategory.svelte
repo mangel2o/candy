@@ -1,17 +1,22 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import Plus from '$lib/icons/plus.svelte';
 	import Pencil from '$lib/icons/pencil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
+	import { getContext, onMount } from 'svelte';
+
+	let refetch: Function = getContext('refetch');
 
 	export let category;
 
 	function handleSubmit() {
 		console.log(category);
+		refetch();
 	}
 
 	function cancel() {}
+
+	onMount(() => {});
 </script>
 
 <template>
@@ -27,7 +32,7 @@
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<CategoryContent bind:category />
 			<div>
-				<button class="cancel" on:click={cancel}> Cancelar </button>
+				<button class="cancel" type="button" on:click={cancel}> Cancelar </button>
 				<button class="submit" type="submit"> Editar </button>
 			</div>
 		</form>

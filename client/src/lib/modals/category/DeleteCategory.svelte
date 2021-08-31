@@ -3,16 +3,21 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
+	import { getContext, onMount } from 'svelte';
+	let refetch: Function = getContext('refetch');
 
 	export let category;
 
 	async function handleSubmit() {
 		console.log(category);
+		refetch();
 	}
 
 	function cancel() {
 		console.log('Delete category canceled');
 	}
+
+	onMount(() => {});
 </script>
 
 <template>
@@ -29,7 +34,7 @@
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<DeleteContent prop={'esta categoria'} />
 			<div>
-				<button class="cancel" on:click={cancel}> Cancelar </button>
+				<button class="cancel" type="button" on:click={cancel}> Cancelar </button>
 				<button class="submit" type="submit"> Eliminar </button>
 			</div>
 		</form>

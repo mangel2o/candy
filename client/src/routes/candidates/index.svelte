@@ -5,12 +5,23 @@
 	import AddExcel from '$lib/modals/AddExcel.svelte';
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import CandidatesTable from '$lib/components/CandidatesTable.svelte';
-	import { onMount, setContext } from 'svelte';
+	import { getContext, onMount, setContext } from 'svelte';
 
 	let isPending = true;
 	let error = null;
 	let candidates = [];
-	let entries = 200;
+	let categories = [
+		{
+			name: 'General'
+		},
+		{
+			name: 'Extranjero'
+		},
+		{
+			name: 'Equivalencia'
+		}
+	];
+	let entries = 0;
 	let searchQuery;
 	let searchParameter;
 
@@ -29,17 +40,18 @@
 				isPending = false;
 				error = null;
 				candidates = data;
-				console.log(data[0]);
+				entries = data.length;
 			})
 			.catch((err) => {
 				isPending = false;
 				error = err;
 			});
 
-		console.log('A fetch has been done');
+		console.log('A fetch has been done at /candidates/index.svelte');
 	}
 
 	setContext('refetch', fetchData);
+	setContext('categories', categories);
 	onMount(() => {
 		fetchData();
 	});

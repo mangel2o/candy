@@ -5,7 +5,7 @@
 	import { getContext } from 'svelte';
 	import TemplateContent from './TemplateContent.svelte';
 
-	const refetch: Function = getContext('refetch');
+	let refetch: Function = getContext('refetch');
 
 	let template = {
 		name: '',
@@ -16,6 +16,7 @@
 	function handleSubmit() {
 		// TODO: Create fetch request
 		console.log(template);
+		handleCancel();
 		refetch();
 	}
 

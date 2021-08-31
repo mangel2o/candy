@@ -35,10 +35,11 @@
 				error = err;
 			});
 			*/
-		console.log('A fetch has been done');
+		console.log('A fetch has been done at /documents/__layout.svelte');
 	}
 
 	setContext('refetch', fetchData);
+
 	onMount(() => {
 		fetchData();
 	});
@@ -55,9 +56,8 @@
 				{#each categories as category}
 					<ButtonCategory {category} path={`/documents/${category.name.toLowerCase()}`} />
 				{/each}
+				<CreateCategory />
 			{/if}
-
-			<CreateCategory />
 		</div>
 		<div class="documents">
 			<slot />

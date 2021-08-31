@@ -1,18 +1,24 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import Icon from '$lib/components/Icon.svelte';
+	import FileDocumentMultiple from '$lib/icons/file-document-multiple.svelte';
 	import CreateTemplate from '$lib/modals/template/CreateTemplate.svelte';
 	import DeleteTemplate from '$lib/modals/template/DeleteTemplate.svelte';
 	import EditTemplate from '$lib/modals/template/EditTemplate.svelte';
 	import ViewTemplate from '$lib/modals/template/ViewTemplate.svelte';
 	import { onMount, setContext } from 'svelte';
 
-	let isPending = false;
+	let isPending = true;
 	let error = null;
+	let category = {
+		name: 'General',
+		description: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor '
+	};
+
 	let templates = [
 		{
 			name: 'Acta de nacimiento con nombre muy largo',
-			description:
-				'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. »',
+			description: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor ',
 			file: null
 		},
 		{
@@ -30,7 +36,8 @@
 	function fetchData() {
 		/*
       * ! something
-      TODO: fetch request at [category] page
+      TODO: fetch request to /documents/[category] for category 
+		description based on url param and all templates where category = [category]
 		fetch('https://jsonplaceholder.typicode.com/todos')
 			.then((res) => res.json())
 			.then((data) => {
@@ -43,9 +50,9 @@
 				error = err;
 			});
 			*/
-		console.log('A fetch has been done');
+		isPending = false;
+		console.log('A fetch has been done at /documents/[category]/index.svelte');
 	}
-
 	setContext('refetch', fetchData);
 	onMount(() => {
 		fetchData();
@@ -57,15 +64,28 @@
 </svelte:head>
 
 <template>
-	<CreateTemplate />
-
 	{#if isPending}
 		<span>Loading...</span>
 	{:else if error}
 		<span>Something went wrong</span>
 	{:else}
+		<div class="content">
+			<div class="field">
+				<div class="title">
+					<div><Icon src={FileDocumentMultiple} size={'28'} /></div>
+					<div>{category.name}</div>
+				</div>
+			</div>
+			<div class="field">
+				<div class="tag">Descripción</div>
+				<div>{category.description}</div>
+			</div>
+		</div>
+
+		<CreateTemplate />
+
 		{#each templates as template}
-			<div>
+			<div class="button">
 				<ViewTemplate {template} />
 				<EditTemplate {template} />
 				<DeleteTemplate {template} />
@@ -76,7 +96,36 @@
 
 <style lang="scss">
 	div {
-		display: flex;
-		width: 100%;
+		&.button {
+			display: flex;
+			width: 100%;
+		}
+
+		&.content {
+			overflow-wrap: anywhere;
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+			padding: 1rem;
+			background-color: var(--input-color);
+			border: 2px solid var(--border-color);
+		}
+
+		&.field {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		&.tag {
+			color: var(--focus-color);
+		}
+
+		&.title {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-size: 1.2rem;
+		}
 	}
 </style>
