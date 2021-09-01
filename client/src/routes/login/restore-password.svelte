@@ -1,4 +1,7 @@
 <script lang="ts">
+	function handleSubmit() {
+		console.log('Restore password submitted');
+	}
 </script>
 
 <svelte:head>
@@ -7,7 +10,7 @@
 
 <template>
 	<div class="container">
-		<form>
+		<form on:submit|preventDefault={handleSubmit}>
 			<img src="/logo_tecmilenio.svg" width="180" alt="Logo Tecmilenio" />
 			<span>Restablece tu contraseña</span>
 			<input type="password" placeholder="Nueva contraseña" />

@@ -1,5 +1,10 @@
 <script lang="ts">
 	let isEmailSent: boolean = false;
+
+	function handleSubmit() {
+		console.log('Forgot password submitted');
+		isEmailSent = true;
+	}
 </script>
 
 <svelte:head>
@@ -8,8 +13,8 @@
 
 <template>
 	<div class="container">
-		{#if !isEmailSent}
-			<form>
+		<form on:submit|preventDefault={handleSubmit}>
+			{#if !isEmailSent}
 				<img src="/logo_tecmilenio.svg" width="180" alt="Logo Tecmilenio" />
 				<span>¿Olvidaste tu contraseña?</span>
 				<span class="gray-text">
@@ -17,14 +22,12 @@
 					cómo restablecer tu contraseña
 				</span>
 				<input type="text" placeholder="Correo institucional" />
-				<button on:click={() => (isEmailSent = true)} type="submit">Enviar correo</button>
+				<button type="submit">Enviar correo</button>
 				<span class="gray-text">
 					¿Recuerdas tu contraseña?
 					<a href="/login">Iniciar sesión</a>
 				</span>
-			</form>
-		{:else}
-			<form>
+			{:else}
 				<img src="/logo_tecmilenio.svg" width="180" alt="Logo Tecmilenio" />
 				<span>¡Correo electrónico enviado!</span>
 				<span class="gray-text">
@@ -33,13 +36,13 @@
 					la dirección de correo electrónico de tu cuenta de Tecmilenio y vuelve a intentarlo, o
 					contactanos para obtener ayuda.
 				</span>
-				<button on:click={() => (isEmailSent = false)} type="submit">Volver a intentarlo</button>
+				<button on:click={() => (isEmailSent = false)} type="button">Volver a intentarlo</button>
 				<span class="gray-text">
 					¿Recuerdas tu contraseña?
 					<a href="/login">Iniciar sesión</a>
 				</span>
-			</form>
-		{/if}
+			{/if}
+		</form>
 	</div>
 </template>
 
@@ -93,7 +96,7 @@
 			}
 		}
 
-		button[type='submit'] {
+		button {
 			width: 100%;
 			padding: 1rem;
 			background-color: var(--darker-green-color);
