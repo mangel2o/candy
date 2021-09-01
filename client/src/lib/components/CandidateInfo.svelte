@@ -91,7 +91,8 @@
 			span.status {
 				color: var(--white-color);
 				font-size: 1rem;
-				border: 2px dashed var(--green-color);
+				border: 2px solid var(--green-color);
+				border-radius: 0.5rem;
 				padding: 1rem;
 			}
 		}

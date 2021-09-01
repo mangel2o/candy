@@ -3,7 +3,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import File from '$lib/icons/file-document.svelte';
 
-	export let template;
+	export let document;
 
 	// "http://africau.edu/images/default/sample.pdf#toolbar=0"
 </script>
@@ -12,7 +12,7 @@
 	<Modal>
 		<button class="view" slot="trigger" let:open on:click={open}>
 			<Icon src={File} />
-			<span>{template.name}</span>
+			<span>{document.name}</span>
 		</button>
 
 		<!--Header-->
@@ -21,9 +21,9 @@
 		<!--View-->
 		<iframe
 			slot="view"
-			src={template.file === null
+			src={document.file === null
 				? 'http://africau.edu/images/default/sample.pdf#toolbar=0'
-				: URL.createObjectURL(template.file)}
+				: URL.createObjectURL(document.file)}
 			title="PDF"
 		/>
 
@@ -32,12 +32,12 @@
 			<div class="field">
 				<div class="title">
 					<div><Icon src={File} size={'32'} /></div>
-					<div>{template.name}</div>
+					<div>{document.name}</div>
 				</div>
 			</div>
 			<div class="field">
 				<div class="tag">Descripción</div>
-				<div>{template.description}</div>
+				<div>{document.description}</div>
 			</div>
 		</div>
 	</Modal>

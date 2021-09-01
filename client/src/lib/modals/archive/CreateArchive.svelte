@@ -2,48 +2,49 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
-	import { getContext, onMount } from 'svelte';
+	import { getContext } from 'svelte';
+	import ArchiveContent from '$lib/modals/archive/ArchiveContent.svelte';
 
 	let refetch: Function = getContext('refetch');
 
-	let category = {
+	let archive = {
 		name: '',
-		description: ''
+		description: '',
+		file: null
 	};
+
 	let isOpen = false;
 
 	function handleSubmit() {
-		console.log(category);
+		// TODO: Create fetch request
+		console.log(archive);
 		handleCancel();
 		refetch();
 	}
 
 	function handleCancel() {
-		category = {
+		archive = {
 			name: '',
-			description: ''
+			description: '',
+			file: null
 		};
-
 		isOpen = false;
 	}
-
-	onMount(() => {});
 </script>
 
 <template>
 	<Modal bind:isOpen>
 		<button class="create" slot="trigger" let:open on:click={open}>
 			<Icon src={Plus} />
-			<span>Crear categoria</span>
+			<span>Crear archivo</span>
 		</button>
 
 		<!--Header-->
-		<span slot="header"> Crear categoria </span>
+		<span slot="header"> Crear archivo </span>
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:category />
+			<ArchiveContent bind:archive />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Crear </button>
@@ -65,14 +66,16 @@
 	}
 
 	button {
+		padding: 1rem;
+
 		&.create {
-			width: 100%;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			gap: 6px;
-			padding: 1rem;
+			width: 100%;
+
 			background-color: var(--input-color);
 			border: 2px solid var(--border-color);
 			&:hover {
@@ -89,7 +92,7 @@
 
 		&.submit {
 			width: 100%;
-			padding: 1rem;
+
 			background-color: var(--darker-green-color);
 			border: 2px solid var(--green-color);
 			cursor: pointer;
@@ -105,7 +108,7 @@
 
 		&.cancel {
 			width: 100%;
-			padding: 1rem;
+
 			background-color: var(--input-color);
 			border: 2px solid var(--border-color);
 			cursor: pointer;

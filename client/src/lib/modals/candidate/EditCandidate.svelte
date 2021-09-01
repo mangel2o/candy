@@ -6,7 +6,10 @@
 	import { getContext } from 'svelte';
 
 	const refetch: Function = getContext('refetch');
+	let isOpen = false;
+
 	export let candidate;
+	let editableCandidate = { ...candidate };
 
 	function handleSubmit() {
 		console.log(candidate);
@@ -14,11 +17,14 @@
 		refetch();
 	}
 
-	function handleCancel() {}
+	function handleCancel() {
+		editableCandidate = { ...candidate };
+		isOpen = false;
+	}
 </script>
 
 <template>
-	<Modal>
+	<Modal bind:isOpen>
 		<button class="edit" slot="trigger" let:open on:click={open}>
 			<Icon src={Pencil} />
 		</button>
@@ -28,7 +34,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CandidateContent bind:candidate />
+			<CandidateContent bind:candidate={editableCandidate} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Editar </button>

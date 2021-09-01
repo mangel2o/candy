@@ -2,7 +2,7 @@
 	import Close from '$lib/icons/close.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 
-	let isOpen = false;
+	export let isOpen = false;
 
 	function open() {
 		isOpen = true;

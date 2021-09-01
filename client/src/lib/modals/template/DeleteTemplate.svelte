@@ -5,18 +5,19 @@
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
 
 	export let template;
+	let isOpen = false;
 
 	async function handleSubmit() {
 		console.log(template);
 	}
 
 	function handleCancel() {
-		console.log('Delete document canceled');
+		isOpen = false;
 	}
 </script>
 
 <template>
-	<Modal>
+	<Modal bind:isOpen>
 		<!--Button-->
 		<button class="delete" slot="trigger" let:open on:click={open}>
 			<Icon src={Delete} />

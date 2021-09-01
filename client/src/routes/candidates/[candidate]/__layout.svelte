@@ -207,7 +207,7 @@
 			border: 2px solid var(--border-color);
 			background-color: var(--area-color);
 			align-items: center;
-			gap: 20px;
+			gap: 1rem;
 
 			span.text {
 				width: 12%;
@@ -223,16 +223,17 @@
 		}
 
 		&.categories-container {
-			width: 88%;
+			width: 100%;
 			display: flex;
 			flex-wrap: wrap;
 			align-items: center;
-			gap: 10px;
+			gap: 0.5rem;
 		}
 
 		&.category {
 			padding: 10px;
-			border: 2px dashed var(--green-color);
+			border: 2px solid var(--green-color);
+			border-radius: 0.5rem;
 		}
 
 		&.isCategoriesActive {

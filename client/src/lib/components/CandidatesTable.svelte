@@ -17,9 +17,9 @@
 			<th>Estatus</th>
 			<th>Ver</th>
 		</tr>
-		{#each candidates as candidate}
+		{#each candidates as candidate, i}
 			<tr>
-				<td>{candidate.id}</td>
+				<td>{i + 1}</td>
 				<td class="name">{candidate.name}</td>
 				<td>{candidate.number}</td>
 				<td>{candidate.genre}</td>

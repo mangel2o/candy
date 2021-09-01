@@ -1,7 +1,14 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+
 	import Icon from '$lib/components/Icon.svelte';
 	import Check from '$lib/icons/check.svelte';
 	let checked: boolean = false;
+
+	function handleSubmit() {
+		console.log('Login submitted');
+		goto('/');
+	}
 </script>
 
 <svelte:head>
@@ -10,7 +17,7 @@
 
 <template>
 	<div class="container">
-		<form>
+		<form on:submit|preventDefault={handleSubmit}>
 			<img src="/logo_tecmilenio.svg" width="180" alt="Logo Tecmilenio" />
 			<span>Inicia sesión con una cuenta de tecmilenio</span>
 			<input type="text" placeholder="Usuario" />
@@ -24,7 +31,7 @@
 				<a href="/login/forgot-password">¿Olvidaste tu contraseña?</a>
 			</div>
 
-			<button type="submit"> <a href="/recent">Iniciar sesión</a> </button>
+			<button type="submit"> Iniciar sesión </button>
 		</form>
 	</div>
 </template>

@@ -6,6 +6,8 @@
 	import { getContext } from 'svelte';
 
 	const refetch: Function = getContext('refetch');
+	let isOpen = false;
+
 	export let candidate;
 
 	async function handleSubmit() {
@@ -16,11 +18,12 @@
 
 	function handleCancel() {
 		console.log('Delete candidate canceled');
+		isOpen = false;
 	}
 </script>
 
 <template>
-	<Modal>
+	<Modal bind:isOpen>
 		<!--Button-->
 		<button class="delete" slot="trigger" let:open on:click={open}>
 			<Icon src={Delete} />

@@ -6,6 +6,7 @@
 	import CandidateContent from './CandidateContent.svelte';
 
 	const refetch: Function = getContext('refetch');
+	let isOpen = false;
 
 	let candidate = {
 		name: '',
@@ -49,11 +50,12 @@
 			graduationYear: '',
 			categories: []
 		};
+		isOpen = false;
 	}
 </script>
 
 <template>
-	<Modal>
+	<Modal bind:isOpen>
 		<button class="create" slot="trigger" let:open on:click={open}>
 			<Icon src={AccountPlus} />
 			<span>Candidato</span>

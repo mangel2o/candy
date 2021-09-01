@@ -4,6 +4,7 @@
 	import FileExcel from '$lib/icons/file-excel.svelte';
 
 	let files: FileList;
+	let isOpen = false;
 
 	async function handleSubmit() {
 		console.log('Excel subido');
@@ -11,11 +12,12 @@
 
 	function handleCancel() {
 		files = undefined;
+		isOpen = false;
 	}
 </script>
 
 <template>
-	<Modal>
+	<Modal bind:isOpen>
 		<!--Button-->
 		<button class="create" slot="trigger" let:open on:click={open}>
 			<Icon src={FileExcel} />

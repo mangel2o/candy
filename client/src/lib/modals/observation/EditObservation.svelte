@@ -1,30 +1,24 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import Plus from '$lib/icons/plus.svelte';
+	import Pencil from '$lib/icons/pencil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
 	import { getContext, onMount } from 'svelte';
+	import ObservationContent from './ObservationContent.svelte';
 
 	let refetch: Function = getContext('refetch');
 
-	let category = {
-		name: '',
-		description: ''
-	};
+	export let observation;
+	let editableObservation = { ...observation };
 	let isOpen = false;
 
 	function handleSubmit() {
-		console.log(category);
-		handleCancel();
+		console.log(editableObservation);
 		refetch();
 	}
 
 	function handleCancel() {
-		category = {
-			name: '',
-			description: ''
-		};
-
+		editableObservation = { ...observation };
 		isOpen = false;
 	}
 
@@ -33,20 +27,19 @@
 
 <template>
 	<Modal bind:isOpen>
-		<button class="create" slot="trigger" let:open on:click={open}>
-			<Icon src={Plus} />
-			<span>Crear categoria</span>
+		<button class="edit" slot="trigger" let:open on:click={open}>
+			<Icon src={Pencil} />
 		</button>
 
 		<!--Header-->
-		<span slot="header"> Crear categoria </span>
+		<span slot="header"> Editar observación </span>
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:category />
+			<ObservationContent bind:observation={editableObservation} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Crear </button>
+				<button class="submit" type="submit"> Editar </button>
 			</div>
 		</form>
 	</Modal>
@@ -65,47 +58,39 @@
 	}
 
 	button {
-		&.create {
-			width: 100%;
+		padding: 1rem;
+
+		&.edit {
 			cursor: pointer;
 			display: flex;
 			align-items: center;
-			justify-content: center;
-			gap: 6px;
-			padding: 1rem;
 			background-color: var(--input-color);
 			border: 2px solid var(--border-color);
+			border-left: none;
+			border-right: none;
+
 			&:hover {
 				background-color: var(--area-color);
-				border: 2px solid var(--blue-color);
-			}
-			&:focus {
-				border: 2px solid var(--green-color);
-			}
-			&:active {
-				border: 2px solid var(--blue-color);
 			}
 		}
 
 		&.submit {
 			width: 100%;
-			padding: 1rem;
-			background-color: var(--darker-green-color);
-			border: 2px solid var(--green-color);
+			background-color: var(--blue-color);
+			border: 2px solid var(--blue-color);
 			cursor: pointer;
 
 			&:hover {
-				background: var(--green-color);
+				background: var(--blue-color);
 			}
 
 			&:active {
-				background-color: var(--darker-green-color);
+				background-color: var(--blue-color);
 			}
 		}
 
 		&.cancel {
 			width: 100%;
-			padding: 1rem;
 			background-color: var(--input-color);
 			border: 2px solid var(--border-color);
 			cursor: pointer;

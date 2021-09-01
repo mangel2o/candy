@@ -8,19 +8,24 @@
 	let refetch: Function = getContext('refetch');
 
 	export let category;
+	let editableCategory = { ...category };
+	let isOpen = false;
 
 	function handleSubmit() {
-		console.log(category);
+		console.log(editableCategory);
 		refetch();
 	}
 
-	function cancel() {}
+	function handleCancel() {
+		editableCategory = { ...category };
+		isOpen = false;
+	}
 
 	onMount(() => {});
 </script>
 
 <template>
-	<Modal>
+	<Modal bind:isOpen>
 		<button class="edit" slot="trigger" let:open on:click={open}>
 			<Icon src={Pencil} />
 		</button>
@@ -30,9 +35,9 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:category />
+			<CategoryContent bind:category={editableCategory} />
 			<div>
-				<button class="cancel" type="button" on:click={cancel}> Cancelar </button>
+				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Editar </button>
 			</div>
 		</form>

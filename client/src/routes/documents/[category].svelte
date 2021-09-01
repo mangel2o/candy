@@ -64,38 +64,47 @@
 </svelte:head>
 
 <template>
-	{#if isPending}
-		<span>Loading...</span>
-	{:else if error}
-		<span>Something went wrong</span>
-	{:else}
-		<div class="content">
-			<div class="field">
-				<div class="title">
-					<div><Icon src={FileDocumentMultiple} size={'28'} /></div>
-					<div>{category.name}</div>
+	<div class="container">
+		{#if isPending}
+			<span>Loading...</span>
+		{:else if error}
+			<span>Something went wrong</span>
+		{:else}
+			<div class="content">
+				<div class="field">
+					<div class="title">
+						<div><Icon src={FileDocumentMultiple} size={'28'} /></div>
+						<div>{category.name}</div>
+					</div>
+				</div>
+				<div class="field">
+					<div class="tag">Descripción</div>
+					<div>{category.description}</div>
 				</div>
 			</div>
-			<div class="field">
-				<div class="tag">Descripción</div>
-				<div>{category.description}</div>
-			</div>
-		</div>
 
-		<CreateTemplate />
+			<CreateTemplate />
 
-		{#each templates as template}
-			<div class="button">
-				<ViewTemplate {template} />
-				<EditTemplate {template} />
-				<DeleteTemplate {template} />
-			</div>
-		{/each}
-	{/if}
+			{#each templates as template}
+				<div class="button">
+					<ViewTemplate {template} />
+					<EditTemplate {template} />
+					<DeleteTemplate {template} />
+				</div>
+			{/each}
+		{/if}
+	</div>
 </template>
 
 <style lang="scss">
 	div {
+		&.container {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+		}
+
 		&.button {
 			display: flex;
 			width: 100%;

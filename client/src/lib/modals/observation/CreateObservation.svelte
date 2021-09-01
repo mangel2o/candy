@@ -2,27 +2,27 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
 	import { getContext, onMount } from 'svelte';
+	import ObservationContent from './ObservationContent.svelte';
 
 	let refetch: Function = getContext('refetch');
 
-	let category = {
+	let observation = {
 		name: '',
-		description: ''
+		observation: ''
 	};
 	let isOpen = false;
 
 	function handleSubmit() {
-		console.log(category);
+		console.log(observation);
 		handleCancel();
 		refetch();
 	}
 
 	function handleCancel() {
-		category = {
+		observation = {
 			name: '',
-			description: ''
+			observation: ''
 		};
 
 		isOpen = false;
@@ -35,15 +35,15 @@
 	<Modal bind:isOpen>
 		<button class="create" slot="trigger" let:open on:click={open}>
 			<Icon src={Plus} />
-			<span>Crear categoria</span>
+			<span>Crear observación</span>
 		</button>
 
 		<!--Header-->
-		<span slot="header"> Crear categoria </span>
+		<span slot="header"> Crear observación </span>
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:category />
+			<ObservationContent bind:observation />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Crear </button>

@@ -3,7 +3,7 @@
 	import CreateCategory from '$lib/modals/category/CreateCategory.svelte';
 	import { onMount, setContext } from 'svelte';
 
-	let isPending = false;
+	let isPending = true;
 	let error = null;
 	let categories = [
 		{
@@ -35,6 +35,7 @@
 				error = err;
 			});
 			*/
+		isPending = false;
 		console.log('A fetch has been done at /documents/__layout.svelte');
 	}
 
@@ -56,8 +57,8 @@
 				{#each categories as category}
 					<ButtonCategory {category} path={`/documents/${category.name.toLowerCase()}`} />
 				{/each}
-				<CreateCategory />
 			{/if}
+			<CreateCategory />
 		</div>
 		<div class="documents">
 			<slot />

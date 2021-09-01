@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import Plus from '$lib/icons/plus.svelte';
 	import Pencil from '$lib/icons/pencil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { getContext } from 'svelte';
@@ -8,11 +7,9 @@
 
 	const refetch: Function = getContext('refetch');
 
-	export let template = {
-		name: '',
-		description: '',
-		file: null
-	};
+	export let template;
+	let editableTemplate = { ...template };
+	let isOpen = false;
 
 	function handleSubmit() {
 		console.log(template);
@@ -20,16 +17,13 @@
 	}
 
 	function handleCancel() {
-		template = {
-			name: '',
-			description: '',
-			file: null
-		};
+		editableTemplate = { ...template };
+		isOpen = false;
 	}
 </script>
 
 <template>
-	<Modal>
+	<Modal bind:isOpen>
 		<button class="edit" slot="trigger" let:open on:click={open}>
 			<Icon src={Pencil} />
 		</button>
@@ -39,7 +33,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<TemplateContent bind:template />
+			<TemplateContent bind:template={editableTemplate} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Editar </button>

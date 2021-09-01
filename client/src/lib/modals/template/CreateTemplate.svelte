@@ -13,6 +13,8 @@
 		file: null
 	};
 
+	let isOpen = false;
+
 	function handleSubmit() {
 		// TODO: Create fetch request
 		console.log(template);
@@ -26,11 +28,12 @@
 			description: '',
 			file: null
 		};
+		isOpen = false;
 	}
 </script>
 
 <template>
-	<Modal>
+	<Modal bind:isOpen>
 		<button class="create" slot="trigger" let:open on:click={open}>
 			<Icon src={Plus} />
 			<span>Crear documento</span>
@@ -71,6 +74,7 @@
 			align-items: center;
 			justify-content: center;
 			gap: 6px;
+			width: 100%;
 
 			background-color: var(--input-color);
 			border: 2px solid var(--border-color);
