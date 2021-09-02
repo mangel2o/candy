@@ -12,7 +12,9 @@
 <style lang="scss">
 	div {
 		&.content {
-			padding: 2.5rem 21.5rem;
+			margin: 0 auto;
+			padding: 2.5rem 0;
+			max-width: 77rem;
 			min-height: calc(100vh - 4rem);
 			display: flex;
 			flex-direction: column;

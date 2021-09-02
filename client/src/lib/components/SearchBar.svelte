@@ -54,7 +54,7 @@
 	span {
 		width: 2px;
 		height: 2rem;
-		margin: 0 0 0 0.5rem;
+		margin: 0 0 0 1rem;
 		background-color: var(--focus-color);
 	}
 
