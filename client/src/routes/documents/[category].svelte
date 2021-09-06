@@ -6,6 +6,8 @@
 	import DeleteTemplate from '$lib/modals/template/DeleteTemplate.svelte';
 	import EditTemplate from '$lib/modals/template/EditTemplate.svelte';
 	import ViewTemplate from '$lib/modals/template/ViewTemplate.svelte';
+	import DeleteCategory from '$lib/modals/Category/DeleteCategory.svelte';
+	import EditCategory from '$lib/modals/Category/EditCategory.svelte';
 	import { onMount, setContext } from 'svelte';
 
 	let isPending = true;
@@ -71,13 +73,17 @@
 			<span>Something went wrong</span>
 		{:else}
 			<div class="content">
-				<div class="field">
+				<div class="category">
 					<div class="title">
-						<div><Icon src={FileDocumentMultiple} size={'28'} /></div>
+						<div class="icon"><Icon src={FileDocumentMultiple} size={'28'} /></div>
 						<div>{category.name}</div>
 					</div>
+					<div class="buttons">
+						<EditCategory {category} />
+						<DeleteCategory {category} />
+					</div>
 				</div>
-				<div class="field">
+				<div class="description">
 					<div class="tag">Descripción</div>
 					<div>{category.description}</div>
 				</div>
@@ -110,20 +116,18 @@
 			width: 100%;
 		}
 
+		&.icon {
+			display: flex;
+			align-items: center;
+		}
+
 		&.content {
 			overflow-wrap: anywhere;
 			display: flex;
 			flex-direction: column;
 			gap: 1rem;
-			padding: 1rem;
 			background-color: var(--input-color);
 			border: 2px solid var(--border-color);
-		}
-
-		&.field {
-			display: flex;
-			flex-direction: column;
-			gap: 0.5rem;
 		}
 
 		&.tag {
@@ -135,6 +139,21 @@
 			align-items: center;
 			gap: 0.5rem;
 			font-size: 1.2rem;
+		}
+
+		&.buttons {
+			display: flex;
+			align-items: center;
+		}
+
+		&.category {
+			display: flex;
+			justify-content: space-between;
+			padding-left: 1rem;
+		}
+
+		&.description {
+			padding: 0 1rem 1rem 1rem;
 		}
 	}
 </style>

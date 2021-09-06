@@ -5,7 +5,7 @@
 	import AddExcel from '$lib/modals/AddExcel.svelte';
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import CandidatesTable from '$lib/components/CandidatesTable.svelte';
-	import { getContext, onMount, setContext } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 
 	let isPending = true;
 	let error = null;
@@ -33,8 +33,7 @@
 					.filter((candidate) => candidate[searchParameter].includes(searchQuery));
 
 	function fetchData() {
-		// TODO: fetch request at /candidates
-		fetch('https://jsonplaceholder.typicode.com/todos')
+		fetch('http://localhost:4000/candidates')
 			.then((res) => res.json())
 			.then((data) => {
 				isPending = false;
@@ -46,8 +45,6 @@
 				isPending = false;
 				error = err;
 			});
-
-		console.log('A fetch has been done at /candidates/index.svelte');
 	}
 
 	setContext('refetch', fetchData);

@@ -7,6 +7,7 @@
 
 	const refetch: Function = getContext('refetch');
 	let isOpen = false;
+	let isPending = false;
 
 	let candidate = {
 		name: '',
@@ -27,7 +28,22 @@
 	};
 
 	function handleSubmit() {
-		console.log(candidate);
+		isPending = true;
+		const formData = new FormData();
+		Object.keys(candidate).forEach((key) => formData.append(key, candidate[key]));
+
+		fetch('http://localhost:4000/candidates', {
+			method: 'POST',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
 		handleCancel();
 		refetch();
 	}
@@ -69,7 +85,13 @@
 			<CandidateContent bind:candidate />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Crear </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Crear
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>

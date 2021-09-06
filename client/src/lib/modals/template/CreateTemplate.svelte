@@ -4,6 +4,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { getContext } from 'svelte';
 	import TemplateContent from './TemplateContent.svelte';
+	import { page } from '$app/stores';
 
 	let refetch: Function = getContext('refetch');
 
@@ -14,12 +15,28 @@
 	};
 
 	let isOpen = false;
+	let isPending = false;
 
 	function handleSubmit() {
-		// TODO: Create fetch request
-		console.log(template);
-		handleCancel();
-		refetch();
+		isPending = true;
+
+		const formData = new FormData();
+		Object.keys(template).forEach((key) => formData.append(key, template[key]));
+
+		fetch(`http://localhost:4000/documents/${$page.params.category}/templates`, {
+			method: 'POST',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+				isPending = false;
+				handleCancel();
+				refetch();
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}
 
 	function handleCancel() {
@@ -47,7 +64,13 @@
 			<TemplateContent bind:template />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Crear </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Crear
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>

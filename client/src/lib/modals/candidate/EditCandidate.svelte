@@ -4,15 +4,32 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import CandidateContent from './CandidateContent.svelte';
 	import { getContext } from 'svelte';
+	import { page } from '$app/stores';
 
 	const refetch: Function = getContext('refetch');
 	let isOpen = false;
+	let isPending = false;
 
 	export let candidate;
 	let editableCandidate = { ...candidate };
 
 	function handleSubmit() {
-		console.log(candidate);
+		isPending = true;
+		const formData = new FormData();
+		Object.keys(editableCandidate).forEach((key) => formData.append(key, editableCandidate[key]));
+
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}`, {
+			method: 'PUT',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
 		handleCancel();
 		refetch();
 	}
@@ -37,7 +54,13 @@
 			<CandidateContent bind:candidate={editableCandidate} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Editar </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Editar
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>

@@ -44,7 +44,7 @@
 		border: 2px solid var(--border-color);
 		background-color: var(--input-color);
 		padding: 1rem;
-		width: 6rem;
+		width: 7rem;
 
 		&::placeholder {
 			color: var(--focus-color);

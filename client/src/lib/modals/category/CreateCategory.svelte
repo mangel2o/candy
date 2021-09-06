@@ -12,11 +12,26 @@
 		description: ''
 	};
 	let isOpen = false;
+	let isPending = false;
 
 	function handleSubmit() {
-		console.log(category);
-		handleCancel();
-		refetch();
+		isPending = true;
+		const formData = new FormData();
+		Object.keys(category).forEach((key) => formData.append(key, category[key]));
+		fetch('http://localhost:4000/documents', {
+			method: 'POST',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+				isPending = false;
+				handleCancel();
+				refetch();
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}
 
 	function handleCancel() {
@@ -46,7 +61,13 @@
 			<CategoryContent bind:category />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Crear </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Crear
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>
