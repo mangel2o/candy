@@ -12,9 +12,10 @@
 
 	let isPending = true;
 	let error = null;
+	let errorCategory;
 	let category = {
-		name: 'General',
-		description: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor '
+		name: '',
+		description: ''
 	};
 
 	let templates = [
@@ -36,26 +37,27 @@
 	];
 
 	function fetchData() {
-		/*
-      * ! something
-      TODO: fetch request to /documents/[category] for category 
-		description based on url param and all templates where category = [category]
-		fetch('https://jsonplaceholder.typicode.com/todos')
-			.then((res) => res.json())
-			.then((data) => {
+		Promise.all([
+			fetch(`http://localhost:4000/documents/${$page.params.category}`).then((res) => res.json()),
+			fetch(`http://localhost:4000/documents/${$page.params.category}`).then((res) => res.json())
+		])
+			.then(([dataCategory, dataTemplates]) => {
+				if (dataCategory.errorCategory) {
+					errorCategory = dataCategory.errorCategory;
+					isPending = false;
+					return;
+				}
 				isPending = false;
-				error = null;
-				categories = data;
+				category = dataCategory;
+				category.name =
+					category.name[0].toUpperCase() + category.name.substring(1).replace(/-/g, ' ');
 			})
 			.catch((err) => {
 				isPending = false;
 				error = err;
 			});
-			*/
-		isPending = false;
-		console.log('A fetch has been done at /documents/[category]/index.svelte');
 	}
-	setContext('refetch', fetchData);
+	setContext('refetchCategory', fetchData);
 	onMount(() => {
 		fetchData();
 	});
@@ -71,16 +73,22 @@
 			<span>Loading...</span>
 		{:else if error}
 			<span>Something went wrong</span>
+		{:else if errorCategory}
+			<span class="warning">
+				{errorCategory}
+			</span>
 		{:else}
 			<div class="content">
 				<div class="category">
 					<div class="title">
 						<div class="icon"><Icon src={FileDocumentMultiple} size={'28'} /></div>
-						<div>{category.name}</div>
+						<div>
+							{category.name[0].toUpperCase() + category.name.substring(1).replace(/-/g, ' ')}
+						</div>
 					</div>
 					<div class="buttons">
 						<EditCategory {category} />
-						<DeleteCategory {category} />
+						<DeleteCategory />
 					</div>
 				</div>
 				<div class="description">
@@ -139,6 +147,7 @@
 			align-items: center;
 			gap: 0.5rem;
 			font-size: 1.2rem;
+			padding-top: 1rem;
 		}
 
 		&.buttons {

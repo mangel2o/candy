@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ProfileDropdown from '$lib/components/ProfileDropdown.svelte';
+	import { userStore } from '$lib/stores';
 </script>
 
 <template>
@@ -11,9 +12,23 @@
 				<img src="/logo_tecmilenio.svg" alt="Logo Tecmilenio" width="140" />
 			</a>
 			<div class="nav-btns">
-				<a href="/recent">Actividad</a>
-				<a href="/candidates">Candidatos</a>
-				<a href="/documents">Documentos</a>
+				{#if $userStore}
+					{#if $userStore.role === 'admin'}
+						<a href="/recent">Actividad</a>
+						<a href="/candidates">Candidatos</a>
+						<a href="/documents">Documentos</a>
+						<a href="/admin">Administración</a>
+					{:else if $userStore.role === 'moderator'}
+						<a href="/recent">Actividad</a>
+						<a href="/candidates">Candidatos</a>
+						<a href="/documents">Documentos</a>
+					{:else}
+						<a href="/pending">Actividad</a>
+						<a href="/candidate">Tu Perfil</a>
+					{/if}
+				{:else}
+					<span>Cargando...</span>
+				{/if}
 			</div>
 		</div>
 

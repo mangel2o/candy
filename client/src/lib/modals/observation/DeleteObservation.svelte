@@ -4,21 +4,42 @@
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
 	import { getContext, onMount } from 'svelte';
+	import { page } from '$app/stores';
+
 	let refetch: Function = getContext('refetch');
+	let isOpen = false;
+	let isPending = false;
+	let errorObservation;
 
 	export let observation;
-	let isOpen = false;
 
 	async function handleSubmit() {
-		console.log(observation);
+		isPending = true;
+		const formData = new FormData();
+		Object.keys(observation).forEach((key) => formData.append(key, observation[key]));
+
+		fetch(
+			`http://localhost:4000/candidates/${$page.params.candidate}/archives/${observation.name}`,
+			{
+				method: 'DELETE',
+				body: formData
+			}
+		)
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
+		handleCancel();
 		refetch();
 	}
 
 	function handleCancel() {
 		isOpen = false;
 	}
-
-	onMount(() => {});
 </script>
 
 <template>
@@ -33,7 +54,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent prop={'esta observación'} />
+			<DeleteContent bind:error={errorObservation} prop={'esta observación'} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Eliminar </button>

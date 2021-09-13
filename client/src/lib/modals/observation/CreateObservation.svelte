@@ -4,17 +4,34 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { getContext, onMount } from 'svelte';
 	import ObservationContent from './ObservationContent.svelte';
+	import { page } from '$app/stores';
 
 	let refetch: Function = getContext('refetch');
+	let isOpen = false;
+	let isPending = false;
 
 	let observation = {
 		name: '',
 		observation: ''
 	};
-	let isOpen = false;
 
 	function handleSubmit() {
-		console.log(observation);
+		isPending = true;
+		const formData = new FormData();
+		Object.keys(observation).forEach((key) => formData.append(key, observation[key]));
+
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/observations`, {
+			method: 'POST',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
 		handleCancel();
 		refetch();
 	}
@@ -24,11 +41,8 @@
 			name: '',
 			observation: ''
 		};
-
 		isOpen = false;
 	}
-
-	onMount(() => {});
 </script>
 
 <template>

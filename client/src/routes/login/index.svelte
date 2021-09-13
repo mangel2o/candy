@@ -1,14 +1,62 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-
 	import Icon from '$lib/components/Icon.svelte';
 	import Check from '$lib/icons/check.svelte';
-	let checked: boolean = false;
+	import { onMount } from 'svelte';
+	import { userStore } from '$lib/stores';
+
+	let checked = false;
+	let isPending = false;
+	let errorEmail;
+	let errorPassword;
+
+	let user = {
+		email: '',
+		password: ''
+	};
 
 	function handleSubmit() {
-		console.log('Login submitted');
-		goto('/');
+		isPending = true;
+		errorEmail = null;
+		errorPassword = null;
+		const formData = new FormData();
+		Object.keys(user).forEach((key) => formData.append(key, user[key]));
+
+		fetch(`http://localhost:4000/login/`, {
+			method: 'POST',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				if (data.errorEmail) {
+					errorEmail = data.errorEmail;
+					isPending = false;
+					return;
+				}
+				if (data.errorPassword) {
+					errorPassword = data.errorPassword;
+					isPending = false;
+					return;
+				}
+				$userStore = data;
+				isPending = false;
+
+				setTimeout(() => {
+					goto('/');
+				}, 1000);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}
+
+	onMount(() => {
+		setTimeout(() => {
+			if ($userStore) {
+				goto('/');
+			}
+		}, 1000);
+	});
 </script>
 
 <svelte:head>
@@ -17,26 +65,74 @@
 
 <template>
 	<div class="container">
-		<form on:submit|preventDefault={handleSubmit}>
-			<img src="/logo_tecmilenio.svg" width="180" alt="Logo Tecmilenio" />
-			<span>Inicia sesión con una cuenta de tecmilenio</span>
-			<input type="text" placeholder="Usuario" />
-			<input type="password" placeholder="Contraseña" />
-			<div class="options-container">
-				<label for="check">
-					<span><Icon src={Check} isCheckbox={true} isChecked={checked} /></span>
-					Recuerdame
-					<input bind:checked type="checkbox" id="check" />
-				</label>
-				<a href="/login/forgot-password">¿Olvidaste tu contraseña?</a>
-			</div>
+		{#if $userStore}
+			<form>
+				<span>Redireccionando...</span>
+			</form>
+		{:else}
+			<form on:submit|preventDefault={handleSubmit}>
+				<img src="/logo_tecmilenio.svg" width="180" alt="Logo Tecmilenio" />
+				<span>Inicia sesión con una cuenta de tecmilenio</span>
 
-			<button type="submit"> Iniciar sesión </button>
-		</form>
+				<div class="input-field">
+					<span>Correo</span>
+					<input required bind:value={user.email} type="text" placeholder="Correo" />
+					{#if errorEmail}
+						<span class="warning">
+							{errorEmail}
+						</span>
+					{/if}
+				</div>
+				<div class="input-field">
+					<span>Contraseña</span>
+
+					<input required bind:value={user.password} type="password" placeholder="Contraseña" />
+					{#if errorPassword}
+						<span class="warning">
+							{errorPassword}
+						</span>
+					{/if}
+				</div>
+				{#if false}
+					<div class="options-container">
+						<label for="check">
+							<span><Icon src={Check} isCheckbox={true} isChecked={checked} /></span>
+							Recuerdame
+							<input bind:checked type="checkbox" id="check" />
+						</label>
+						<a href="/login/forgot-password">¿Olvidaste tu contraseña?</a>
+					</div>
+				{/if}
+
+				<button type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Iniciar sesión
+					{/if}
+				</button>
+			</form>
+		{/if}
 	</div>
 </template>
 
 <style lang="scss">
+	div.input-field {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		width: 100%;
+
+		span {
+			color: var(--focus-color);
+		}
+
+		span.warning {
+			margin-left: 0.2rem;
+			color: var(--orange-color);
+		}
+	}
+
 	div.container {
 		display: flex;
 		justify-content: center;

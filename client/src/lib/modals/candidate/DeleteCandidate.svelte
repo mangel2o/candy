@@ -6,9 +6,10 @@
 	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
 
-	const refetch: Function = getContext('refetch');
+	let refetch: Function = getContext('refetch');
 	let isOpen = false;
 	let isPending = false;
+	let errorCandidate;
 
 	export let candidate;
 
@@ -50,7 +51,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent prop={'este candidato'} />
+			<DeleteContent bind:error={errorCandidate} prop={'este candidato'} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

@@ -4,14 +4,35 @@
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
 	import { getContext, onMount } from 'svelte';
-	let refetch: Function = getContext('refetch');
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
-	export let category;
+	let refetchCategories: Function = getContext('refetchCategories');
 	let isOpen = false;
+	let isPending = false;
+	let errorCategory;
 
-	async function handleSubmit() {
-		console.log(category);
-		refetch();
+	function handleSubmit() {
+		isPending = true;
+		fetch(`http://localhost:4000/documents/${$page.params.category}`, {
+			method: 'DELETE'
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				if (data.errorCategory) {
+					errorCategory = data.errorCategory;
+					isPending = false;
+					return;
+				}
+				errorCategory = undefined;
+				isPending = false;
+				handleCancel();
+				refetchCategories();
+				goto('/documents');
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}
 
 	function handleCancel() {
@@ -33,10 +54,16 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent prop={'esta categoria'} />
+			<DeleteContent bind:error={errorCategory} prop={'esta categoria'} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Eliminar </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Eliminar
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>

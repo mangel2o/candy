@@ -9,11 +9,19 @@
 	const refetch: Function = getContext('refetch');
 	let isOpen = false;
 	let isPending = false;
+	let isCategoriesEmpty = false;
 
 	export let candidate;
 	let editableCandidate = { ...candidate };
 
 	function handleSubmit() {
+		if (candidate.categories.length < 1) {
+			isCategoriesEmpty = true;
+			return;
+		} else {
+			isCategoriesEmpty = false;
+		}
+
 		isPending = true;
 		const formData = new FormData();
 		Object.keys(editableCandidate).forEach((key) => formData.append(key, editableCandidate[key]));
@@ -51,7 +59,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CandidateContent bind:candidate={editableCandidate} />
+			<CandidateContent bind:isCategoriesEmpty bind:candidate={editableCandidate} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

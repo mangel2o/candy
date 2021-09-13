@@ -4,16 +4,15 @@ const ObservationSchema = new Schema({
    name: String,
    comment: String,
    owner: {
-      name: String,
-      number: Number
+      ref: 'User',
+      type: Schema.Types.ObjectId,
    },
    author: {
-      name: String,
-      number: Number
+      ref: 'User',
+      type: Schema.Types.ObjectId,
    }
 }, {
    timestamps: true,
-   versionKey: true
 })
 
 export default model('Observation', ObservationSchema);

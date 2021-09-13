@@ -3,33 +3,44 @@
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
-	import { getContext, onMount } from 'svelte';
+	import { getContext } from 'svelte';
+	import { userStore } from '$lib/stores';
+	import { goto } from '$app/navigation';
 
-	let refetch: Function = getContext('refetch');
+	let refetchCategories: Function = getContext('refetchCategories');
+	let isOpen = false;
+	let isPending = false;
+	let errorCategory;
 
 	let category = {
 		name: '',
 		description: ''
 	};
-	let isOpen = false;
-	let isPending = false;
 
 	function handleSubmit() {
 		isPending = true;
 		const formData = new FormData();
 		Object.keys(category).forEach((key) => formData.append(key, category[key]));
+		formData.append('author', $userStore._id);
 		fetch('http://localhost:4000/documents', {
 			method: 'POST',
 			body: formData
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data);
+				if (data.errorCategory) {
+					errorCategory = data.errorCategory;
+					isPending = false;
+					return;
+				}
+				errorCategory = undefined;
 				isPending = false;
 				handleCancel();
-				refetch();
+				refetchCategories();
+				goto(`/documents/${data.name}`);
 			})
 			.catch((err) => {
+				isPending = false;
 				console.log(err);
 			});
 	}
@@ -42,8 +53,6 @@
 
 		isOpen = false;
 	}
-
-	onMount(() => {});
 </script>
 
 <template>
@@ -58,7 +67,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:category />
+			<CategoryContent bind:errorCategory bind:category />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

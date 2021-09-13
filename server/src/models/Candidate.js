@@ -18,15 +18,30 @@ const CandidateSchema = new Schema({
    campus: String,
    phone: Number,
    email: String,
-   categories: [String],
    photo: String,
+   categories: [String],
+   documents: [{
+      ref: 'Document',
+      type: Schema.Types.ObjectId,
+   }],
+   observations: [{
+      ref: 'Observation',
+      type: Schema.Types.ObjectId,
+   }],
+   archives: [{
+      ref: 'Archive',
+      type: Schema.Types.ObjectId,
+   }],
+   owner: {
+      ref: 'User',
+      type: Schema.Types.ObjectId,
+   },
    author: {
-      name: String,
-      number: Number
+      ref: 'User',
+      type: Schema.Types.ObjectId,
    }
 }, {
    timestamps: true,
-   versionKey: true
 })
 
 export default model('Candidate', CandidateSchema);

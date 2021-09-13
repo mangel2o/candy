@@ -33,6 +33,7 @@
 					.filter((candidate) => candidate[searchParameter].includes(searchQuery));
 
 	function fetchData() {
+		isPending = true;
 		fetch('http://localhost:4000/candidates')
 			.then((res) => res.json())
 			.then((data) => {

@@ -5,8 +5,12 @@
 	import { getContext } from 'svelte';
 	import TemplateContent from './TemplateContent.svelte';
 	import { page } from '$app/stores';
+	import { userStore } from '$lib/stores';
 
-	let refetch: Function = getContext('refetch');
+	let refetchCategory: Function = getContext('refetchCategory');
+	let isOpen = false;
+	let isPending = false;
+	let errorTemplate;
 
 	let template = {
 		name: '',
@@ -14,25 +18,21 @@
 		file: null
 	};
 
-	let isOpen = false;
-	let isPending = false;
-
 	function handleSubmit() {
 		isPending = true;
-
 		const formData = new FormData();
 		Object.keys(template).forEach((key) => formData.append(key, template[key]));
-
-		fetch(`http://localhost:4000/documents/${$page.params.category}/templates`, {
+		formData.append('author', $userStore._id);
+		fetch(`http://localhost:4001/documents/${$page.params.category}/templates`, {
 			method: 'POST',
 			body: formData
 		})
-			.then((res) => res.json())
+			.then((res) => res.blob())
 			.then((data) => {
 				console.log(data);
 				isPending = false;
 				handleCancel();
-				refetch();
+				refetchCategory();
 			})
 			.catch((err) => {
 				console.log(err);

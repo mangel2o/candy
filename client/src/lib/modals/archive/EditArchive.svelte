@@ -4,15 +4,33 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { getContext } from 'svelte';
 	import ArchiveContent from './ArchiveContent.svelte';
+	import { page } from '$app/stores';
 
-	const refetch: Function = getContext('refetch');
+	let refetch: Function = getContext('refetch');
+	let isOpen = false;
+	let isPending = false;
 
 	export let archive;
 	let editableArchive = { ...archive };
-	let isOpen = false;
 
 	function handleSubmit() {
-		console.log(archive);
+		isPending = true;
+		const formData = new FormData();
+		Object.keys(archive).forEach((key) => formData.append(key, archive[key]));
+
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives/${archive.name}`, {
+			method: 'PUT',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
+		handleCancel();
 		refetch();
 	}
 
@@ -36,7 +54,13 @@
 			<ArchiveContent bind:archive={editableArchive} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Editar </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Editar
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>

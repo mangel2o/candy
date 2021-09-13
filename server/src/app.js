@@ -5,10 +5,11 @@ import formidable from 'express-formidable'
 import candidatesRoutes from "./routes/candidates.routes";
 import documentsRoutes from "./routes/documents.routes";
 import loginRoutes from './routes/login.routes';
-import { createRoles } from './libs/initialSetup';
+import { createRoles, createUsers } from './libs/initialSetup';
+import Category from './models/Category';
 
 const app = express();
-createRoles();
+createUsers();
 
 app.use(cors());
 app.use(morgan('dev'));

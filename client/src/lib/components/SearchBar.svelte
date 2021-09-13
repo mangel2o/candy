@@ -82,6 +82,9 @@
 	input {
 		width: 100%;
 		padding: 1rem;
+		&::placeholder {
+			color: var(--focus-color);
+		}
 		&:hover::placeholder {
 			color: var(--placeholder-color);
 		}

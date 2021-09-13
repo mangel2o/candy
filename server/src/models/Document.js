@@ -8,16 +8,15 @@ const DocumentSchema = new Schema({
    exampleFilepath: String,
    filepath: String,
    owner: {
-      name: String,
-      number: Number
+      ref: 'User',
+      type: Schema.Types.ObjectId,
    },
    author: {
-      name: String,
-      number: Number
+      ref: 'User',
+      type: Schema.Types.ObjectId,
    }
 }, {
    timestamps: true,
-   versionKey: true
 })
 
 export default model('Document', DocumentSchema);

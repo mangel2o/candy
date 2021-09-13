@@ -1,45 +1,36 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
 	import ButtonCategory from '$lib/components/ButtonCategory.svelte';
 	import CreateCategory from '$lib/modals/category/CreateCategory.svelte';
 	import { onMount, setContext } from 'svelte';
 
 	let isPending = true;
 	let error = null;
-	let categories = [
-		{
-			name: 'General',
-			description: 'Something about general'
-		},
-		{
-			name: 'Extranjero',
-			description: 'Something about extranjero'
-		},
-		{
-			name: 'Equivalencia',
-			description: 'Something about equivalencia'
-		}
-	];
+	let categories = [];
 
 	function fetchData() {
-		/*
-		// TODO: fetch request at /documents
-		fetch('https://jsonplaceholder.typicode.com/todos')
+		fetch('http://localhost:4000/documents')
 			.then((res) => res.json())
-			.then((data) => {
+			.then((dataCategories) => {
 				isPending = false;
 				error = null;
-				categories = data;
+				categories = dataCategories;
+				categories.forEach(
+					(category) =>
+						(category.name =
+							category.name[0].toUpperCase() + category.name.substring(1).replace(/-/g, ' '))
+				);
 			})
 			.catch((err) => {
 				isPending = false;
 				error = err;
 			});
-			*/
+
 		isPending = false;
-		console.log('A fetch has been done at /documents/__layout.svelte');
 	}
 
-	setContext('refetch', fetchData);
+	setContext('refetchCategories', fetchData);
 
 	onMount(() => {
 		fetchData();
@@ -55,13 +46,18 @@
 				<span>Something went wrong</span>
 			{:else}
 				{#each categories as category}
-					<ButtonCategory {category} path={`/documents/${category.name.toLowerCase()}`} />
+					<ButtonCategory
+						{category}
+						path={`/documents/${category.name.toLowerCase().replace(/\s/g, '-')}`}
+					/>
 				{/each}
 			{/if}
 			<CreateCategory />
 		</div>
 		<div class="documents">
-			<slot />
+			{#key $page.params.category}
+				<slot />
+			{/key}
 		</div>
 	</div>
 </template>

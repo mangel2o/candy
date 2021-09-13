@@ -1,5 +1,6 @@
 <script lang="ts">
 	export let category;
+	export let errorCategory;
 </script>
 
 <template>
@@ -8,6 +9,11 @@
 			<div class="field">
 				<span class="tag">Nombre de la categoria</span>
 				<input type="text" bind:value={category.name} placeholder="Nombre de la categoria" />
+				{#if errorCategory}
+					<span class="warning">
+						{errorCategory}
+					</span>
+				{/if}
 			</div>
 		</div>
 		<div class="row">
@@ -45,6 +51,10 @@
 	span {
 		&.tag {
 			color: var(--focus-color);
+		}
+
+		&.warning {
+			color: var(--orange-color);
 		}
 	}
 

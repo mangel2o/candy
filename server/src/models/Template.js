@@ -6,12 +6,11 @@ const TemplateSchema = new Schema({
    category: String,
    exampleFilepath: String,
    author: {
-      name: String,
-      number: Number
+      ref: 'User',
+      type: Schema.Types.ObjectId,
    }
 }, {
    timestamps: true,
-   versionKey: true
 })
 
 export default model('Template', TemplateSchema);

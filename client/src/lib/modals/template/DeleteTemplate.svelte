@@ -6,27 +6,27 @@
 	import { page } from '$app/stores';
 	import { getContext } from 'svelte';
 
-	let refetch: Function = getContext('refetch');
-
-	export let template;
+	let refetchCategory: Function = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
+	let errorTemplate;
+
+	export let template;
 
 	async function handleSubmit() {
 		isPending = true;
 		const formData = new FormData();
 		Object.keys(template).forEach((key) => formData.append(key, template[key]));
 
-		fetch(`http://localhost:4000/documents/${$page.params.category}/templates`, {
-			method: 'DELETE',
-			body: formData
+		fetch(`http://localhost:4000/documents/${$page.params.category}/templates/${template.name}`, {
+			method: 'DELETE'
 		})
 			.then((res) => res.json())
 			.then((data) => {
 				console.log(data);
 				isPending = false;
 				handleCancel();
-				refetch();
+				refetchCategory();
 			})
 			.catch((err) => {
 				console.log(err);
@@ -50,7 +50,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent prop={'este documento'} />
+			<DeleteContent bind:error={errorTemplate} prop={'este documento'} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

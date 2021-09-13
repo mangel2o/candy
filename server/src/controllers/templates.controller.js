@@ -1,8 +1,12 @@
 import Template from "../models/Template";
 
 export const createTemplate = async (req, res) => {
-   console.log(req.fields);
-   console.log(req.files.file.name);
+   const fields = req.fields;
+   const file = req.files.file;
+   console.log(fields);
+   console.log(file);
+   res.setHeader('Content-Type', 'application/pdf');
+   res.send(file);
 }
 
 export const getTemplates = async (req, res) => {

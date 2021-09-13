@@ -1,8 +1,7 @@
 import Candidate from "../models/Candidate";
 
 export const createCandidate = async (req, res) => {
-   console.log(req.body);
-   res.json(req.body)
+   console.log(req.fields);
 }
 
 export const getCandidates = async (req, res) => {

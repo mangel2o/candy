@@ -14,6 +14,11 @@
 
 	let categories: Array<any> = getContext('categories');
 	export let candidate;
+	export let isCategoriesEmpty;
+
+	$: if (candidate.categories.length > 0) {
+		isCategoriesEmpty = false;
+	}
 </script>
 
 <template>
@@ -22,12 +27,17 @@
 		<div class="row">
 			<div class="field width-75">
 				<span>Nombre</span>
-				<input type="text" bind:value={candidate.name} placeholder="Escribe un nombre" />
+				<input required type="text" bind:value={candidate.name} placeholder="Escribe un nombre" />
 			</div>
 
 			<div class="field width-25">
 				<span>Matricula</span>
-				<input type="text" bind:value={candidate.number} placeholder="Escribe una matricula" />
+				<input
+					required
+					type="text"
+					bind:value={candidate.number}
+					placeholder="Escribe una matricula"
+				/>
 			</div>
 		</div>
 
@@ -35,7 +45,7 @@
 		<div class="row">
 			<div class="field width-25">
 				<span>Nivel</span>
-				<select bind:value={candidate.level}>
+				<select required bind:value={candidate.level} on:change={() => (candidate.career = '')}>
 					<option disabled selected value> Selecciona una opción </option>
 					{#each levels as level}
 						<option value={level}>{level}</option>
@@ -45,7 +55,7 @@
 
 			<div class="field width-25">
 				<span>Campus</span>
-				<select bind:value={candidate.campus}>
+				<select required bind:value={candidate.campus}>
 					<option disabled selected value> Selecciona un campus </option>
 					{#each campuses as campus}
 						<option value={campus}>{campus}</option>
@@ -55,7 +65,7 @@
 
 			<div class="field width-25">
 				<span>Genero</span>
-				<select bind:value={candidate.genre}>
+				<select required bind:value={candidate.genre}>
 					<option disabled selected value> Selecciona un genero </option>
 					<option value="Hombre">Hombre</option>
 					<option value="Mujer">Mujer</option>
@@ -64,7 +74,7 @@
 
 			<div class="field width-25">
 				<span>Estatus</span>
-				<select bind:value={candidate.active}>
+				<select required bind:value={candidate.active}>
 					<option disabled selected value> Selecciona un estatus </option>
 					<option value="Activo">Activo</option>
 					<option value="Inactivo">Inactivo</option>
@@ -76,33 +86,37 @@
 		<div class="row">
 			<div class="field width-100">
 				<span>Carrera</span>
-				<select bind:value={candidate.career}>
-					{#if candidate.level === '' || candidate.level === undefined}
-						<option disabled selected value> Selecciona un nivel </option>
-					{:else if candidate.level === 'Bachillerato'}
+				{#if candidate.level === 'Bachillerato'}
+					<select bind:value={candidate.career}>
 						<option disabled selected value> No aplica </option>
-					{:else if candidate.level === 'Profesional'}
-						<option disabled selected value> Selecciona una carrera profesional </option>
-						{#each careersProfesional as career}
-							<option value={career}>{career}</option>
-						{/each}
-					{:else if candidate.level === 'Ejecutivo'}
-						<option disabled selected value> Selecciona una carrera ejecutiva </option>
-						{#each careersEjecutive as career}
-							<option value={career}>{career}</option>
-						{/each}
-					{:else if candidate.level === 'Maestria'}
-						<option disabled selected value> Selecciona una maestria </option>
-						{#each careersMaster as career}
-							<option value={career}>{career}</option>
-						{/each}
-					{:else if candidate.level === 'Especialidad'}
-						<option disabled selected value> Selecciona una especialidad </option>
-						{#each careersSpecialty as career}
-							<option value={career}>{career}</option>
-						{/each}
-					{/if}
-				</select>
+					</select>
+				{:else}
+					<select required bind:value={candidate.career}>
+						{#if candidate.level === '' || candidate.level === undefined}
+							<option disabled selected value> Selecciona un nivel </option>
+						{:else if candidate.level === 'Profesional'}
+							<option disabled selected value> Selecciona una carrera profesional </option>
+							{#each careersProfesional as career}
+								<option value={career}>{career}</option>
+							{/each}
+						{:else if candidate.level === 'Ejecutivo'}
+							<option disabled selected value> Selecciona una carrera ejecutiva </option>
+							{#each careersEjecutive as career}
+								<option value={career}>{career}</option>
+							{/each}
+						{:else if candidate.level === 'Maestria'}
+							<option disabled selected value> Selecciona una maestria </option>
+							{#each careersMaster as career}
+								<option value={career}>{career}</option>
+							{/each}
+						{:else if candidate.level === 'Especialidad'}
+							<option disabled selected value> Selecciona una especialidad </option>
+							{#each careersSpecialty as career}
+								<option value={career}>{career}</option>
+							{/each}
+						{/if}
+					</select>
+				{/if}
 			</div>
 		</div>
 
@@ -110,12 +124,22 @@
 		<div class="row">
 			<div class="field width-25">
 				<span>Telefono</span>
-				<input type="text" bind:value={candidate.phone} placeholder="Escribe un telefono" />
+				<input
+					required
+					type="text"
+					bind:value={candidate.phone}
+					placeholder="Escribe un telefono"
+				/>
 			</div>
 
 			<div class="field width-75">
 				<span>Correo personal</span>
-				<input type="email" placeholder="Escribe un correo personal" bind:value={candidate.email} />
+				<input
+					required
+					type="email"
+					placeholder="Escribe un correo personal"
+					bind:value={candidate.email}
+				/>
 			</div>
 		</div>
 
@@ -123,7 +147,7 @@
 		<div class="row">
 			<div class="field width-30">
 				<span>Modalidad</span>
-				<select bind:value={candidate.modality}>
+				<select required bind:value={candidate.modality}>
 					<option disabled selected value> Selecciona una modalidad </option>
 					{#each modalities as modality}
 						<option value={modality}>{modality}</option>
@@ -134,13 +158,13 @@
 			<div class="field width-35">
 				<span>Periodo de terminación</span>
 				<div class="width-100">
-					<select class="width-75" bind:value={candidate.terminationPeriod}>
+					<select required class="width-75" bind:value={candidate.terminationPeriod}>
 						<option disabled selected value> Selecciona un periodo </option>
 						{#each periods as period}
 							<option value={period}>{period}</option>
 						{/each}
 					</select>
-					<select class="width-25" bind:value={candidate.terminationYear}>
+					<select required class="width-25" bind:value={candidate.terminationYear}>
 						<option disabled selected value> Año </option>
 						{#each years as year}
 							<option value={year}>{year}</option>
@@ -152,13 +176,13 @@
 			<div class="field width-35">
 				<span>Periodo de Graduación</span>
 				<div class="width-100">
-					<select class="width-75" bind:value={candidate.graduationPeriod}>
+					<select required class="width-75" bind:value={candidate.graduationPeriod}>
 						<option disabled selected value> Selecciona un periodo </option>
 						{#each periods as period}
 							<option value={period}>{period}</option>
 						{/each}
 					</select>
-					<select class="width-25" bind:value={candidate.graduationYear}>
+					<select required class="width-25" bind:value={candidate.graduationYear}>
 						<option disabled selected value> Año </option>
 						{#each years as year}
 							<option value={year}>{year}</option>
@@ -187,6 +211,11 @@
 						</div>
 					{/each}
 				</div>
+				{#if isCategoriesEmpty}
+					<span class="warning">
+						Debes seleccionar al menos una categoria para crear al candidato
+					</span>
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -195,6 +224,10 @@
 <style lang="scss">
 	span {
 		color: var(--focus-color);
+
+		&.warning {
+			color: var(--orange-color);
+		}
 	}
 
 	div {
@@ -243,10 +276,6 @@
 			display: flex;
 			width: 100%;
 		}
-	}
-
-	option:hover {
-		background-color: var(--area-color);
 	}
 
 	input,

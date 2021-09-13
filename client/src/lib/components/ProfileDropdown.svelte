@@ -4,6 +4,7 @@
 	import ClickOutside from '$lib/components/ClickOutside.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Account from '$lib/icons/account.svelte';
+	import { userStore } from '$lib/stores';
 	let isDropdownActive: boolean = false;
 </script>
 
@@ -19,7 +20,14 @@
 		{#if isDropdownActive}
 			<div class="dropdown-container">
 				<button> Ver perfil </button>
-				<button on:click={() => goto('/login')}> Cerrar sesión </button>
+				<button
+					on:click={() => {
+						$userStore = undefined;
+						goto('/login');
+					}}
+				>
+					Cerrar sesión
+				</button>
 			</div>
 		{/if}
 	</ClickOutside>

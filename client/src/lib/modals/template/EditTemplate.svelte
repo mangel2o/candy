@@ -4,16 +4,35 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { getContext } from 'svelte';
 	import TemplateContent from './TemplateContent.svelte';
+	import { page } from '$app/stores';
 
-	const refetch: Function = getContext('refetch');
+	let refetchCategory: Function = getContext('refetchCategory');
+	let isOpen = false;
+	let isPending = false;
+	let errorTemplate;
 
 	export let template;
 	let editableTemplate = { ...template };
-	let isOpen = false;
 
 	function handleSubmit() {
-		console.log(template);
-		refetch();
+		isPending = true;
+		const formData = new FormData();
+		Object.keys(editableTemplate).forEach((key) => formData.append(key, editableTemplate[key]));
+
+		fetch(`http://localhost:4000/documents/${$page.params.category}/templates/${template.name}`, {
+			method: 'PUT',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+				isPending = false;
+				handleCancel();
+				refetchCategory();
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}
 
 	function handleCancel() {

@@ -5,9 +5,10 @@
 	import { getContext } from 'svelte';
 	import CandidateContent from './CandidateContent.svelte';
 
-	const refetch: Function = getContext('refetch');
+	let refetch: Function = getContext('refetch');
 	let isOpen = false;
 	let isPending = false;
+	let isCategoriesEmpty = false;
 
 	let candidate = {
 		name: '',
@@ -28,6 +29,12 @@
 	};
 
 	function handleSubmit() {
+		if (candidate.categories.length < 1) {
+			isCategoriesEmpty = true;
+			return;
+		} else {
+			isCategoriesEmpty = false;
+		}
 		isPending = true;
 		const formData = new FormData();
 		Object.keys(candidate).forEach((key) => formData.append(key, candidate[key]));
@@ -82,7 +89,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CandidateContent bind:candidate />
+			<CandidateContent bind:isCategoriesEmpty bind:candidate />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

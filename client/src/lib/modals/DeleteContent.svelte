@@ -2,6 +2,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Alert from '$lib/Icons/alert.svelte';
 	export let prop = '';
+	export let error;
 </script>
 
 <template>
@@ -12,6 +13,9 @@
 			<br />
 			Esta acción es irreversible
 		</span>
+		{#if error}
+			<span class="warning">{error}</span>
+		{/if}
 	</div>
 </template>
 
@@ -31,6 +35,10 @@
 		&.text {
 			color: var(--focus-color);
 			text-align: center;
+		}
+
+		&.warning {
+			color: var(--orange-color);
 		}
 	}
 </style>

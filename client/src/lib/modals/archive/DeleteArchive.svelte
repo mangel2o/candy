@@ -3,12 +3,35 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
+	import { getContext } from 'svelte';
+	import { page } from '$app/stores';
+
+	let refetch: Function = getContext('refetch');
+	let isOpen = false;
+	let isPending = false;
+	let errorArchive;
 
 	export let archive;
-	let isOpen = false;
 
-	async function handleSubmit() {
-		console.log(archive);
+	function handleSubmit() {
+		isPending = true;
+		const formData = new FormData();
+		Object.keys(archive).forEach((key) => formData.append(key, archive[key]));
+
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives/${archive.name}`, {
+			method: 'DELETE',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
+		handleCancel();
+		refetch();
 	}
 
 	function handleCancel() {
@@ -28,10 +51,16 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent prop={'este archivo'} />
+			<DeleteContent bind:error={errorArchive} prop={'este archivo'} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Eliminar </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Delete
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>

@@ -1,15 +1,21 @@
 import { Schema, model } from "mongoose";
 
 const CategorySchema = new Schema({
-   name: String,
+   name: {
+      type: String,
+      unique: true
+   },
    description: String,
+   templates: [{
+      ref: 'Template',
+      type: Schema.Types.ObjectId,
+   }],
    author: {
-      name: String,
-      number: Number
+      ref: 'User',
+      type: Schema.Types.ObjectId,
    }
 }, {
    timestamps: true,
-   versionKey: true
 })
 
 export default model('Category', CategorySchema);

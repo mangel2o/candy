@@ -4,8 +4,11 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { getContext } from 'svelte';
 	import ArchiveContent from '$lib/modals/archive/ArchiveContent.svelte';
+	import { page } from '$app/stores';
 
 	let refetch: Function = getContext('refetch');
+	let isOpen = false;
+	let isPending = false;
 
 	let archive = {
 		name: '',
@@ -13,11 +16,23 @@
 		file: null
 	};
 
-	let isOpen = false;
-
 	function handleSubmit() {
-		// TODO: Create fetch request
-		console.log(archive);
+		isPending = true;
+		const formData = new FormData();
+		Object.keys(archive).forEach((key) => formData.append(key, archive[key]));
+
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives`, {
+			method: 'POST',
+			body: formData
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
 		handleCancel();
 		refetch();
 	}
@@ -47,7 +62,13 @@
 			<ArchiveContent bind:archive />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Crear </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Crear
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>
