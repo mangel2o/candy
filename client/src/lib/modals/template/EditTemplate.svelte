@@ -7,9 +7,9 @@
 	import { page } from '$app/stores';
 
 	let refetchCategory: Function = getContext('refetchCategory');
-	let isOpen = false;
 	let isPending = false;
-	let errorTemplate;
+	let isOpen = false;
+	let warningTemplate;
 
 	export let template;
 	let editableTemplate = { ...template };
@@ -52,10 +52,16 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<TemplateContent bind:template={editableTemplate} />
+			<TemplateContent bind:warningTemplate bind:template={editableTemplate} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Editar </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Editar
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>

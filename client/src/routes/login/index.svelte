@@ -7,8 +7,8 @@
 
 	let checked = false;
 	let isPending = false;
-	let errorEmail;
-	let errorPassword;
+	let warningEmail;
+	let warningPassword;
 
 	let user = {
 		email: '',
@@ -17,8 +17,8 @@
 
 	function handleSubmit() {
 		isPending = true;
-		errorEmail = null;
-		errorPassword = null;
+		warningEmail = null;
+		warningPassword = null;
 		const formData = new FormData();
 		Object.keys(user).forEach((key) => formData.append(key, user[key]));
 
@@ -28,17 +28,14 @@
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				if (data.errorEmail) {
-					errorEmail = data.errorEmail;
+				if (data.warningEmail || data.warningPassword) {
+					warningEmail = data.warningEmail;
+					warningPassword = data.warningPassword;
 					isPending = false;
 					return;
 				}
-				if (data.errorPassword) {
-					errorPassword = data.errorPassword;
-					isPending = false;
-					return;
-				}
-				$userStore = data;
+				const newData = ({ password, ...data }) => data;
+				$userStore = newData(data);
 				isPending = false;
 
 				setTimeout(() => {
@@ -77,9 +74,9 @@
 				<div class="input-field">
 					<span>Correo</span>
 					<input required bind:value={user.email} type="text" placeholder="Correo" />
-					{#if errorEmail}
+					{#if warningEmail}
 						<span class="warning">
-							{errorEmail}
+							{warningEmail}
 						</span>
 					{/if}
 				</div>
@@ -87,9 +84,9 @@
 					<span>Contraseña</span>
 
 					<input required bind:value={user.password} type="password" placeholder="Contraseña" />
-					{#if errorPassword}
+					{#if warningPassword}
 						<span class="warning">
-							{errorPassword}
+							{warningPassword}
 						</span>
 					{/if}
 				</div>

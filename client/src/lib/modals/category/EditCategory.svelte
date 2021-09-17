@@ -6,11 +6,12 @@
 	import { getContext, onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { userStore } from '$lib/stores';
 
 	let refetchCategories: Function = getContext('refetchCategories');
 	let isOpen = false;
 	let isPending = false;
-	let errorCategory;
+	let warningCategory;
 
 	export let category;
 	let editableCategory = { ...category };
@@ -19,18 +20,19 @@
 		isPending = true;
 		const formData = new FormData();
 		Object.keys(editableCategory).forEach((key) => formData.append(key, editableCategory[key]));
+		formData.append('authorId', $userStore._id);
 		fetch(`http://localhost:4000/documents/${$page.params.category}`, {
 			method: 'PUT',
 			body: formData
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				if (data.errorCategory) {
-					errorCategory = data.errorCategory;
+				if (data.warningCategory) {
+					warningCategory = data.warningCategory;
 					isPending = false;
 					return;
 				}
-				errorCategory = undefined;
+				warningCategory = null;
 				isPending = false;
 				handleCancel();
 				refetchCategories();
@@ -38,6 +40,7 @@
 			})
 			.catch((err) => {
 				console.log(err);
+				isPending = false;
 			});
 	}
 
@@ -58,7 +61,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:errorCategory bind:category={editableCategory} />
+			<CategoryContent bind:warningCategory bind:category={editableCategory} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

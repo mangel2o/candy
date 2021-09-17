@@ -1,7 +1,4 @@
 <script>
-	import { userStore } from '$lib/stores';
-
-	// your script goes here
 </script>
 
 <svelte:head>

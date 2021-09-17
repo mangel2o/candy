@@ -1,5 +1,6 @@
 <script lang="ts">
 	import TabBar from '$lib/components/TabBar.svelte';
+
 	let documents = [];
 </script>
 

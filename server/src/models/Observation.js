@@ -7,7 +7,11 @@ const ObservationSchema = new Schema({
       ref: 'User',
       type: Schema.Types.ObjectId,
    },
-   author: {
+   createdBy: {
+      ref: 'User',
+      type: Schema.Types.ObjectId,
+   },
+   updatedBy: {
       ref: 'User',
       type: Schema.Types.ObjectId,
    }

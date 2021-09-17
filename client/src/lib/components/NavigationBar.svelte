@@ -23,7 +23,7 @@
 						<a href="/candidates">Candidatos</a>
 						<a href="/documents">Documentos</a>
 					{:else}
-						<a href="/pending">Actividad</a>
+						<a href="/pending">Pendientes</a>
 						<a href="/candidate">Tu Perfil</a>
 					{/if}
 				{:else}

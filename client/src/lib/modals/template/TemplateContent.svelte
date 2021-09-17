@@ -1,5 +1,6 @@
 <script lang="ts">
 	export let template;
+	export let warningTemplate = null;
 
 	let files;
 
@@ -15,6 +16,11 @@
 			<div class="field">
 				<span class="tag">Nombre del documento</span>
 				<input required type="text" bind:value={template.name} placeholder="Nombre del documento" />
+				{#if warningTemplate}
+					<span class="warning">
+						{warningTemplate}
+					</span>
+				{/if}
 			</div>
 		</div>
 		<div class="row">
@@ -70,6 +76,9 @@
 	span {
 		&.tag {
 			color: var(--focus-color);
+		}
+		&.warning {
+			color: var(--orange-color);
 		}
 	}
 

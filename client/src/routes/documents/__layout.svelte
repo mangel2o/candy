@@ -12,10 +12,9 @@
 	function fetchData() {
 		fetch('http://localhost:4000/documents')
 			.then((res) => res.json())
-			.then((dataCategories) => {
+			.then((data) => {
 				isPending = false;
-				error = null;
-				categories = dataCategories;
+				categories = data;
 				categories.forEach(
 					(category) =>
 						(category.name =
@@ -26,8 +25,6 @@
 				isPending = false;
 				error = err;
 			});
-
-		isPending = false;
 	}
 
 	setContext('refetchCategories', fetchData);

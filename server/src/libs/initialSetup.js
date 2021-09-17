@@ -1,8 +1,24 @@
 import User from "../models/User";
+import fs from "fs";
+
+export const createDirs = async () => {
+   const base = "./uploads/";
+   const dirs = [
+      base,
+      base + "templates",
+      base + "archives",
+      base + "documents",
+   ];
+
+   dirs.forEach((dir) => {
+      if (!fs.existsSync(dir)) {
+         fs.mkdirSync(dir);
+      }
+   })
+}
 
 export const createUsers = async () => {
    try {
-
       const count = await User.estimatedDocumentCount();
       if (count > 0) return;
 
@@ -39,9 +55,3 @@ export const createUsers = async () => {
       console.log(error);
    }
 }
-
-/**
- *
- *
- *
- */

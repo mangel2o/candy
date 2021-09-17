@@ -2,17 +2,17 @@ import Category from "../models/Category";
 import User from "../models/User";
 
 export const createCategory = async (req, res) => {
-   const { name, description, author } = req.fields;
+   const { name, description, authorId } = req.fields;
 
    const trimmedName = name.toLowerCase().replace(/\s/g, "-");
    const categoryFound = await Category.findOne({ name: trimmedName });
 
-   if (categoryFound) return res.json({ errorCategory: "Esta categoria ya existe" });
+   if (categoryFound) return res.json({ warningCategory: "Esta categoria ya existe" });
 
    const newCategory = await new Category({
       name: trimmedName,
       description: description,
-      author: author
+      createdBy: authorId
    }).save();
 
    console.log(newCategory);
@@ -25,28 +25,29 @@ export const getCategories = async (req, res) => {
 }
 
 export const getCategoryById = async (req, res) => {
-   const categoryName = req.params.categoryId;
+   const categoryName = req.params.categoryName;
    const categoryFound = await Category.findOne({ name: categoryName });
 
-   if (!categoryFound) return res.json({ errorCategory: "Esta categoria no existe" });
+   if (!categoryFound) return res.json({ warningCategory: "Esta categoria no existe" });
 
    res.json(categoryFound);
 }
 
 export const updateCategoryById = async (req, res) => {
-   const categoryName = req.params.categoryId;
-   const { name, description } = req.fields;
+   const categoryName = req.params.categoryName;
+   const { name, description, authorId } = req.fields;
    const trimmedName = name.toLowerCase().replace(/\s/g, "-");
 
    const categoryExists = await Category.findOne({ name: trimmedName });
 
-   if (categoryExists) return res.json({ errorCategory: "Esta categoria ya existe" });
+   if (categoryExists) return res.json({ warningCategory: "Esta categoria ya existe" });
 
    const updatedCategory = await Category.findOneAndUpdate(
       { name: categoryName },
       {
          name: trimmedName,
-         description: description
+         description: description,
+         updatedBy: authorId
       },
       {
          new: true
@@ -56,10 +57,10 @@ export const updateCategoryById = async (req, res) => {
 }
 
 export const deleteCategoryById = async (req, res) => {
-   const categoryName = req.params.categoryId;
+   const categoryName = req.params.categoryName;
    const categoryExists = await Category.findOne({ name: categoryName });
 
-   if (!categoryExists) return res.json({ errorCategory: "Esta categoria ya no existe" });
+   if (!categoryExists) return res.json({ warningCategory: "Esta categoria ya no existe" });
 
    const deletedCategory = await Category.findOneAndDelete({ name: categoryName });
    res.json(deletedCategory);

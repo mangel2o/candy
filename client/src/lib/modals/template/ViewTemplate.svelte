@@ -21,7 +21,7 @@
 		<!--View-->
 		<iframe
 			slot="view"
-			src={template.file === null
+			src={!template.file
 				? 'http://africau.edu/images/default/sample.pdf#toolbar=0'
 				: URL.createObjectURL(template.file)}
 			title="PDF"

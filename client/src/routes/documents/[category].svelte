@@ -12,45 +12,30 @@
 
 	let isPending = true;
 	let error = null;
-	let errorCategory;
-	let category = {
-		name: '',
-		description: ''
-	};
+	let warningCategory;
+	let category;
 
-	let templates = [
-		{
-			name: 'Acta de nacimiento con nombre muy largo',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor ',
-			file: null
-		},
-		{
-			name: 'Certificado bachillerato etcetera',
-			description: 'Something about this idk',
-			file: null
-		},
-		{
-			name: 'CURP',
-			description: 'Something about this idk',
-			file: null
-		}
-	];
+	let templates = [];
 
 	function fetchData() {
 		Promise.all([
 			fetch(`http://localhost:4000/documents/${$page.params.category}`).then((res) => res.json()),
-			fetch(`http://localhost:4000/documents/${$page.params.category}`).then((res) => res.json())
+			fetch(`http://localhost:4000/documents/${$page.params.category}/templates`).then((res) =>
+				res.json()
+			)
 		])
 			.then(([dataCategory, dataTemplates]) => {
-				if (dataCategory.errorCategory) {
-					errorCategory = dataCategory.errorCategory;
+				if (dataCategory.warningCategory) {
+					warningCategory = dataCategory.warningCategory;
 					isPending = false;
 					return;
 				}
-				isPending = false;
 				category = dataCategory;
+				templates = dataTemplates;
 				category.name =
 					category.name[0].toUpperCase() + category.name.substring(1).replace(/-/g, ' ');
+
+				isPending = false;
 			})
 			.catch((err) => {
 				isPending = false;
@@ -73,9 +58,9 @@
 			<span>Loading...</span>
 		{:else if error}
 			<span>Something went wrong</span>
-		{:else if errorCategory}
+		{:else if warningCategory}
 			<span class="warning">
-				{errorCategory}
+				{warningCategory}
 			</span>
 		{:else}
 			<div class="content">
@@ -83,7 +68,7 @@
 					<div class="title">
 						<div class="icon"><Icon src={FileDocumentMultiple} size={'28'} /></div>
 						<div>
-							{category.name[0].toUpperCase() + category.name.substring(1).replace(/-/g, ' ')}
+							{category.name}
 						</div>
 					</div>
 					<div class="buttons">

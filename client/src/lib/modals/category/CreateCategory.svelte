@@ -10,7 +10,7 @@
 	let refetchCategories: Function = getContext('refetchCategories');
 	let isOpen = false;
 	let isPending = false;
-	let errorCategory;
+	let warningCategory;
 
 	let category = {
 		name: '',
@@ -21,27 +21,27 @@
 		isPending = true;
 		const formData = new FormData();
 		Object.keys(category).forEach((key) => formData.append(key, category[key]));
-		formData.append('author', $userStore._id);
+		formData.append('authorId', $userStore._id);
 		fetch('http://localhost:4000/documents', {
 			method: 'POST',
 			body: formData
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				if (data.errorCategory) {
-					errorCategory = data.errorCategory;
+				if (data.warningCategory) {
+					warningCategory = data.warningCategory;
 					isPending = false;
 					return;
 				}
-				errorCategory = undefined;
+				warningCategory = null;
 				isPending = false;
 				handleCancel();
 				refetchCategories();
 				goto(`/documents/${data.name}`);
 			})
 			.catch((err) => {
-				isPending = false;
 				console.log(err);
+				isPending = false;
 			});
 	}
 
@@ -67,7 +67,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:errorCategory bind:category />
+			<CategoryContent bind:warningCategory bind:category />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

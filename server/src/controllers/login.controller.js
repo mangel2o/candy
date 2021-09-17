@@ -7,11 +7,11 @@ export const signIn = async (req, res) => {
 
    const userFound = await User.findOne({ email: email }).populate('role');
 
-   if (!userFound) return res.json({ errorEmail: "El usuario no existe" });
+   if (!userFound) return res.json({ warningEmail: "El usuario no existe" });
 
    const matchPassword = await User.comparePassword(password, userFound.password);
 
-   if (!matchPassword) return res.json({ errorPassword: "Contraseña incorrecta" });
+   if (!matchPassword) return res.json({ warningPassword: "Contraseña incorrecta" });
 
    res.json(userFound);
 

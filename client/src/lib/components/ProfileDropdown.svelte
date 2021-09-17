@@ -22,8 +22,7 @@
 				<button> Ver perfil </button>
 				<button
 					on:click={() => {
-						$userStore = undefined;
-						goto('/login');
+						$userStore = null;
 					}}
 				>
 					Cerrar sesión

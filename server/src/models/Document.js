@@ -5,13 +5,17 @@ const DocumentSchema = new Schema({
    description: String,
    category: String,
    status: String,
-   exampleFilepath: String,
-   filepath: String,
+   examplePath: String,
+   path: String,
    owner: {
       ref: 'User',
       type: Schema.Types.ObjectId,
    },
-   author: {
+   createdBy: {
+      ref: 'User',
+      type: Schema.Types.ObjectId,
+   },
+   updatedBy: {
       ref: 'User',
       type: Schema.Types.ObjectId,
    }

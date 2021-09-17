@@ -2,7 +2,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Alert from '$lib/Icons/alert.svelte';
 	export let prop = '';
-	export let error;
+	export let error = undefined;
 </script>
 
 <template>

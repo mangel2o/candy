@@ -5,15 +5,18 @@ import formidable from 'express-formidable'
 import candidatesRoutes from "./routes/candidates.routes";
 import documentsRoutes from "./routes/documents.routes";
 import loginRoutes from './routes/login.routes';
-import { createRoles, createUsers } from './libs/initialSetup';
+import { createUsers, createDirs } from './libs/initialSetup';
 import Category from './models/Category';
 
 const app = express();
 createUsers();
+createDirs();
 
 app.use(cors());
 app.use(morgan('dev'));
-app.use(formidable());
+app.use(formidable({
+   uploadDir: process.cwd() + "/uploads",
+}));
 
 app.use('/documents', documentsRoutes);
 app.use('/candidates', candidatesRoutes);

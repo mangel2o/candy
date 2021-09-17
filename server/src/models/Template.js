@@ -4,8 +4,12 @@ const TemplateSchema = new Schema({
    name: String,
    description: String,
    category: String,
-   exampleFilepath: String,
-   author: {
+   examplePath: String,
+   createdBy: {
+      ref: 'User',
+      type: Schema.Types.ObjectId,
+   },
+   updatedBy: {
       ref: 'User',
       type: Schema.Types.ObjectId,
    }
