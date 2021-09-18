@@ -7,9 +7,9 @@ const router = Router();
 // CATEGORIES
 router.get('/', categoriesController.getCategories);
 router.post('/', categoriesController.createCategory);
-router.get('/:categoryName', categoriesController.getCategoryById);
-router.put('/:categoryName', categoriesController.updateCategoryById);
-router.delete('/:categoryName', categoriesController.deleteCategoryById);
+router.get('/:categoryName', categoriesController.getCategoryByName);
+router.put('/:categoryName', categoriesController.updateCategoryByName);
+router.delete('/:categoryName', categoriesController.deleteCategoryByName);
 
 // TEMPLATES
 router.get('/:categoryName/templates', templatesController.getTemplates);

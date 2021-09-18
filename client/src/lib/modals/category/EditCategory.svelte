@@ -11,7 +11,7 @@
 	let refetchCategories: Function = getContext('refetchCategories');
 	let isOpen = false;
 	let isPending = false;
-	let warningCategory;
+	let warning;
 
 	export let category;
 	let editableCategory = { ...category };
@@ -19,28 +19,27 @@
 	function handleSubmit() {
 		isPending = true;
 		const formData = new FormData();
-		Object.keys(editableCategory).forEach((key) => formData.append(key, editableCategory[key]));
 		formData.append('authorId', $userStore._id);
+		Object.keys(editableCategory).forEach((key) => formData.append(key, editableCategory[key]));
 		fetch(`http://localhost:4000/documents/${$page.params.category}`, {
 			method: 'PUT',
 			body: formData
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				if (data.warningCategory) {
-					warningCategory = data.warningCategory;
-					isPending = false;
+				isPending = false;
+				if (data.warning) {
+					warning = data.warning;
 					return;
 				}
-				warningCategory = null;
-				isPending = false;
+				warning = null;
 				handleCancel();
 				refetchCategories();
 				goto(`/documents/${data.name}`);
 			})
 			.catch((err) => {
-				console.log(err);
 				isPending = false;
+				warning = err;
 			});
 	}
 
@@ -61,7 +60,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:warningCategory bind:category={editableCategory} />
+			<CategoryContent bind:warning bind:category={editableCategory} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

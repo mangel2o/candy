@@ -7,6 +7,8 @@ import documentsRoutes from "./routes/documents.routes";
 import loginRoutes from './routes/login.routes';
 import { createUsers, createDirs } from './libs/initialSetup';
 import Category from './models/Category';
+import Template from './models/Template';
+
 
 const app = express();
 createUsers();

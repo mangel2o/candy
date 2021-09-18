@@ -9,13 +9,23 @@
 	import DeleteCategory from '$lib/modals/Category/DeleteCategory.svelte';
 	import EditCategory from '$lib/modals/Category/EditCategory.svelte';
 	import { onMount, setContext } from 'svelte';
+	import { Buffer, Blob } from 'buffer';
 
 	let isPending = true;
 	let error = null;
-	let warningCategory;
+	let warning;
 	let category;
 
 	let templates = [];
+
+	function convertBufferToFile(array, name) {
+		let buffer = Buffer.from(array);
+		let arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+		let file = new File([arrayBuffer], name + '.pdf', {
+			type: 'application/pdf'
+		});
+		return file;
+	}
 
 	function fetchData() {
 		Promise.all([
@@ -25,16 +35,16 @@
 			)
 		])
 			.then(([dataCategory, dataTemplates]) => {
-				if (dataCategory.warningCategory) {
-					warningCategory = dataCategory.warningCategory;
+				if (dataCategory.warning) {
 					isPending = false;
+					warning = dataCategory.warning;
 					return;
 				}
 				category = dataCategory;
 				templates = dataTemplates;
-				category.name =
-					category.name[0].toUpperCase() + category.name.substring(1).replace(/-/g, ' ');
-
+				templates.forEach(
+					(template) => (template.example = convertBufferToFile(template.example, template.name))
+				);
 				isPending = false;
 			})
 			.catch((err) => {
@@ -58,9 +68,9 @@
 			<span>Loading...</span>
 		{:else if error}
 			<span>Something went wrong</span>
-		{:else if warningCategory}
+		{:else if warning}
 			<span class="warning">
-				{warningCategory}
+				{warning}
 			</span>
 		{:else}
 			<div class="content">

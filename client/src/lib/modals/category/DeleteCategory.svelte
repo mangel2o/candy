@@ -10,7 +10,7 @@
 	let refetchCategories: Function = getContext('refetchCategories');
 	let isOpen = false;
 	let isPending = false;
-	let warningCategory;
+	let warning;
 
 	function handleSubmit() {
 		isPending = true;
@@ -19,20 +19,19 @@
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				if (data.warningCategory) {
-					warningCategory = data.warningCategory;
-					isPending = false;
+				isPending = false;
+				if (data.warning) {
+					warning = data.warning;
 					return;
 				}
-				warningCategory = null;
-				isPending = false;
+				warning = null;
 				handleCancel();
 				refetchCategories();
 				goto('/documents');
 			})
 			.catch((err) => {
-				console.log(err);
 				isPending = false;
+				warning = err;
 			});
 	}
 
@@ -55,7 +54,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent bind:error={warningCategory} prop={'esta categoria'} />
+			<DeleteContent bind:warning prop={'esta categoria'} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

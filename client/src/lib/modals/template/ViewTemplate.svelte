@@ -19,13 +19,7 @@
 		<span slot="header"> Ver documento </span>
 
 		<!--View-->
-		<iframe
-			slot="view"
-			src={!template.file
-				? 'http://africau.edu/images/default/sample.pdf#toolbar=0'
-				: URL.createObjectURL(template.file)}
-			title="PDF"
-		/>
+		<iframe slot="view" src={URL.createObjectURL(template.example) + '#toolbar=0'} title="PDF" />
 
 		<!--Content-->
 		<div class="content" slot="content">

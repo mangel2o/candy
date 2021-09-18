@@ -5,38 +5,51 @@
 	import { getContext } from 'svelte';
 	import TemplateContent from './TemplateContent.svelte';
 	import { page } from '$app/stores';
+	import { userStore } from '$lib/stores';
 
 	let refetchCategory: Function = getContext('refetchCategory');
-	let isPending = false;
 	let isOpen = false;
-	let warningTemplate;
+	let isPending = false;
+	let warning;
 
 	export let template;
-	let editableTemplate = { ...template };
+	let editableTemplate = {
+		name: template.name,
+		description: template.description,
+		example: null
+	};
 
 	function handleSubmit() {
+		console.log(editableTemplate);
 		isPending = true;
 		const formData = new FormData();
+		formData.append('authorId', $userStore._id);
 		Object.keys(editableTemplate).forEach((key) => formData.append(key, editableTemplate[key]));
-
-		fetch(`http://localhost:4000/documents/${$page.params.category}/templates/${template.name}`, {
+		fetch(`http://localhost:4000/documents/${$page.params.category}/templates/${template._id}`, {
 			method: 'PUT',
 			body: formData
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data);
 				isPending = false;
+				if (data.warning) {
+					warning = data.warning;
+				}
+				warning = null;
 				handleCancel();
 				refetchCategory();
 			})
 			.catch((err) => {
-				console.log(err);
+				warning = err;
 			});
 	}
 
 	function handleCancel() {
-		editableTemplate = { ...template };
+		editableTemplate = {
+			name: template.name,
+			description: template.description,
+			example: null
+		};
 		isOpen = false;
 	}
 </script>
@@ -52,7 +65,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<TemplateContent bind:warningTemplate bind:template={editableTemplate} />
+			<TemplateContent bind:warning bind:template={editableTemplate} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

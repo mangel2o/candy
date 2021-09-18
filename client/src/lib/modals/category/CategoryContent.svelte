@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let category;
-	export let warningCategory = null;
+	export let warning = null;
 </script>
 
 <template>
@@ -9,9 +9,9 @@
 			<div class="field">
 				<span class="tag">Nombre de la categoria</span>
 				<input type="text" bind:value={category.name} placeholder="Nombre de la categoria" />
-				{#if warningCategory}
+				{#if warning}
 					<span class="warning">
-						{warningCategory}
+						{warning}
 					</span>
 				{/if}
 			</div>

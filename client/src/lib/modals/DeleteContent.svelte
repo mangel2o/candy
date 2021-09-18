@@ -2,7 +2,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Alert from '$lib/Icons/alert.svelte';
 	export let prop = '';
-	export let error = undefined;
+	export let warning = null;
 </script>
 
 <template>
@@ -13,8 +13,8 @@
 			<br />
 			Esta acción es irreversible
 		</span>
-		{#if error}
-			<span class="warning">{error}</span>
+		{#if warning}
+			<span class="warning">{warning}</span>
 		{/if}
 	</div>
 </template>

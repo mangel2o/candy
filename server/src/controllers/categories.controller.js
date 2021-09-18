@@ -1,48 +1,45 @@
 import Category from "../models/Category";
-import User from "../models/User";
+import Template from "../models/Template";
 
 export const createCategory = async (req, res) => {
    const { name, description, authorId } = req.fields;
-
    const trimmedName = name.toLowerCase().replace(/\s/g, "-");
+
    const categoryFound = await Category.findOne({ name: trimmedName });
+   if (categoryFound) return res.json({ warning: "Esta categoria ya existe" });
 
-   if (categoryFound) return res.json({ warningCategory: "Esta categoria ya existe" });
-
-   const newCategory = await new Category({
+   const categoryCreated = await new Category({
       name: trimmedName,
       description: description,
       createdBy: authorId
    }).save();
 
-   console.log(newCategory);
-   res.json(newCategory)
+   res.json(categoryCreated)
 }
 
 export const getCategories = async (req, res) => {
-   const categories = await Category.find();
-   res.json(categories);
+   const categoriesFound = await Category.find();
+   res.json(categoriesFound);
 }
 
-export const getCategoryById = async (req, res) => {
+export const getCategoryByName = async (req, res) => {
    const categoryName = req.params.categoryName;
-   const categoryFound = await Category.findOne({ name: categoryName });
 
-   if (!categoryFound) return res.json({ warningCategory: "Esta categoria no existe" });
+   const categoryFound = await Category.findOne({ name: categoryName });
+   if (!categoryFound) return res.json({ warning: "Esta categoria no existe" });
 
    res.json(categoryFound);
 }
 
-export const updateCategoryById = async (req, res) => {
+export const updateCategoryByName = async (req, res) => {
    const categoryName = req.params.categoryName;
    const { name, description, authorId } = req.fields;
    const trimmedName = name.toLowerCase().replace(/\s/g, "-");
 
    const categoryExists = await Category.findOne({ name: trimmedName });
+   if (categoryExists) return res.json({ warning: "Esta categoria ya existe" });
 
-   if (categoryExists) return res.json({ warningCategory: "Esta categoria ya existe" });
-
-   const updatedCategory = await Category.findOneAndUpdate(
+   const categoryUpdated = await Category.findOneAndUpdate(
       { name: categoryName },
       {
          name: trimmedName,
@@ -53,17 +50,25 @@ export const updateCategoryById = async (req, res) => {
          new: true
       }
    )
-   res.json(updatedCategory);
+
+   // UPDATES ALL TEMPLATES OF THIS CATEGORY
+   await Template.updateMany({ category: categoryName }, { category: trimmedName });
+
+   res.json(categoryUpdated);
 }
 
-export const deleteCategoryById = async (req, res) => {
+export const deleteCategoryByName = async (req, res) => {
    const categoryName = req.params.categoryName;
+
    const categoryExists = await Category.findOne({ name: categoryName });
+   if (!categoryExists) return res.json({ warning: "Esta categoria ya no existe" });
 
-   if (!categoryExists) return res.json({ warningCategory: "Esta categoria ya no existe" });
+   const categoryDeleted = await Category.findOneAndDelete({ name: categoryName });
 
-   const deletedCategory = await Category.findOneAndDelete({ name: categoryName });
-   res.json(deletedCategory);
+   // DELETES ALL TEMPLATES OF THIS CATEGORY
+   await Template.deleteMany({ category: categoryName });
+
+   res.json(categoryDeleted);
 }
 
 

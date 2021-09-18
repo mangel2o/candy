@@ -9,7 +9,7 @@
 	let refetch: Function = getContext('refetch');
 	let isOpen = false;
 	let isPending = false;
-	let errorObservation;
+	let warning;
 
 	export let observation;
 
@@ -54,7 +54,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent bind:error={errorObservation} prop={'esta observación'} />
+			<DeleteContent bind:warning prop={'esta observación'} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit"> Eliminar </button>

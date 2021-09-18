@@ -1,11 +1,12 @@
 <script lang="ts">
 	export let template;
-	export let warningTemplate = null;
+	export let warning = null;
 
 	let files;
 
 	$: if (files) {
-		template.file = files[0];
+		console.log('hay archivos');
+		template.example = files[0];
 		files = null;
 	}
 </script>
@@ -16,9 +17,9 @@
 			<div class="field">
 				<span class="tag">Nombre del documento</span>
 				<input required type="text" bind:value={template.name} placeholder="Nombre del documento" />
-				{#if warningTemplate}
+				{#if warning}
 					<span class="warning">
-						{warningTemplate}
+						{warning}
 					</span>
 				{/if}
 			</div>
@@ -36,10 +37,10 @@
 		<div class="row">
 			<div class="field">
 				<span class="tag">Documento de ejemplo</span>
-				<label class={template.file ? 'uploaded' : 'not-uploaded'}>
+				<label class={template.example ? 'uploaded' : 'not-uploaded'}>
 					<input required name="file" type="file" bind:files />
-					{#if template.file}
-						<span>{template.file.name}</span>
+					{#if template.example}
+						<span>{template.example.name}</span>
 					{:else}
 						<span>Busca un archivo PDF</span>
 						<span>o arrastralo aqui</span>

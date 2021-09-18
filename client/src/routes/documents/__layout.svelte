@@ -15,6 +15,8 @@
 			.then((data) => {
 				isPending = false;
 				categories = data;
+
+				// CONVERTS HYPHENS TO BLANKSPACES
 				categories.forEach(
 					(category) =>
 						(category.name =

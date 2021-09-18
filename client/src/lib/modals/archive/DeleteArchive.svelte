@@ -9,7 +9,7 @@
 	let refetch: Function = getContext('refetch');
 	let isOpen = false;
 	let isPending = false;
-	let errorArchive;
+	let warning;
 
 	export let archive;
 
@@ -51,7 +51,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent bind:error={errorArchive} prop={'este archivo'} />
+			<DeleteContent bind:warning prop={'este archivo'} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

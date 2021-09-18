@@ -8,53 +8,39 @@
 	import { userStore } from '$lib/stores';
 
 	let refetchCategory: Function = getContext('refetchCategory');
-	let isPending = true;
 	let isOpen = false;
-	let warningTemplate;
-
-	let auxFile;
+	let isPending = false;
+	let warning;
 
 	let template = {
 		name: '',
 		description: '',
-		file: null
+		example: null
 	};
 
 	function handleSubmit() {
 		isPending = true;
+		console.log(template);
 		const formData = new FormData();
+		formData.append('authorId', $userStore._id);
 		Object.keys(template).forEach((key) => formData.append(key, template[key]));
-		formData.append('author', $userStore._id);
 		fetch(`http://localhost:4000/documents/${$page.params.category}/templates`, {
 			method: 'POST',
 			body: formData
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				/*
-				if (data.warningTemplate) {
-					warningTemplate = data.warningTemplate;
-					isPending = false;
+				isPending = false;
+				if (data.warning) {
+					warning = data.warning;
 					return;
 				}
-				warningTemplate = null;
-				console.log(data);
-				isPending = false;
-				*/
-				auxFile = new File([data.file], data.name);
-				console.log(data);
-
-				/**
-				 *
-				 * 
+				warning = null;
 				handleCancel();
 				refetchCategory();
-				 * 
-				*/
 			})
 			.catch((err) => {
-				isPending = false;
-				console.log(err);
+				warning = err;
 			});
 	}
 
@@ -62,7 +48,7 @@
 		template = {
 			name: '',
 			description: '',
-			file: null
+			example: null
 		};
 		isOpen = false;
 	}
@@ -80,13 +66,7 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<iframe
-				src={!auxFile
-					? 'http://africau.edu/images/default/sample.pdf#toolbar=0'
-					: URL.createObjectURL(template.file)}
-				title="aux"
-			/>
-			<TemplateContent bind:warningTemplate bind:template />
+			<TemplateContent bind:warning bind:template />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">
