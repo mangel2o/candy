@@ -8,7 +8,7 @@ const DocumentSchema = new Schema({
    examplePath: String,
    path: String,
    owner: {
-      ref: 'User',
+      ref: 'Candidate',
       type: Schema.Types.ObjectId,
    },
    createdBy: {
@@ -21,6 +21,6 @@ const DocumentSchema = new Schema({
    }
 }, {
    timestamps: true,
-})
+});
 
 export default model('Document', DocumentSchema);

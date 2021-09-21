@@ -4,12 +4,15 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import CandidateContent from './CandidateContent.svelte';
 	import { getContext } from 'svelte';
+	import { userStore } from '$lib/stores';
 	import { page } from '$app/stores';
 
-	const refetch: Function = getContext('refetch');
-	let isOpen = false;
+	const refetchCandidates: Function = getContext('refetchCandidates');
+	export let categories;
 	let isPending = false;
+	let isOpen = false;
 	let isCategoriesEmpty = false;
+	let warning;
 
 	export let candidate;
 	let editableCandidate = { ...candidate };
@@ -24,22 +27,28 @@
 
 		isPending = true;
 		const formData = new FormData();
+		formData.append('authorId', $userStore._id);
 		Object.keys(editableCandidate).forEach((key) => formData.append(key, editableCandidate[key]));
-
 		fetch(`http://localhost:4000/candidates/${$page.params.candidate}`, {
 			method: 'PUT',
 			body: formData
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data);
+				if (data.warning) {
+					warning = data.warning;
+					isPending = false;
+					return;
+				}
+				warning = null;
+				isPending = false;
+				handleCancel();
+				refetchCandidates();
 			})
 			.catch((err) => {
-				console.log(err);
+				warning = err;
+				isPending = false;
 			});
-
-		handleCancel();
-		refetch();
 	}
 
 	function handleCancel() {
@@ -59,7 +68,12 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CandidateContent bind:isCategoriesEmpty bind:candidate={editableCandidate} />
+			<CandidateContent
+				bind:categories
+				bind:warning
+				bind:isCategoriesEmpty
+				bind:candidate={editableCandidate}
+			/>
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

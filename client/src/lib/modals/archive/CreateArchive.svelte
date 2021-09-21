@@ -5,6 +5,7 @@
 	import { getContext } from 'svelte';
 	import ArchiveContent from '$lib/modals/archive/ArchiveContent.svelte';
 	import { page } from '$app/stores';
+	import { userStore } from '$lib/stores';
 
 	let refetch: Function = getContext('refetch');
 	let isOpen = false;
@@ -19,6 +20,7 @@
 	function handleSubmit() {
 		isPending = true;
 		const formData = new FormData();
+		formData.append('authorId', $userStore._id);
 		Object.keys(archive).forEach((key) => formData.append(key, archive[key]));
 
 		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives`, {
@@ -53,10 +55,8 @@
 			<Icon src={Plus} />
 			<span>Crear archivo</span>
 		</button>
-
 		<!--Header-->
 		<span slot="header"> Crear archivo </span>
-
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<ArchiveContent bind:archive />

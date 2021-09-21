@@ -19,19 +19,20 @@
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
 				if (data.warning) {
 					warning = data.warning;
+					isPending = false;
 					return;
 				}
 				warning = null;
+				isPending = false;
 				handleCancel();
 				refetchCategories();
 				goto('/documents');
 			})
 			.catch((err) => {
-				isPending = false;
 				warning = err;
+				isPending = false;
 			});
 	}
 

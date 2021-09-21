@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
 	import {
 		campuses,
 		careersEjecutive,
@@ -12,12 +11,18 @@
 		years
 	} from '$lib/data';
 
-	let categories: Array<any> = getContext('categories');
+	export let categories = [];
 	export let candidate;
 	export let isCategoriesEmpty;
+	export let isTemplatesEmpty;
+	export let warning;
 
 	$: if (candidate.categories.length > 0) {
 		isCategoriesEmpty = false;
+	}
+
+	$: if (candidate.categories.length < 1) {
+		isTemplatesEmpty = false;
 	}
 </script>
 
@@ -34,8 +39,9 @@
 				<span>Matricula</span>
 				<input
 					required
-					type="text"
+					type="number"
 					bind:value={candidate.number}
+					maxlength="7"
 					placeholder="Escribe una matricula"
 				/>
 			</div>
@@ -124,12 +130,7 @@
 		<div class="row">
 			<div class="field width-25">
 				<span>Telefono</span>
-				<input
-					required
-					type="text"
-					bind:value={candidate.phone}
-					placeholder="Escribe un telefono"
-				/>
+				<input required type="tel" bind:value={candidate.phone} placeholder="Escribe un telefono" />
 			</div>
 
 			<div class="field width-75">
@@ -196,24 +197,43 @@
 		<div class="row">
 			<div class="field">
 				<span>Categorias de documentos</span>
-				<div class="categories">
-					{#each categories as category}
-						<div class="category">
-							<input
-								type="checkbox"
-								id={category.name}
-								bind:group={candidate.categories}
-								value={category.name}
-							/>
-							<label for={category.name}>
-								{category.name}
-							</label>
-						</div>
-					{/each}
-				</div>
+				{#if categories}
+					<div class="categories">
+						{#each categories as category}
+							<div class="category">
+								<input
+									type="checkbox"
+									id={category.uri}
+									bind:group={candidate.categories}
+									value={category.uri}
+								/>
+								<label for={category.uri}>
+									{category.name}
+								</label>
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<div class="pending">Loading...</div>
+				{/if}
+
+				{#if categories.length < 1}
+					<span class="warning"> No existen categorias, crea una antes de crear candidatos </span>
+				{/if}
+
 				{#if isCategoriesEmpty}
 					<span class="warning">
 						Debes seleccionar al menos una categoria para crear al candidato
+					</span>
+				{/if}
+
+				{#if isTemplatesEmpty}
+					<span class="warning"> Al menos una categoria seleccionada no tiene documentos </span>
+				{/if}
+
+				{#if warning}
+					<span class="warning">
+						{warning}
 					</span>
 				{/if}
 			</div>
@@ -245,6 +265,7 @@
 		}
 
 		&.field {
+			width: 100%;
 			display: flex;
 			flex-direction: column;
 			gap: 0.5rem;
@@ -254,6 +275,13 @@
 			display: flex;
 			flex-wrap: wrap;
 			gap: 1rem;
+		}
+
+		&.pending {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			padding: 0.5rem;
 		}
 
 		.width-75 {
@@ -326,5 +354,16 @@
 
 	input[type='checkbox']:checked + label {
 		border: 2px solid var(--green-color);
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	/* Firefox */
+	input[type='number'] {
+		-moz-appearance: textfield;
 	}
 </style>

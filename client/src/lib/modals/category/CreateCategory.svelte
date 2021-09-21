@@ -8,8 +8,8 @@
 	import { goto } from '$app/navigation';
 
 	let refetchCategories: Function = getContext('refetchCategories');
-	let isOpen = false;
 	let isPending = false;
+	let isOpen = false;
 	let warning;
 
 	let category = {
@@ -28,19 +28,20 @@
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
 				if (data.warning) {
 					warning = data.warning;
+					isPending = false;
 					return;
 				}
 				warning = null;
+				isPending = false;
 				handleCancel();
 				refetchCategories();
-				goto(`/documents/${data.name}`);
+				goto(`/documents/${data.uri}`);
 			})
 			.catch((err) => {
-				isPending = false;
 				warning = err;
+				isPending = false;
 			});
 	}
 

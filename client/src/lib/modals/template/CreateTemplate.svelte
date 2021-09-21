@@ -20,7 +20,6 @@
 
 	function handleSubmit() {
 		isPending = true;
-		console.log(template);
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(template).forEach((key) => formData.append(key, template[key]));
@@ -30,17 +29,14 @@
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
-				if (data.warning) {
-					warning = data.warning;
-					return;
-				}
 				warning = null;
+				isPending = false;
 				handleCancel();
 				refetchCategory();
 			})
 			.catch((err) => {
 				warning = err;
+				isPending = false;
 			});
 	}
 

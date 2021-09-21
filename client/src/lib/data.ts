@@ -102,7 +102,6 @@ export const levels = [
 export const modalities = [
    "Semestre",
    "Tetramestre",
-
 ]
 
 export const periods = [
@@ -120,4 +119,12 @@ export const years = [
    "2022",
    "2023",
    "2024"
+]
+
+export const statuses = [
+   "Vacio",
+   "Completo",
+   "Pendiente",
+   "Retenido",
+   "Incompleto"
 ]

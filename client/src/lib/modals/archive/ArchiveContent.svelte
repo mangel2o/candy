@@ -1,5 +1,6 @@
 <script lang="ts">
 	export let archive;
+	export let warning = null;
 
 	let files;
 
@@ -15,6 +16,11 @@
 			<div class="field">
 				<span class="tag">Nombre del archivo</span>
 				<input required type="text" bind:value={archive.name} placeholder="Nombre del archivo" />
+				{#if warning}
+					<span class="warning">
+						{warning}
+					</span>
+				{/if}
 			</div>
 		</div>
 		<div class="row">
@@ -66,6 +72,10 @@
 	span {
 		&.tag {
 			color: var(--focus-color);
+		}
+
+		&.warning {
+			color: var(--orange-color);
 		}
 	}
 

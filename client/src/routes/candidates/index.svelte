@@ -8,48 +8,51 @@
 	import { onMount, setContext } from 'svelte';
 
 	let isPending = true;
-	let error = null;
+	let error;
 	let candidates = [];
-	let categories = [
-		{
-			name: 'General'
-		},
-		{
-			name: 'Extranjero'
-		},
-		{
-			name: 'Equivalencia'
-		}
-	];
-	let entries = 0;
+	let categories;
 	let searchQuery;
 	let searchParameter;
-
-	$: filteredCandidates =
-		searchQuery === ''
-			? candidates.slice(0, entries)
-			: candidates
-					.slice(0, entries)
-					.filter((candidate) => candidate[searchParameter].includes(searchQuery));
+	let filters;
+	let parameters;
+	$: entries = 0;
+	$: slicedCandidates = candidates.slice(0, entries);
+	$: filteredCandidates = slicedCandidates.filter((candidate) => {
+		for (const key of filters) {
+			if (
+				parameters[key].toString().toLowerCase() !== '' &&
+				parameters[key].toString().toLowerCase() !== candidate[key].toString().toLowerCase()
+			) {
+				return false;
+			}
+		}
+		return true;
+	});
+	$: searchedCandidates = !searchQuery
+		? filteredCandidates
+		: filteredCandidates.filter((candidate) =>
+				candidate[searchParameter].toString().toLowerCase().includes(searchQuery.toLowerCase())
+		  );
 
 	function fetchData() {
 		isPending = true;
-		fetch('http://localhost:4000/candidates')
-			.then((res) => res.json())
-			.then((data) => {
+		Promise.all([
+			fetch(`http://localhost:4000/candidates`).then((res) => res.json()),
+			fetch(`http://localhost:4000/documents`).then((res) => res.json())
+		])
+			.then(([dataCandidates, dataCategories]) => {
+				candidates = dataCandidates;
+				categories = dataCategories;
+				entries = candidates.length;
 				isPending = false;
-				error = null;
-				candidates = data;
-				entries = data.length;
 			})
 			.catch((err) => {
-				isPending = false;
 				error = err;
+				isPending = false;
 			});
 	}
 
-	setContext('refetch', fetchData);
-	setContext('categories', categories);
+	setContext('refetchCandidates', fetchData);
 	onMount(() => {
 		fetchData();
 	});
@@ -64,8 +67,8 @@
 		<div class="tools">
 			<QuantityEntries bind:entries limit={candidates.length} />
 			<div class="options">
-				<EditFilter />
-				<CreateCandidate />
+				<EditFilter bind:filters bind:parameters />
+				<CreateCandidate bind:categories />
 				<AddExcel />
 				<SearchBar bind:searchQuery bind:searchParameter />
 			</div>
@@ -75,7 +78,7 @@
 		{:else if error}
 			<span>Something went wrong {error}</span>
 		{:else}
-			<CandidatesTable candidates={filteredCandidates} />
+			<CandidatesTable bind:candidates={searchedCandidates} />
 		{/if}
 	</div>
 </template>

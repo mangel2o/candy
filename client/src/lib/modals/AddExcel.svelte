@@ -6,7 +6,7 @@
 	let files: FileList;
 	let isOpen = false;
 
-	async function handleSubmit() {
+	function handleSubmit() {
 		console.log('Excel subido');
 	}
 
@@ -136,7 +136,7 @@
 		align-items: center;
 		padding: 1rem;
 		width: 500px;
-		height: 200px;
+		height: 250px;
 		gap: 0.5rem;
 
 		background-color: var(--input-color);

@@ -6,31 +6,24 @@
 	import { onMount, setContext } from 'svelte';
 
 	let isPending = true;
-	let error = null;
+	let error;
 	let categories = [];
 
 	function fetchData() {
+		isPending = true;
 		fetch('http://localhost:4000/documents')
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
 				categories = data;
-
-				// CONVERTS HYPHENS TO BLANKSPACES
-				categories.forEach(
-					(category) =>
-						(category.name =
-							category.name[0].toUpperCase() + category.name.substring(1).replace(/-/g, ' '))
-				);
+				isPending = false;
 			})
 			.catch((err) => {
-				isPending = false;
 				error = err;
+				isPending = false;
 			});
 	}
 
 	setContext('refetchCategories', fetchData);
-
 	onMount(() => {
 		fetchData();
 	});
@@ -42,13 +35,10 @@
 			{#if isPending}
 				<span>Loading...</span>
 			{:else if error}
-				<span>Something went wrong</span>
+				<span>Something went wrong: {error}</span>
 			{:else}
 				{#each categories as category}
-					<ButtonCategory
-						{category}
-						path={`/documents/${category.name.toLowerCase().replace(/\s/g, '-')}`}
-					/>
+					<ButtonCategory {category} path={`/documents/${category.uri}`} />
 				{/each}
 			{/if}
 			<CreateCategory />

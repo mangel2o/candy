@@ -2,13 +2,17 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import AccountPlus from '$lib/icons/account-plus.svelte';
-	import { getContext } from 'svelte';
 	import CandidateContent from './CandidateContent.svelte';
+	import { getContext } from 'svelte';
+	import { userStore } from '$lib/stores';
 
-	let refetch: Function = getContext('refetch');
-	let isOpen = false;
+	const refetchCandidates: Function = getContext('refetchCandidates');
+	export let categories;
 	let isPending = false;
+	let isOpen = false;
 	let isCategoriesEmpty = false;
+	let isTemplatesEmpty = false;
+	let warning;
 
 	let candidate = {
 		name: '',
@@ -29,30 +33,48 @@
 	};
 
 	function handleSubmit() {
-		if (candidate.categories.length < 1) {
+		if (categories.length < 1) {
+			return;
+		} else if (candidate.categories.length < 1) {
 			isCategoriesEmpty = true;
+			isTemplatesEmpty = false;
 			return;
 		} else {
+			console.log(categories);
+			for (const key of candidate.categories) {
+				const categoryFound = categories.find((category) => category.name === key);
+				if (categoryFound.templates < 1) {
+					isTemplatesEmpty = true;
+					return;
+				}
+			}
 			isCategoriesEmpty = false;
+			isTemplatesEmpty = false;
 		}
 		isPending = true;
 		const formData = new FormData();
+		formData.append('authorId', $userStore._id);
 		Object.keys(candidate).forEach((key) => formData.append(key, candidate[key]));
-
 		fetch('http://localhost:4000/candidates', {
 			method: 'POST',
 			body: formData
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data);
+				if (data.warning) {
+					warning = data.warning;
+					isPending = false;
+					return;
+				}
+				warning = null;
+				isPending = false;
+				handleCancel();
+				refetchCandidates();
 			})
 			.catch((err) => {
-				console.log(err);
+				warning = err;
+				isPending = false;
 			});
-
-		handleCancel();
-		refetch();
 	}
 
 	function handleCancel() {
@@ -89,7 +111,13 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CandidateContent bind:isCategoriesEmpty bind:candidate />
+			<CandidateContent
+				bind:categories
+				bind:warning
+				bind:isCategoriesEmpty
+				bind:isTemplatesEmpty
+				bind:candidate
+			/>
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

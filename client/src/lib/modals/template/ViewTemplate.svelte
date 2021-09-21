@@ -25,7 +25,7 @@
 		<div class="content" slot="content">
 			<div class="field">
 				<div class="title">
-					<div><Icon src={File} size={'32'} /></div>
+					<Icon src={File} size={'32'} />
 					<div>{template.name}</div>
 				</div>
 			</div>
@@ -56,7 +56,7 @@
 		&.field {
 			display: flex;
 			flex-direction: column;
-			gap: 0.5rem;
+			gap: 0.25rem;
 		}
 
 		&.tag {

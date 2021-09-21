@@ -12,6 +12,7 @@
 	import CandidateInfo from '$lib/components/CandidateInfo.svelte';
 	import { onMount, setContext } from 'svelte';
 
+	let categories;
 	let isCategoriesActive = false;
 
 	let isPending = false;
@@ -35,17 +36,6 @@
 		status: 'Completo',
 		categories: ['General', 'Extranjero']
 	};
-	let categories = [
-		{
-			name: 'General'
-		},
-		{
-			name: 'Extranjero'
-		},
-		{
-			name: 'Equivalencia'
-		}
-	];
 
 	function fetchData() {
 		// TODO: fetch request at /candidates/[candidate]/__layout.svelte
@@ -69,7 +59,6 @@
 	}
 
 	setContext('refetch', fetchData);
-	setContext('categories', categories);
 	onMount(() => {
 		fetchData();
 	});
@@ -96,7 +85,7 @@
 				<!--OPTIONS-->
 				<div class="options">
 					<div class="upper">
-						<EditCandidate {candidate} />
+						<EditCandidate bind:categories {candidate} />
 						<DeleteCandidate {candidate} />
 					</div>
 

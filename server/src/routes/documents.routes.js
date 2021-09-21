@@ -7,14 +7,14 @@ const router = Router();
 // CATEGORIES
 router.get('/', categoriesController.getCategories);
 router.post('/', categoriesController.createCategory);
-router.get('/:categoryName', categoriesController.getCategoryByName);
-router.put('/:categoryName', categoriesController.updateCategoryByName);
-router.delete('/:categoryName', categoriesController.deleteCategoryByName);
+router.get('/:categoryId', categoriesController.getCategoryById);
+router.put('/:categoryId', categoriesController.updateCategoryById);
+router.delete('/:categoryId', categoriesController.deleteCategoryById);
 
 // TEMPLATES
-router.get('/:categoryName/templates', templatesController.getTemplates);
-router.post('/:categoryName/templates', templatesController.createTemplate);
-router.put('/:categoryName/templates/:templateId', templatesController.updateTemplateById);
-router.delete('/:categoryName/templates/:templateId', templatesController.deleteTemplateById);
+router.get('/:categoryId/templates', templatesController.getTemplates);
+router.post('/:categoryId/templates', templatesController.createTemplate);
+router.put('/:categoryId/templates/:templateId', templatesController.updateTemplateById);
+router.delete('/:categoryId/templates/:templateId', templatesController.deleteTemplateById);
 
 export default router;

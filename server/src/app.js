@@ -8,6 +8,8 @@ import loginRoutes from './routes/login.routes';
 import { createUsers, createDirs } from './libs/initialSetup';
 import Category from './models/Category';
 import Template from './models/Template';
+import User from "./models/User";
+import Candidate from './models/Candidate';
 
 
 const app = express();
@@ -18,6 +20,7 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(formidable({
    uploadDir: process.cwd() + "/uploads",
+   maxFileSize: 5 * 1024 * 1024,
 }));
 
 app.use('/documents', documentsRoutes);

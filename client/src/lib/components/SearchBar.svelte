@@ -18,7 +18,8 @@
 			<select bind:value={searchParameter}>
 				<option selected value="name"> Nombre </option>
 				<option value="number"> Matricula </option>
-				<option value="status"> Estatus </option>
+				<option value="phone"> Telefono </option>
+				<option value="email"> Correo </option>
 			</select>
 			<span />
 			<input id="searchbar" type="text" placeholder="Buscar alumno..." bind:value={searchQuery} />
@@ -66,11 +67,13 @@
 
 	option {
 		background-color: var(--area-color);
+		height: 4rem;
+		padding: 0.5rem;
 	}
 
 	select {
 		cursor: pointer;
-		padding: 1rem 0.2rem;
+		padding: 1rem 0.5rem;
 		-webkit-appearance: none;
 		-moz-appearance: none;
 

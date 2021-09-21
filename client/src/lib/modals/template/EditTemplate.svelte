@@ -16,11 +16,10 @@
 	let editableTemplate = {
 		name: template.name,
 		description: template.description,
-		example: null
+		example: template.example
 	};
 
 	function handleSubmit() {
-		console.log(editableTemplate);
 		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
@@ -31,16 +30,19 @@
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
 				if (data.warning) {
 					warning = data.warning;
+					isPending = false;
+					return;
 				}
 				warning = null;
-				handleCancel();
+				isPending = false;
+				isOpen = false;
 				refetchCategory();
 			})
 			.catch((err) => {
 				warning = err;
+				isPending = false;
 			});
 	}
 
@@ -48,7 +50,7 @@
 		editableTemplate = {
 			name: template.name,
 			description: template.description,
-			example: null
+			example: template.example
 		};
 		isOpen = false;
 	}

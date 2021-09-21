@@ -9,17 +9,15 @@
 	import DeleteCategory from '$lib/modals/Category/DeleteCategory.svelte';
 	import EditCategory from '$lib/modals/Category/EditCategory.svelte';
 	import { onMount, setContext } from 'svelte';
-	import { Buffer, Blob } from 'buffer';
+	import { Buffer } from 'buffer';
 
 	let isPending = true;
-	let error = null;
-	let warning;
+	let error;
 	let category;
-
 	let templates = [];
 
-	function convertBufferToFile(array, name) {
-		let buffer = Buffer.from(array);
+	function convertDataToFile(data, name) {
+		let buffer = Buffer.from(data);
 		let arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 		let file = new File([arrayBuffer], name + '.pdf', {
 			type: 'application/pdf'
@@ -28,6 +26,7 @@
 	}
 
 	function fetchData() {
+		isPending = true;
 		Promise.all([
 			fetch(`http://localhost:4000/documents/${$page.params.category}`).then((res) => res.json()),
 			fetch(`http://localhost:4000/documents/${$page.params.category}/templates`).then((res) =>
@@ -36,20 +35,23 @@
 		])
 			.then(([dataCategory, dataTemplates]) => {
 				if (dataCategory.warning) {
+					error = dataCategory.warning;
 					isPending = false;
-					warning = dataCategory.warning;
 					return;
 				}
+				error = null;
 				category = dataCategory;
 				templates = dataTemplates;
+
+				// Converts buffers to files
 				templates.forEach(
-					(template) => (template.example = convertBufferToFile(template.example, template.name))
+					(template) => (template.example = convertDataToFile(template.example, template._id))
 				);
 				isPending = false;
 			})
 			.catch((err) => {
-				isPending = false;
 				error = err;
+				isPending = false;
 			});
 	}
 	setContext('refetchCategory', fetchData);
@@ -67,11 +69,7 @@
 		{#if isPending}
 			<span>Loading...</span>
 		{:else if error}
-			<span>Something went wrong</span>
-		{:else if warning}
-			<span class="warning">
-				{warning}
-			</span>
+			<span>Something went wrong: {error}</span>
 		{:else}
 			<div class="content">
 				<div class="category">
@@ -93,14 +91,15 @@
 			</div>
 
 			<CreateTemplate />
-
-			{#each templates as template}
-				<div class="button">
-					<ViewTemplate {template} />
-					<EditTemplate {template} />
-					<DeleteTemplate {template} />
-				</div>
-			{/each}
+			{#key templates}
+				{#each templates as template}
+					<div class="button">
+						<ViewTemplate {template} />
+						<EditTemplate {template} />
+						<DeleteTemplate {template} />
+					</div>
+				{/each}
+			{/key}
 		{/if}
 	</div>
 </template>
@@ -157,6 +156,9 @@
 		}
 
 		&.description {
+			display: flex;
+			flex-direction: column;
+			gap: 0.25rem;
 			padding: 0 1rem 1rem 1rem;
 		}
 	}

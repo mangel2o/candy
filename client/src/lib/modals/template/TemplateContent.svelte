@@ -5,7 +5,6 @@
 	let files;
 
 	$: if (files) {
-		console.log('hay archivos');
 		template.example = files[0];
 		files = null;
 	}
@@ -38,7 +37,7 @@
 			<div class="field">
 				<span class="tag">Documento de ejemplo</span>
 				<label class={template.example ? 'uploaded' : 'not-uploaded'}>
-					<input required name="file" type="file" bind:files />
+					<input required={template.example ? false : true} name="file" type="file" bind:files />
 					{#if template.example}
 						<span>{template.example.name}</span>
 					{:else}

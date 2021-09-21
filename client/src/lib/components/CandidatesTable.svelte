@@ -3,30 +3,35 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import OpenInNew from '$lib/icons/open-in-new.svelte';
 
-	export let candidates = [];
+	export let candidates;
 </script>
 
 <template>
 	<table>
 		<tr>
-			<th>ID</th>
+			<th class="id">ID</th>
 			<th class="name">Nombre</th>
-			<th>Matricula</th>
-			<th>Genero</th>
+			<th class="number">Matricula</th>
+			<th>Nivel</th>
+			<th>Campus</th>
 			<th>Terminación</th>
 			<th>Estatus</th>
 			<th>Ver</th>
 		</tr>
 		{#each candidates as candidate, i}
 			<tr>
-				<td>{i + 1}</td>
+				<td class="id">{i + 1}</td>
 				<td class="name">{candidate.name}</td>
-				<td>{candidate.number}</td>
-				<td>{candidate.genre}</td>
+				<td class="number">{candidate.number}</td>
+				<td>{candidate.level}</td>
+				<td>{candidate.campus}</td>
 				<td>{candidate.terminationPeriod} {candidate.terminationYear}</td>
-				<td>{candidate.status}</td>
+				<td class="status">
+					<div class={candidate.status.toLowerCase()} />
+					{candidate.status}
+				</td>
 				<td>
-					<button on:click={() => goto(`/candidates/${candidate.number}/documents`)}>
+					<button on:click={() => goto(`/candidates/${candidate._id}/documents`)}>
 						<span><Icon src={OpenInNew} /></span>
 					</button>
 				</td>
@@ -61,13 +66,51 @@
 				padding: 0 30px;
 				height: 56px;
 
+				&.id {
+					max-width: 40px;
+				}
+
+				&.name {
+					max-width: 300px;
+				}
+
+				&.number {
+					max-width: 120px;
+				}
+
 				&:last-child {
 					text-align: center;
 				}
 			}
 
-			td.name {
-				max-width: 300px;
+			td {
+				&.status {
+					display: flex;
+					align-items: center;
+					gap: 0.5rem;
+				}
+			}
+		}
+
+		div {
+			width: 0.6rem;
+			height: 0.6rem;
+			border-radius: 0.5rem;
+
+			&.vacio {
+				background-color: var(--focus-color);
+			}
+			&.completo {
+				background-color: var(--green-color);
+			}
+			&.pendiente {
+				background-color: var(--yellow-color);
+			}
+			&.incompleto {
+				background-color: var(--red-color);
+			}
+			&.retenido {
+				background-color: var(--blue-color);
 			}
 		}
 

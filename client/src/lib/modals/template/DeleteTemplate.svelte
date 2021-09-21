@@ -20,16 +20,19 @@
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
 				if (data.warning) {
 					warning = data.warning;
+					isPending = false;
+					return;
 				}
 				warning = null;
+				isPending = false;
 				handleCancel();
 				refetchCategory();
 			})
 			.catch((err) => {
 				warning = err;
+				isPending = false;
 			});
 	}
 
