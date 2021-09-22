@@ -50,7 +50,7 @@
 			name: '',
 			description: ''
 		};
-
+		warning = null;
 		isOpen = false;
 	}
 </script>

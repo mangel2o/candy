@@ -15,7 +15,7 @@
 			<th>Nivel</th>
 			<th>Campus</th>
 			<th>Terminación</th>
-			<th>Estatus</th>
+			<th class="status">Estatus</th>
 			<th>Ver</th>
 		</tr>
 		{#each candidates as candidate, i}
@@ -31,7 +31,7 @@
 					{candidate.status}
 				</td>
 				<td>
-					<button on:click={() => goto(`/candidates/${candidate._id}/documents`)}>
+					<button on:click={() => goto(`/candidates/${candidate.number}/documents`)}>
 						<span><Icon src={OpenInNew} /></span>
 					</button>
 				</td>
@@ -56,6 +56,8 @@
 			}
 
 			th {
+				font-weight: bold;
+				text-align: center;
 				background-color: var(--area-color);
 			}
 
@@ -76,6 +78,10 @@
 
 				&.number {
 					max-width: 120px;
+				}
+
+				&.status {
+					text-align: center;
 				}
 
 				&:last-child {

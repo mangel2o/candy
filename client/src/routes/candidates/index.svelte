@@ -10,7 +10,7 @@
 	let isPending = true;
 	let error;
 	let candidates = [];
-	let categories;
+	let categories = [];
 	let searchQuery;
 	let searchParameter;
 	let filters;
@@ -67,9 +67,9 @@
 		<div class="tools">
 			<QuantityEntries bind:entries limit={candidates.length} />
 			<div class="options">
-				<EditFilter bind:filters bind:parameters />
 				<CreateCandidate bind:categories />
 				<AddExcel />
+				<EditFilter bind:filters bind:parameters />
 				<SearchBar bind:searchQuery bind:searchParameter />
 			</div>
 		</div>

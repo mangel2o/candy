@@ -14,10 +14,12 @@
 
 	export let template;
 	let editableTemplate = {
-		name: template.name,
-		description: template.description,
-		example: template.example
+		...template
 	};
+
+	$: disableEdit = Object.keys(template).every(
+		(key) => editableTemplate.hasOwnProperty(key) && editableTemplate[key] === template[key]
+	);
 
 	function handleSubmit() {
 		isPending = true;
@@ -48,9 +50,7 @@
 
 	function handleCancel() {
 		editableTemplate = {
-			name: template.name,
-			description: template.description,
-			example: template.example
+			...template
 		};
 		isOpen = false;
 	}
@@ -70,7 +70,7 @@
 			<TemplateContent bind:warning bind:template={editableTemplate} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit">
+				<button disabled={disableEdit} class="submit" type="submit">
 					{#if isPending}
 						Loading...
 					{:else}

@@ -37,6 +37,7 @@
 	}
 
 	function handleCancel() {
+		warning = null;
 		isOpen = false;
 	}
 

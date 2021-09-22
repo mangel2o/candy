@@ -22,7 +22,7 @@ export const createTemplate = async (req, res) => {
    fs.unlinkSync(tempFile.path);
 
    // Updates category by adding ID of new template
-   const something = await Category.findOneAndUpdate(
+   await Category.findOneAndUpdate(
       { uri: categoryUri },
       {
          $push: {
@@ -33,8 +33,6 @@ export const createTemplate = async (req, res) => {
          new: true
       }
    );
-
-   console.log(something);
 
    res.json(templateCreated);
 }

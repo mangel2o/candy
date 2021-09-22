@@ -4,6 +4,10 @@ export const getDocuments = (req, res) => {
 
 }
 
+export const createDocument = (req, res) => {
+
+}
+
 export const updateDocumentById = (req, res) => {
 
 }

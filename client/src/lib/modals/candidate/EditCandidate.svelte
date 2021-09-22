@@ -8,22 +8,30 @@
 	import { page } from '$app/stores';
 
 	const refetchCandidates: Function = getContext('refetchCandidates');
-	export let categories;
+	export let categories = [];
 	let isPending = false;
 	let isOpen = false;
 	let isCategoriesEmpty = false;
-	let warning;
+	let isTemplatesEmpty = false;
+	let warning = null;
 
 	export let candidate;
-	let editableCandidate = { ...candidate };
+	let editableCandidate = { ...candidate, newCategories: [] };
+
+	$: disableEdit = Object.keys(candidate).every(
+		(key) => editableCandidate.hasOwnProperty(key) && editableCandidate[key] === candidate[key]
+	);
 
 	function handleSubmit() {
-		if (candidate.categories.length < 1) {
-			isCategoriesEmpty = true;
-			return;
-		} else {
-			isCategoriesEmpty = false;
+		for (const key of editableCandidate.newCategories) {
+			const categoryFound = categories.find((category) => category.uri === key);
+			if (categoryFound && categoryFound.templates < 1) {
+				isTemplatesEmpty = true;
+				return;
+			}
 		}
+		isCategoriesEmpty = false;
+		isTemplatesEmpty = false;
 
 		isPending = true;
 		const formData = new FormData();
@@ -52,7 +60,8 @@
 	}
 
 	function handleCancel() {
-		editableCandidate = { ...candidate };
+		editableCandidate = { ...candidate, newCategories: [] };
+		warning = null;
 		isOpen = false;
 	}
 </script>
@@ -69,14 +78,16 @@
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<CandidateContent
+				isEditCandidate={true}
 				bind:categories
 				bind:warning
 				bind:isCategoriesEmpty
+				bind:isTemplatesEmpty
 				bind:candidate={editableCandidate}
 			/>
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit">
+				<button disabled={disableEdit} class="submit" type="submit">
 					{#if isPending}
 						Loading...
 					{:else}

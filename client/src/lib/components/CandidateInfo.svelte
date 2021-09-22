@@ -6,7 +6,7 @@
 	<div class="row">
 		<div class="field">
 			<span>Nombre</span>
-			<span class="value">{candidate.name}</span>
+			<span class="value name">{candidate.name}</span>
 		</div>
 		<div class="field ">
 			<span>Matricula</span>
@@ -41,23 +41,26 @@
 			<span class="value">{candidate.modality}</span>
 		</div>
 	</div>
-	<div class="row">
-		<div class="field ">
-			<span>Telefono</span>
-			<span class="value">{candidate.phone}</span>
+	<div class="row space-between">
+		<div class="group">
+			<div class="field ">
+				<span>Telefono</span>
+				<span class="value">{candidate.phone}</span>
+			</div>
+			<div class="field ">
+				<span>Correo personal</span>
+				<span class="value">{candidate.email}</span>
+			</div>
+			<div class="field ">
+				<span>Terminación</span>
+				<span class="value">{candidate.terminationPeriod} {candidate.terminationYear}</span>
+			</div>
+			<div class="field ">
+				<span>Graduación</span>
+				<span class="value">{candidate.graduationPeriod} {candidate.graduationYear}</span>
+			</div>
 		</div>
-		<div class="field ">
-			<span>Correo personal</span>
-			<span class="value">{candidate.email}</span>
-		</div>
-		<div class="field ">
-			<span>Terminación</span>
-			<span class="value">{candidate.terminationPeriod} - {candidate.terminationYear}</span>
-		</div>
-		<div class="field ">
-			<span>Graduación</span>
-			<span class="value">{candidate.graduationPeriod} - {candidate.graduationYear}</span>
-		</div>
+
 		<div class="field ">
 			<span class="status">{candidate.status}</span>
 		</div>
@@ -73,28 +76,39 @@
 			gap: 2rem;
 		}
 
+		&.space-between {
+			justify-content: space-between;
+		}
+
+		&.group {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 2rem;
+		}
+
 		&.field {
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
 			gap: 0.5rem;
+		}
+	}
 
-			span {
-				color: var(--focus-color);
-			}
+	span {
+		color: var(--focus-color);
 
-			span.value {
-				color: var(--white-color);
-				font-size: 18px;
-			}
+		&.value {
+			color: var(--white-color);
+		}
 
-			span.status {
-				color: var(--white-color);
-				font-size: 1rem;
-				border: 2px solid var(--green-color);
-				border-radius: 0.5rem;
-				padding: 1rem;
-			}
+		&.status {
+			color: var(--white-color);
+			border: 2px solid var(--green-color);
+			padding: 1rem;
+		}
+
+		&.name {
+			max-width: 16rem;
 		}
 	}
 </style>

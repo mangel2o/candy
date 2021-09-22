@@ -11,11 +11,16 @@
 		years
 	} from '$lib/data';
 
+	export let isEditCandidate = false;
 	export let categories = [];
 	export let candidate;
 	export let isCategoriesEmpty;
 	export let isTemplatesEmpty;
 	export let warning;
+	let candidateCategories = [...candidate.categories];
+	$: availableCategories = categories.filter(
+		(category) => !candidateCategories.includes(category.uri)
+	);
 
 	$: if (candidate.categories.length > 0) {
 		isCategoriesEmpty = false;
@@ -196,48 +201,74 @@
 		<!--Row 6-->
 		<div class="row">
 			<div class="field">
-				<span>Categorias de documentos</span>
+				<span>
+					Categorias de documentos
+					{#if isEditCandidate}
+						(solo se muestran categorias que no tenga el alumno)
+					{/if}
+				</span>
 				{#if categories}
 					<div class="categories">
-						{#each categories as category}
-							<div class="category">
-								<input
-									type="checkbox"
-									id={category.uri}
-									bind:group={candidate.categories}
-									value={category.uri}
-								/>
-								<label for={category.uri}>
-									{category.name}
-								</label>
-							</div>
-						{/each}
+						{#if isEditCandidate}
+							{#each availableCategories as category}
+								<div class="category">
+									<input
+										type="checkbox"
+										id={category.uri}
+										bind:group={candidate.newCategories}
+										value={category.uri}
+									/>
+									<label for={category.uri}>
+										{category.name}
+									</label>
+								</div>
+							{/each}
+						{:else}
+							{#each categories as category}
+								<div class="category">
+									<input
+										type="checkbox"
+										id={category.uri}
+										bind:group={candidate.categories}
+										value={category.uri}
+									/>
+									<label for={category.uri}>
+										{category.name}
+									</label>
+								</div>
+							{/each}
+						{/if}
 					</div>
 				{:else}
 					<div class="pending">Loading...</div>
 				{/if}
-
-				{#if categories.length < 1}
-					<span class="warning"> No existen categorias, crea una antes de crear candidatos </span>
-				{/if}
-
-				{#if isCategoriesEmpty}
-					<span class="warning">
-						Debes seleccionar al menos una categoria para crear al candidato
-					</span>
-				{/if}
-
-				{#if isTemplatesEmpty}
-					<span class="warning"> Al menos una categoria seleccionada no tiene documentos </span>
-				{/if}
-
-				{#if warning}
-					<span class="warning">
-						{warning}
-					</span>
-				{/if}
 			</div>
 		</div>
+		{#if isEditCandidate && availableCategories.length < 1}
+			<span class="warning"> Parece que no hay categorias que puedas agregar </span>
+		{/if}
+
+		{#if categories.length < 1}
+			<span class="warning">
+				No existen categorias, crea una antes de crear o editar candidatos
+			</span>
+		{/if}
+
+		{#if isCategoriesEmpty}
+			<span class="warning">
+				Debes seleccionar al menos una categoria para crear al candidato
+			</span>
+		{/if}
+
+		{#if isTemplatesEmpty}
+			<span class="warning"> Al menos una categoria seleccionada no tiene documentos </span>
+		{/if}
+
+		{#if warning}
+			<span class="warning">
+				{warning}
+			</span>
+		{/if}
 	</div>
 </template>
 

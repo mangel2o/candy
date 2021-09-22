@@ -12,7 +12,7 @@
 	import { Buffer } from 'buffer';
 
 	let isPending = true;
-	let error;
+	let error = null;
 	let category;
 	let templates = [];
 
@@ -43,7 +43,7 @@
 				category = dataCategory;
 				templates = dataTemplates;
 
-				// Converts buffers to files
+				// Converts data to files
 				templates.forEach(
 					(template) => (template.example = convertDataToFile(template.example, template._id))
 				);

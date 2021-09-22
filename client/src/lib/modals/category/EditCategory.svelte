@@ -9,12 +9,17 @@
 	import { userStore } from '$lib/stores';
 
 	let refetchCategories: Function = getContext('refetchCategories');
+	let refetchCategory: Function = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
 	let warning;
 
 	export let category;
 	let editableCategory = { ...category };
+
+	$: disableEdit = Object.keys(category).every(
+		(key) => editableCategory.hasOwnProperty(key) && editableCategory[key] === category[key]
+	);
 
 	function handleSubmit() {
 		isPending = true;
@@ -36,6 +41,7 @@
 				isPending = false;
 				handleCancel();
 				refetchCategories();
+				refetchCategory();
 				goto(`/documents/${data.uri}`);
 			})
 			.catch((err) => {
@@ -46,6 +52,7 @@
 
 	function handleCancel() {
 		editableCategory = { ...category };
+		warning = null;
 		isOpen = false;
 	}
 </script>
@@ -64,7 +71,7 @@
 			<CategoryContent bind:warning bind:category={editableCategory} />
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit">
+				<button disabled={disableEdit} class="submit" type="submit">
 					{#if isPending}
 						Loading...
 					{:else}

@@ -7,12 +7,12 @@
 	import { userStore } from '$lib/stores';
 
 	const refetchCandidates: Function = getContext('refetchCandidates');
-	export let categories;
+	export let categories = [];
 	let isPending = false;
 	let isOpen = false;
 	let isCategoriesEmpty = false;
 	let isTemplatesEmpty = false;
-	let warning;
+	let warning = null;
 
 	let candidate = {
 		name: '',
@@ -40,9 +40,8 @@
 			isTemplatesEmpty = false;
 			return;
 		} else {
-			console.log(categories);
 			for (const key of candidate.categories) {
-				const categoryFound = categories.find((category) => category.name === key);
+				const categoryFound = categories.find((category) => category.uri === key);
 				if (categoryFound.templates < 1) {
 					isTemplatesEmpty = true;
 					return;
@@ -95,6 +94,7 @@
 			graduationYear: '',
 			categories: []
 		};
+		warning = null;
 		isOpen = false;
 	}
 </script>

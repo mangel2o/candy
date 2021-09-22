@@ -5,12 +5,13 @@ import fs from "fs";
 export const createCategory = async (req, res) => {
    const { name, description, authorId } = req.fields;
 
-   const categoryFound = await Category.findOne({ name: name });
+   const fancyName = makeNameFancy(name);
+   const categoryFound = await Category.findOne({ name: fancyName });
    if (categoryFound) return res.json({ warning: "Esta categoria ya existe" });
 
    const categoryCreated = await new Category({
-      name: name,
-      uri: name.toLowerCase().replace(/\s/g, "-"),
+      name: fancyName,
+      uri: fancyName.toLowerCase().replace(/\s/g, "-"),
       description: description,
       createdBy: authorId
    }).save();
@@ -36,14 +37,16 @@ export const updateCategoryById = async (req, res) => {
    const categoryUri = req.params.categoryId;
    const { name, description, authorId } = req.fields;
 
-   const categoryExists = await Category.findOne({ name: name });
-   if (categoryExists) return res.json({ warning: "Esta categoria ya existe" });
+   const fancyName = makeNameFancy(name);
+   const categoryExists = await Category.findOne({ name: fancyName });
+
+   if (categoryExists && makeNameFancy(categoryUri) !== fancyName && categoryExists.name === fancyName) return res.json({ warning: "Esta categoria ya existe" });
 
    const categoryUpdated = await Category.findOneAndUpdate(
       { uri: categoryUri },
       {
-         name: name,
-         uri: name.toLowerCase().replace(/\s/g, "-"),
+         name: fancyName,
+         uri: fancyName.toLowerCase().replace(/\s/g, "-"),
          description: description,
          updatedBy: authorId
       },
@@ -82,3 +85,7 @@ export const deleteCategoryById = async (req, res) => {
 
 
 
+function makeNameFancy(name) {
+   return name[0].toString().toUpperCase() +
+      name.toString().substring(1).replace(/-/g, ' ');
+}

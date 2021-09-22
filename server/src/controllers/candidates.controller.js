@@ -12,7 +12,6 @@ export const createCandidate = async (req, res) => {
 
    const candidateExists = await Candidate.findOne({ number: data.number });
    if (candidateExists) return res.json({ warning: "Este candidato ya existe" });
-   console.log("filter2")
 
    const userCreated = await new User({
       name: data.name,
@@ -22,7 +21,6 @@ export const createCandidate = async (req, res) => {
       password: await User.encryptPassword("password"),
       role: "user"
    }).save();
-   console.log("filter3")
 
    //TODO: Implement a way of sending emails to candidates
 
@@ -46,8 +44,6 @@ export const createCandidate = async (req, res) => {
       owner: userCreated._id,
       createdBy: data.authorId,
    })
-   console.log("filter4")
-   console.log(candidateCreated);
 
    candidateCreated.categories.forEach(async (categoryName) => {
       const templates = await Template.find({ category: categoryName });
@@ -65,14 +61,8 @@ export const createCandidate = async (req, res) => {
          candidateCreated.documents.push(document._id);
       });
    });
-   console.log("filter5")
-   console.log(candidateCreated);
-
 
    candidateCreated.save();
-   console.log("filter6")
-   console.log(candidateCreated);
-
    res.json(candidateCreated);
 }
 
@@ -83,14 +73,29 @@ export const getCandidates = async (req, res) => {
 }
 
 export const getCandidateById = async (req, res) => {
+   const candidateNumber = req.params.candidateId;
 
+   const candidateFound = await Candidate.findOne({ number: candidateNumber });
+   if (!candidateFound) return res.json({ warning: "Este candidato no existe" });
+
+   res.json(candidateFound);
 }
 
 export const updateCandidateById = async (req, res) => {
+   const candidateNumber = req.params.candidateId;
+   const data = req.fields;
+   const categoryNames = data.categories.split(',');
+
+   const candidateFound = await Candidate.findOne({ number: candidateNumber });
+   if (!candidateFound) return res.json({ warning: "Este candidato no existe" });
 
 }
 
 export const deleteCandidateById = async (req, res) => {
+   const candidateNumber = req.params.candidateId;
+
+   const candidateFound = await Candidate.findOne({ number: candidateNumber });
+   if (!candidateFound) return res.json({ warning: "Este candidato no existe" });
 
 }
 

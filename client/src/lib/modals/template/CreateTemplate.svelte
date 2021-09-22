@@ -27,9 +27,7 @@
 			method: 'POST',
 			body: formData
 		})
-			.then((res) => res.json())
-			.then((data) => {
-				warning = null;
+			.then(() => {
 				isPending = false;
 				handleCancel();
 				refetchCategory();

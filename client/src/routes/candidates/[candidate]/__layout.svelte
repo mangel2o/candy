@@ -12,53 +12,36 @@
 	import CandidateInfo from '$lib/components/CandidateInfo.svelte';
 	import { onMount, setContext } from 'svelte';
 
-	let categories;
-	let isCategoriesActive = false;
-
-	let isPending = false;
+	let isPending = true;
 	let error = null;
-	let candidate = {
-		id: 1,
-		name: 'Miguel Ángel Castro García',
-		number: 2865034,
-		career: 'Ingeniería en Desarrollo de Software',
-		campus: 'Las Torres',
-		genre: 'Hombre',
-		active: 'Activo',
-		level: 'Profesional',
-		phone: '8120317210',
-		email: 'mangelcg.2o@outlook.com',
-		modality: 'Semestre',
-		terminationPeriod: 'Ene - May',
-		terminationYear: '2021',
-		graduationPeriod: 'Ene - May',
-		graduationYear: '2021',
-		status: 'Completo',
-		categories: ['General', 'Extranjero']
-	};
+	let isCategoriesActive = false;
+	let categories = [];
+	let candidate;
 
 	function fetchData() {
-		// TODO: fetch request at /candidates/[candidate]/__layout.svelte
-		// FETCH /CANDIDATE/id AND /CATEGORIES
-		/**
-       * fetch('https://jsonplaceholder.typicode.com/todos')
-			.then((res) => res.json())
-			.then((data) => {
-				isPending = false;
+		isPending = true;
+		Promise.all([
+			fetch(`http://localhost:4000/candidates/${$page.params.candidate}`).then((res) => res.json()),
+			fetch(`http://localhost:4000/documents`).then((res) => res.json())
+		])
+			.then(([dataCandidate, dataCategories]) => {
+				if (dataCandidate.warning) {
+					error = dataCandidate.warning;
+					isPending = false;
+					return;
+				}
 				error = null;
-				candidates = data;
-				entries = data.length;
+				candidate = dataCandidate;
+				categories = dataCategories;
+				isPending = false;
 			})
 			.catch((err) => {
-				isPending = false;
 				error = err;
+				isPending = false;
 			});
-      */
-
-		console.log('A fetch has been done at /candidates/[candidate]/__layout.svelte');
 	}
 
-	setContext('refetch', fetchData);
+	setContext('refetchCandidate', fetchData);
 	onMount(() => {
 		fetchData();
 	});
@@ -69,7 +52,7 @@
 		{#if isPending}
 			<span>Loading...</span>
 		{:else if error}
-			<span>Something went wrong</span>
+			<span>Something went wrong: {error}</span>
 		{:else}
 			<div class="user">
 				<!--AVATAR-->
@@ -85,7 +68,7 @@
 				<!--OPTIONS-->
 				<div class="options">
 					<div class="upper">
-						<EditCandidate bind:categories {candidate} />
+						<EditCandidate {categories} {candidate} />
 						<DeleteCandidate {candidate} />
 					</div>
 
@@ -105,40 +88,41 @@
 				<div class="categories-container">
 					{#each candidate.categories as category}
 						<div class="category">
-							{category}
+							{category[0].toString().toUpperCase() +
+								category.toString().substring(1).replace(/-/g, ' ')}
 						</div>
 					{/each}
 				</div>
 			</div>
+
+			<!--NAVEGATION-->
+			<div class="navigation">
+				<ButtonLink
+					name={'Documentos'}
+					icon={FileDocumentMultiple}
+					path={`/candidates/${$page.params.candidate}/documents`}
+				/>
+
+				<ButtonLink
+					name={'Observaciones'}
+					icon={CommentTextMultiple}
+					path={`/candidates/${$page.params.candidate}/observations`}
+				/>
+
+				<ButtonLink
+					name={'Archivos'}
+					icon={Archive}
+					path={`/candidates/${$page.params.candidate}/archives`}
+				/>
+
+				<span class="bottom-border" />
+			</div>
+
+			<!--CONTENT-->
+			<div class="content">
+				<slot />
+			</div>
 		{/if}
-
-		<!--NAVEGATION-->
-		<div class="navigation">
-			<ButtonLink
-				name={'Documentos'}
-				icon={FileDocumentMultiple}
-				path={`/candidates/${$page.params.candidate}/documents`}
-			/>
-
-			<ButtonLink
-				name={'Observaciones'}
-				icon={CommentTextMultiple}
-				path={`/candidates/${$page.params.candidate}/observations`}
-			/>
-
-			<ButtonLink
-				name={'Archivos'}
-				icon={Archive}
-				path={`/candidates/${$page.params.candidate}/archives`}
-			/>
-
-			<span class="bottom-border" />
-		</div>
-
-		<!--CONTENT-->
-		<div class="content">
-			<slot />
-		</div>
 	</div>
 </template>
 
@@ -222,7 +206,6 @@
 		&.category {
 			padding: 10px;
 			border: 2px solid var(--green-color);
-			border-radius: 0.5rem;
 		}
 
 		&.isCategoriesActive {
