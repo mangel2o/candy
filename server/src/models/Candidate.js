@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 const CandidateSchema = new Schema({
    name: String,
    number: {
-      type: Number,
+      type: String,
       unique: true
    },
    level: String,
@@ -13,15 +13,19 @@ const CandidateSchema = new Schema({
    active: String,
    career: String,
    phone: String,
-   email: String,
+   personalEmail: String,
+   institutionalEmail: String,
    modality: String,
    terminationPeriod: String,
    terminationYear: Number,
    graduationPeriod: String,
    graduationYear: Number,
-   photo: String,
+   photoPath: String,
    status: String,
-   categories: [String],
+   categories: [{
+      ref: 'Category',
+      type: Schema.Types.ObjectId,
+   }],
    documents: [{
       ref: 'Document',
       type: Schema.Types.ObjectId,

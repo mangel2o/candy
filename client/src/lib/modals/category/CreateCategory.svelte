@@ -3,7 +3,6 @@
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
-	import WarningToast from '$lib/components/ErrorToast.svelte';
 	import { getContext } from 'svelte';
 	import { userStore } from '$lib/stores';
 	import { goto } from '$app/navigation';
@@ -44,7 +43,7 @@
 				isPending = false;
 				handleCancel();
 				refetchCategories();
-				goto(`/documents/${data.uri}`);
+				goto(`/documents/${data._id}`);
 			})
 			.catch((err) => {
 				error = err.message;

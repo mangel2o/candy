@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-
 	import ButtonCategory from '$lib/components/ButtonCategory.svelte';
 	import CreateCategory from '$lib/modals/category/CreateCategory.svelte';
 	import { onMount, setContext } from 'svelte';
@@ -29,6 +28,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Documentos • Tecmilenio</title>
+</svelte:head>
+
 <template>
 	<div class="container">
 		<div class="categories">
@@ -38,7 +41,7 @@
 				<span>Something went wrong: {error}</span>
 			{:else}
 				{#each categories as category}
-					<ButtonCategory {category} path={`/documents/${category.uri}`} />
+					<ButtonCategory {category} path={`/documents/${category._id}`} />
 				{/each}
 			{/if}
 			<CreateCategory />

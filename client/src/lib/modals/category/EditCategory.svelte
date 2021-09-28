@@ -5,7 +5,6 @@
 	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
 	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 	import { userStore } from '$lib/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
@@ -50,7 +49,6 @@
 				handleCancel();
 				refetchCategories();
 				refetchCategory();
-				goto(`/documents/${data.uri}`);
 			})
 			.catch((err) => {
 				error = err.message;

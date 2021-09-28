@@ -28,6 +28,12 @@
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(editableTemplate).forEach((key) => formData.append(key, editableTemplate[key]));
+
+		// If the example file hasn't change, remove it
+		if (editableTemplate.example === template.example) {
+			formData.delete('example');
+		}
+
 		fetch(`http://localhost:4000/documents/${$page.params.category}/templates/${template._id}`, {
 			method: 'PUT',
 			body: formData
@@ -112,9 +118,6 @@
 			display: flex;
 			align-items: center;
 			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-			border-left: none;
-			border-right: none;
 
 			&:hover {
 				background-color: var(--area-color);

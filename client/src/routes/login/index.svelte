@@ -4,21 +4,19 @@
 	import Check from '$lib/icons/check.svelte';
 	import { onMount } from 'svelte';
 	import { userStore } from '$lib/stores';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
 	let checked = false;
 	let isPending = false;
-	let warningEmail;
-	let warningPassword;
+	let error = null;
 
 	let user = {
-		email: '',
+		identificator: '',
 		password: ''
 	};
 
 	function handleSubmit() {
 		isPending = true;
-		warningEmail = null;
-		warningPassword = null;
 		const formData = new FormData();
 		Object.keys(user).forEach((key) => formData.append(key, user[key]));
 
@@ -26,16 +24,21 @@
 			method: 'POST',
 			body: formData
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				if (data.warningEmail || data.warningPassword) {
-					warningEmail = data.warningEmail;
-					warningPassword = data.warningPassword;
+				if (data.error) {
+					error = data.error;
 					isPending = false;
 					return;
 				}
-				const newData = ({ password, ...data }) => data;
-				$userStore = newData(data);
+				const userData = ({ password, ...data }) => data;
+				$userStore = userData(data);
 				isPending = false;
 
 				setTimeout(() => {
@@ -43,7 +46,8 @@
 				}, 1000);
 			})
 			.catch((err) => {
-				console.log(err);
+				error = err.message;
+				isPending = false;
 			});
 	}
 
@@ -72,24 +76,18 @@
 				<span>Inicia sesión con una cuenta de tecmilenio</span>
 
 				<div class="input-field">
-					<span>Correo</span>
-					<input required bind:value={user.email} type="text" placeholder="Correo" />
-					{#if warningEmail}
-						<span class="warning">
-							{warningEmail}
-						</span>
-					{/if}
+					<span>Identificador</span>
+					<input required bind:value={user.identificator} type="text" placeholder="Identificador" />
 				</div>
 				<div class="input-field">
 					<span>Contraseña</span>
-
 					<input required bind:value={user.password} type="password" placeholder="Contraseña" />
-					{#if warningPassword}
-						<span class="warning">
-							{warningPassword}
-						</span>
-					{/if}
 				</div>
+
+				{#if error}
+					<ErrorToast bind:error />
+				{/if}
+
 				{#if false}
 					<div class="options-container">
 						<label for="check">
@@ -122,11 +120,6 @@
 
 		span {
 			color: var(--focus-color);
-		}
-
-		span.warning {
-			margin-left: 0.2rem;
-			color: var(--orange-color);
 		}
 	}
 

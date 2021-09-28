@@ -22,7 +22,7 @@
 		active: '',
 		career: '',
 		phone: '',
-		email: '',
+		personalEmail: '',
 		modality: '',
 		terminationPeriod: '',
 		terminationYear: '',
@@ -32,14 +32,16 @@
 	};
 
 	function handleSubmit() {
+		// * Return if the user didn't select any category
 		if (candidate.categories.length < 1) {
 			error = 'Debes seleccionar al menos una categoria para crear al candidato.';
 			return;
 		}
 
+		// * Return if any of the categories selected don't have templates
 		for (const selectedCategory of candidate.categories) {
-			const categoryFound = categories.find((category) => category.uri === selectedCategory);
-			if (categoryFound && categoryFound.templates < 1) {
+			const categorySelected = categories.find((category) => category._id === selectedCategory);
+			if (categorySelected && categorySelected.templates < 1) {
 				error = 'Al menos una de las categorias seleccionadas no tiene documentos.';
 				return;
 			}
@@ -87,7 +89,7 @@
 			active: '',
 			career: '',
 			phone: '',
-			email: '',
+			personalEmail: '',
 			modality: '',
 			terminationPeriod: '',
 			terminationYear: '',

@@ -4,10 +4,17 @@ const { Schema, model } = mongoose;
 const DocumentSchema = new Schema({
    name: String,
    description: String,
-   category: String,
+   category: {
+      ref: 'Category',
+      type: Schema.Types.ObjectId,
+   },
    status: String,
    examplePath: String,
-   path: String,
+   filepath: String,
+   template: {
+      ref: "Template",
+      type: Schema.Types.ObjectId,
+   },
    owner: {
       ref: 'Candidate',
       type: Schema.Types.ObjectId,

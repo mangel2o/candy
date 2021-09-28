@@ -4,7 +4,10 @@ const { Schema, model } = mongoose;
 const TemplateSchema = new Schema({
    name: String,
    description: String,
-   category: String,
+   category: {
+      ref: 'Category',
+      type: Schema.Types.ObjectId,
+   },
    examplePath: String,
    createdBy: {
       ref: 'User',

@@ -9,21 +9,12 @@
 	import DeleteCategory from '$lib/modals/Category/DeleteCategory.svelte';
 	import EditCategory from '$lib/modals/Category/EditCategory.svelte';
 	import { onMount, setContext } from 'svelte';
-	import { Buffer } from 'buffer';
+	import { convertDataToFile } from '$lib/utils';
 
 	let isPending = true;
 	let error = null;
 	let category;
 	let templates = [];
-
-	function convertDataToFile(data, name) {
-		let buffer = Buffer.from(data);
-		let arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-		let file = new File([arrayBuffer], name + '.pdf', {
-			type: 'application/pdf'
-		});
-		return file;
-	}
 
 	function fetchData() {
 		isPending = true;
@@ -34,8 +25,8 @@
 			)
 		])
 			.then(([dataCategory, dataTemplates]) => {
-				if (dataCategory.warning) {
-					error = dataCategory.warning;
+				if (dataCategory.error) {
+					error = dataCategory.error;
 					isPending = false;
 					return;
 				}
@@ -59,10 +50,6 @@
 		fetchData();
 	});
 </script>
-
-<svelte:head>
-	<title>Documentos {$page.params.category} • Tecmilenio</title>
-</svelte:head>
 
 <template>
 	<div class="container">
@@ -115,6 +102,7 @@
 
 		&.button {
 			display: flex;
+			border: 2px solid var(--border-color);
 			width: 100%;
 		}
 

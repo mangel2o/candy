@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import { page } from '$app/stores';
 	import ButtonLink from '$lib/components/ButtonLink.svelte';
 	import FileDocumentMultiple from '$lib/icons/file-document-multiple.svelte';
@@ -25,8 +25,8 @@
 			fetch(`http://localhost:4000/documents`).then((res) => res.json())
 		])
 			.then(([dataCandidate, dataCategories]) => {
-				if (dataCandidate.warning) {
-					error = dataCandidate.warning;
+				if (dataCandidate.error) {
+					error = dataCandidate.error;
 					isPending = false;
 					return;
 				}
@@ -69,7 +69,7 @@
 				<div class="options">
 					<div class="upper">
 						<EditCandidate {categories} {candidate} />
-						<DeleteCandidate {candidate} />
+						<DeleteCandidate />
 					</div>
 
 					<button
@@ -88,8 +88,7 @@
 				<div class="categories-container">
 					{#each candidate.categories as category}
 						<div class="category">
-							{category[0].toString().toUpperCase() +
-								category.toString().substring(1).replace(/-/g, ' ')}
+							{category.name}
 						</div>
 					{/each}
 				</div>
@@ -120,7 +119,9 @@
 
 			<!--CONTENT-->
 			<div class="content">
-				<slot />
+				{#key candidate}
+					<slot />
+				{/key}
 			</div>
 		{/if}
 	</div>

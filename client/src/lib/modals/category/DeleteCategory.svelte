@@ -33,7 +33,7 @@
 				}
 				error = null;
 				isPending = false;
-				handleCancel();
+				isOpen = false;
 				refetchCategories();
 				goto('/documents');
 			})
@@ -69,7 +69,6 @@
 				<ErrorToast bind:error />
 			{/if}
 			<div>
-				error
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">
 					{#if isPending}

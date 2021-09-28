@@ -1,127 +1,154 @@
+import Mongoose from "mongoose";
 import Template from "../models/Template.js";
 import Category from "../models/Category.js";
 import fs from "fs";
 import path from "path";
+import Document from "../models/Document.js";
 
+/**
+ * * Creates a new template
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 export const createTemplate = async (req, res) => {
-   const categoryUri = req.params.categoryId;
+   // * Initializes values
+   const categoryId = req.params.categoryId;
    const { name, description, authorId } = req.fields;
    const tempFile = req.files.example;
 
-   const standardizedName = standardizeValue(name);
-   const templateCreated = await new Template({
-      name: standardizedName,
-      description: description,
-      category: categoryUri,
-      createdBy: authorId,
-   });
-   const examplePath = path.join(process.cwd(), "uploads", "templates", templateCreated._id + ".pdf");
-   templateCreated.examplePath = examplePath;
-   templateCreated.save();
+   // * Checks if the category exists
+   const categoryExist = await Category.findById(categoryId);
+   if (!categoryExist) return res.json({ warning: "Esta categoría no existe" });
 
-   fs.writeFileSync(examplePath, fs.readFileSync(tempFile.path));
+   // * Creates a new template
+   const newId = new Mongoose.Types.ObjectId();
+   const templateCreated = await new Template({
+      _id: newId,
+      name: name,
+      description: description,
+      category: categoryId,
+      examplePath: path.join(process.cwd(), "uploads", "templates", newId + ".pdf"),
+      createdBy: authorId,
+   }).save();
+
+   // * Adds the new template id to the category
+   await Category.findByIdAndUpdate(categoryId, { $push: { templates: templateCreated._id } },);
+
+   // * Creates the file in the current working directory
+   fs.writeFileSync(templateCreated.examplePath, fs.readFileSync(tempFile.path));
    fs.unlinkSync(tempFile.path);
 
-   // Updates category by adding ID of new template
-   await Category.findOneAndUpdate(
-      { uri: categoryUri },
-      {
-         $push: {
-            templates: templateCreated._id
-         }
-      },
-      {
-         new: true
-      }
-   );
-
+   // * Sends the created template as response
    res.json(templateCreated);
 }
 
-
+/**
+ * * Gets all existing templates
+ * @param {*} req 
+ * @param {*} res 
+ */
 export const getTemplates = async (req, res) => {
-   const categoryUri = req.params.categoryId;
-   const templatesFound = await Template.find({ category: categoryUri });
+   // * Gets the parameters
+   const categoryId = req.params.categoryId;
 
-   // Creates a new array of templates with the data of the corresponding filepaths
+   // * Finds all templates from the respective category
+   const templatesFound = await Template.find({ category: categoryId });
+
+   // * Creates a new array of templates with the data of the corresponding filepaths
    let templatesComputed = [];
    for (let i = 0; i < templatesFound.length; i++) {
       templatesComputed.push({ ...templatesFound[i]._doc, example: fs.readFileSync(templatesFound[i]._doc.examplePath) });
    }
 
+   // * Sends the templates as response
    res.json(templatesComputed);
 }
 
+/**
+ * * Updates template by id
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 export const updateTemplateById = async (req, res) => {
+   // * Initializes values
+   const categoryId = req.params.categoryId;
    const templateId = req.params.templateId;
    const { name, description, authorId } = req.fields;
    const tempFile = req.files.example;
 
-   const templateExists = await Template.findById(templateId);
-   if (!templateExists) {
-      fs.unlinkSync(tempFile.path);
+   // * Checks if the category exists
+   const categoryExist = await Category.findById(categoryId);
+   if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
+
+   // * Check if the template exists, if not then delete the temporal file
+   const templateExist = await Template.findById(templateId);
+   if (!templateExist) {
+      if (tempFile) {
+         fs.unlinkSync(tempFile.path);
+      }
       return res.json({ error: "Este documento ya no existe" });
    }
 
-   const standardizedName = standardizeValue(name);
-   const examplePath = path.join(process.cwd(), "uploads", "templates", templateId + ".pdf");
-   const templateUpdated = await Template.findByIdAndUpdate(
+   // * Updates the template with new values
+   await Template.findByIdAndUpdate(
       templateId,
       {
-         name: standardizedName,
+         name: name,
          description: description,
-         examplePath: examplePath,
          updatedBy: authorId
       },
-      {
-         new: true
-      }
+      { new: true }
    )
 
-   // Finds and deletes previous file
-   fs.unlinkSync(templateExists.examplePath);
+   // * If theres a temporal file, updates the file corresponding to this template
+   if (tempFile) {
+      // * Creates a new file
+      fs.writeFileSync(templateUpdated.examplePath, fs.readFileSync(tempFile.path));
 
-   // Creates new file
-   fs.writeFileSync(examplePath, fs.readFileSync(tempFile.path));
+      // * Deletes the temporal file
+      fs.unlinkSync(tempFile.path);
+   }
 
-   // Deletes temporal file
-   fs.unlinkSync(tempFile.path);
-
-   res.json(templateUpdated);
+   // * Sends a success response
+   res.json({ success: "Se realizo la operación exitosamente" });
 }
 
+/**
+ * * Deletes template by id
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 export const deleteTemplateById = async (req, res) => {
-   const categoryUri = req.params.categoryId;
+   // * Gets the parameters
+   const categoryId = req.params.categoryId;
    const templateId = req.params.templateId;
 
-   const templateExists = await Template.findById(templateId);
-   if (!templateExists) return res.json({ error: "Este documento ya no existe" });
+   // * Checks if the category exists
+   const categoryExist = await Category.findById(categoryId);
+   if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
 
-   // Deletes existing file
-   /*
-   * Uncomment if you want to delete file
-   if (fs.existsSync(templateExists.examplePath)) {
-      fs.unlinkSync(templateExists.examplePath);
+   // * Checks if the template exists
+   const templateExist = await Template.findById(templateId);
+   if (!templateExist) return res.json({ error: "Este documento ya no existe" });
+
+   // * Checks if there are no documents created with this template
+   const documentsExist = await Document.findOne({ template: templateId });
+   if (documentsExist) {
+      return res.json({ error: "Este documento no se puede eliminar" });
+   } else {
+      // * Deletes the template
+      const templateDeleted = await Template.findByIdAndDelete(templateId);
+
+      // * Deletes the file
+      fs.unlinkSync(templateDeleted.examplePath);
+
+      // * Removes the template id from the corresponding category
+      await Category.findByIdAndUpdate(categoryId, { $pull: { templates: templateId } });
    }
-   */
 
-   const templateDeleted = await Template.findByIdAndDelete(templateId);
-
-   // Updates category by removing ID of deleted template
-   await Category.findOneAndUpdate(
-      { uri: categoryUri },
-      {
-         $pull: {
-            templates: templateId
-         }
-      }
-   )
-
-   res.json(templateDeleted);
+   // * Sends a success response
+   res.json({ success: "Se realizo la operación exitosamente" });
 }
-
-function standardizeValue(value) {
-   return value[0].toString().toUpperCase() +
-      value.toString().toLowerCase().substring(1).replace(/-/g, ' ');
-}
-

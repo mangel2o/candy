@@ -8,7 +8,7 @@
 	import { getContext } from 'svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	let refetchCategory: Function = getContext('refetchCategory');
+	const refetchCategory: Function = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
 	let error = null;
@@ -35,7 +35,7 @@
 				}
 				error = null;
 				isPending = false;
-				handleCancel();
+				isOpen = false;
 				refetchCategory();
 			})
 			.catch((err) => {
@@ -63,7 +63,7 @@
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<DeleteContent>
-				<span class="delete">¿Deseas eliminar esta categoria?</span>
+				<span class="delete">¿Deseas eliminar este documento?</span>
 				<span class="delete"> Esta acción es irreversible</span>
 			</DeleteContent>
 			{#if error}
@@ -103,9 +103,6 @@
 			display: flex;
 			align-items: center;
 			background-color: var(--input-color);
-
-			border: 2px solid var(--border-color);
-			border-left: none;
 
 			&:hover {
 				background-color: var(--area-color);

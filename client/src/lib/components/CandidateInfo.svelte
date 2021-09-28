@@ -49,7 +49,7 @@
 			</div>
 			<div class="field ">
 				<span>Correo personal</span>
-				<span class="value">{candidate.email}</span>
+				<span class="value">{candidate.personalEmail}</span>
 			</div>
 			<div class="field ">
 				<span>Terminación</span>

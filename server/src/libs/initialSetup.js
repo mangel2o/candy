@@ -25,26 +25,29 @@ export const createUsers = async () => {
       const values = await Promise.all([
          new User({
             name: "Miguel Ángel Castro García",
-            number: 2865034,
+            number: "al02865034",
             campus: "Las Torres",
-            email: "mangelcg.2o@outlook.com",
+            personalEmail: "mangelcg.2o@outlook.com",
+            institutionalEmail: "al02865034@tecmilenio.mx",
             password: await User.encryptPassword("password"),
             role: "admin"
          }).save(),
          new User({
             name: "Alberto",
-            number: 2788124,
+            number: "al02788124",
             campus: "Las Torres",
-            email: "Alberto.2o@outlook.com",
+            personalEmail: "Alberto.2o@outlook.com",
+            institutionalEmail: "al02788124@tecmilenio.mx",
             password: await User.encryptPassword("12345"),
             role: "moderator"
 
          }).save(),
          new User({
             name: "Goku",
-            number: 2864123,
+            number: "al02864123",
             campus: "Las Torres",
-            email: "Goku.2o@outlook.com",
+            personalEmail: "Goku.2o@outlook.com",
+            institutionalEmail: "al02864123@tecmilenio.mx",
             password: await User.encryptPassword("random"),
             role: "user"
 

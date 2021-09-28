@@ -6,26 +6,39 @@
 	import { getContext } from 'svelte';
 	import { userStore } from '$lib/stores';
 	import { page } from '$app/stores';
-	import WarningToast from '$lib/components/WarningToast.svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	const refetchCandidates: Function = getContext('refetchCandidates');
-	export let categories = [];
-	let availableCategories = [...categories].filter(
-		(category) => ![...candidate.categories].includes(category.uri)
-	);
+	const refetchCandidate: Function = getContext('refetchCandidate');
 	let isPending = false;
 	let isOpen = false;
 	let error = null;
 
 	export let candidate;
+	export let categories = [];
 	let editableCandidate = { ...candidate, newCategories: [] };
-
-	$: disableSubmit = Object.keys(candidate).every(
-		(key) => editableCandidate.hasOwnProperty(key) && editableCandidate[key] === candidate[key]
+	let availableCategories = categories.filter(
+		(category) => !candidate.categories.find(({ _id }) => category._id === _id)
 	);
 
+	let disableSubmit;
+	$: if (editableCandidate.newCategories.length > 0) {
+		disableSubmit = false;
+	} else {
+		disableSubmit = Object.keys(candidate).every(
+			(key) => editableCandidate.hasOwnProperty(key) && editableCandidate[key] === candidate[key]
+		);
+	}
+
 	function handleSubmit() {
+		// * Return if any of the categories selected have empty templates
+		for (const selectedCategory of editableCandidate.newCategories) {
+			const categorySelected = categories.find((category) => category._id === selectedCategory);
+			if (categorySelected && categorySelected.templates < 1) {
+				error = 'Al menos una de las categorias seleccionadas no tiene documentos.';
+				return;
+			}
+		}
+
 		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
@@ -50,7 +63,7 @@
 				error = null;
 				isPending = false;
 				handleCancel();
-				refetchCandidates();
+				refetchCandidate();
 			})
 			.catch((err) => {
 				error = err;
@@ -80,9 +93,7 @@
 			{#if error}
 				<ErrorToast bind:error />
 			{/if}
-			{#if availableCategories.length < 1}
-				<WarningToast>Parece que no hay categorias que agregar</WarningToast>
-			{/if}
+
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button disabled={disableSubmit} class="submit" type="submit">

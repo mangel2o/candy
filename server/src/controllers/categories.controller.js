@@ -1,111 +1,139 @@
+import Mongoose from "mongoose";
+import fs from "fs";
 import Category from "../models/Category.js";
 import Template from "../models/Template.js";
 import Candidate from "../models/Candidate.js";
-import fs from "fs";
+import { standardizeValue } from "../libs/utils.js";
 
+/**
+ * * Creates a new category
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 export const createCategory = async (req, res) => {
+   // * Initializes values
    const { name, description, authorId } = req.fields;
-
    const standardizedName = standardizeValue(name);
-   const categoryFound = await Category.findOne({ name: standardizedName });
-   if (categoryFound) return res.json({ error: "Esta categoria ya existe" });
 
+   // * Checks if category's name is in use
+   const categoryExist = await Category.findOne({ name: standardizedName });
+   if (categoryExist) return res.json({ error: "Esta categoria ya existe" });
+
+
+   // * Creates a new category
    const categoryCreated = await new Category({
       name: standardizedName,
-      uri: replaceSpacesWithHyphens(standardizedName),
       description: description,
       createdBy: authorId
    }).save();
 
+   // * Sends the new category as response
    res.json(categoryCreated)
 }
 
+/**
+ * * Gets all existing categories
+ * @param {*} req 
+ * @param {*} res 
+ */
 export const getCategories = async (req, res) => {
+   // * Finds all categories and sends them to the client
    const categoriesFound = await Category.find();
    res.json(categoriesFound);
 }
 
+/**
+ * * Gets category by id
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 export const getCategoryById = async (req, res) => {
-   const categoryUri = req.params.categoryId;
+   // * Checks if the request parameter is a valid ObjectId
+   const categoryId = req.params.categoryId;
+   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.json({ error: "Esta categoria no existe" });
 
-   const categoryFound = await Category.findOne({ uri: categoryUri });
-   if (!categoryFound) return res.json({ error: "Esta categoria no existe" });
+   // * Checks if the category exists
+   const categoryExist = await Category.findById(categoryId);
+   if (!categoryExist) return res.json({ error: "Esta categoria no existe" });
 
-   res.json(categoryFound);
+   // * Sends the category as response
+   res.json(categoryExist);
 }
 
+/**
+ * * Updates category by id
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 export const updateCategoryById = async (req, res) => {
-   const categoryUri = req.params.categoryId;
-   const categoryExistsByUri = await Category.findOne({ uri: categoryUri });
-   if (!categoryExistsByUri) return res.json({ error: "Esta categoria ya no existe" });
+   // * Checks if the request parameter is a valid ObjectId
+   const categoryId = req.params.categoryId;
+   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.json({ error: "Esta categoria no existe" });
 
-   const { name, description, authorId } = req.fields;
+   // * Gets values
+   const { name, description, authorId, } = req.fields;
+
+   // * Checks if the category exists
+   const categoryExist = await Category.findById(categoryId);
+   if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
+
+   // * Checks if the new category's name isn't used already
    const standardizedName = standardizeValue(name);
+   const categoryExistByName = await Category.findOne({ _id: { $ne: categoryId }, name: standardizedName });
+   if (categoryExistByName) return res.json({ error: "Esta categoria ya existe" });
 
-   const categoryExistsByName = await Category.findOne({ name: standardizedName });
-   if (standardizeValue(categoryUri) !== standardizedName &&
-      categoryExistsByName.name === standardizedName) return res.json({ error: "Esta categoria ya existe" });
-
-   const categoryUpdated = await Category.findOneAndUpdate(
-      { uri: categoryUri },
+   // * Updates the existing category with the new values
+   const categoryUpdated = await Category.findByIdAndUpdate(
+      categoryId,
       {
          name: standardizedName,
-         uri: standardizedName.toLowerCase().replace(/\s/g, "-"),
          description: description,
          updatedBy: authorId
       },
-      {
-         new: true
-      }
+      { new: true }
    )
 
-   // Updates all templates corresponding to this category
-   await Template.updateMany({ category: categoryUri }, { category: categoryUpdated.uri });
-
+   // * Sends the updated category as response
    res.json(categoryUpdated);
 }
 
+/**
+ * * Deletes category by id
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 export const deleteCategoryById = async (req, res) => {
-   const categoryUri = req.params.categoryId;
-   const categoryExists = await Category.findOne({ uri: categoryUri });
-   if (!categoryExists) return res.json({ error: "Esta categoria ya no existe" });
+   // * Checks if the request parameter is a valid ObjectId
+   const categoryId = req.params.categoryId;
+   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.json({ error: "Esta categoria no existe" });
 
-   const categoryDeleted = await Category.findOneAndDelete({ uri: categoryUri });
+   // * Checks if the category exists
+   const categoryExist = await Category.findById(categoryId);
+   if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
 
-   // Finds and deletes all template files corresponding to this category
-   /*
-   * Uncomment this if you want to delete the files
-   const templatesFound = await Template.find({ category: categoryUri });
-   for (let i = 0; i < templatesFound.length; i++) {
-      if (fs.existsSync(templatesFound[i].examplePath)) {
-         fs.unlinkSync(templatesFound[i].examplePath);
+   // * If there are no candidates created with this category, then the category can be deleted
+   const candidatesExist = await Candidate.findOne({ categories: { $in: categoryId } });
+   if (candidatesExist) {
+      return res.json({ error: "Esta categoria no se puede eliminar" });
+   } else {
+      // * Deletes the category
+      await Category.findByIdAndDelete(categoryId);
+
+      // * Deletes the files corresponding to this category
+      const templatesFound = await Template.find({ category: categoryId });
+      for (const template of templatesFound) {
+         fs.unlinkSync(template.examplePath);
       }
+
+      // * Deletes all templates corresponding to this category
+      await Template.deleteMany({ category: categoryId });
    }
-   */
-   /*
-   const candidatesWithCategoryExist = await Candidate.find({ name: categoryDeleted.name });
-   if (candidatesWithCategoryExist) {
 
-   }
-*/
-   // Deletes all templates corresponding to this category
-   await Template.deleteMany({ category: categoryUri });
-
-   /**
-    * TODO: check if there are candidates using this category before deleting
-    * * if there are candidates, then add this category to "deletedCategories" collection
-    * * this will avoid creating categories with the same name
-    */
-
-
-   res.json(categoryDeleted);
+   // * Sends a success response
+   res.json({ success: "Se realizo la operación exitosamente" });
 }
 
-function standardizeValue(value) {
-   return value[0].toString().toUpperCase() +
-      value.toString().toLowerCase().substring(1).replace(/-/g, ' ');
-}
-
-function replaceSpacesWithHyphens(value) {
-   return value.toLowerCase().replace(/\s/g, "-");
-}

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import WarningToast from '$lib/components/ErrorToast.svelte';
 	import {
 		campuses,
 		careersEjecutive,
@@ -29,9 +28,9 @@
 				<span>Matricula</span>
 				<input
 					required
-					type="number"
+					type="text"
 					bind:value={candidate.number}
-					maxlength="7"
+					maxlength="10"
 					placeholder="Escribe una matricula"
 				/>
 			</div>
@@ -129,7 +128,7 @@
 					required
 					type="email"
 					placeholder="Escribe un correo personal"
-					bind:value={candidate.email}
+					bind:value={candidate.personalEmail}
 				/>
 			</div>
 		</div>
@@ -194,11 +193,11 @@
 								<div class="category">
 									<input
 										type="checkbox"
-										id={category.uri}
+										id={category._id}
 										bind:group={candidate.newCategories}
-										value={category.uri}
+										value={category._id}
 									/>
-									<label for={category.uri}>
+									<label for={category._id}>
 										{category.name}
 									</label>
 								</div>
@@ -208,11 +207,11 @@
 								<div class="category">
 									<input
 										type="checkbox"
-										id={category.uri}
+										id={category._id}
 										bind:group={candidate.categories}
-										value={category.uri}
+										value={category._id}
 									/>
-									<label for={category.uri}>
+									<label for={category._id}>
 										{category.name}
 									</label>
 								</div>
@@ -326,16 +325,5 @@
 
 	input[type='checkbox']:checked + label {
 		border: 2px solid var(--green-color);
-	}
-
-	input::-webkit-outer-spin-button,
-	input::-webkit-inner-spin-button {
-		-webkit-appearance: none;
-		margin: 0;
-	}
-
-	/* Firefox */
-	input[type='number'] {
-		-moz-appearance: textfield;
 	}
 </style>

@@ -2,10 +2,14 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import File from '$lib/icons/file-document.svelte';
+	import { onDestroy } from 'svelte';
 
 	export let template;
 
 	// "http://africau.edu/images/default/sample.pdf#toolbar=0"
+	onDestroy(() => {
+		URL.revokeObjectURL(template.example);
+	});
 </script>
 
 <template>
@@ -81,8 +85,6 @@
 			align-items: center;
 			gap: 6px;
 			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-			border-right: none;
 
 			&:hover {
 				background-color: var(--area-color);

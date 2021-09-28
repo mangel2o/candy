@@ -6,10 +6,6 @@ const CategorySchema = new Schema({
       type: String,
       unique: true
    },
-   uri: {
-      type: String,
-      unique: true
-   },
    description: String,
    templates: [{
       ref: 'Template',

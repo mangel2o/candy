@@ -5,11 +5,12 @@ const { Schema, model } = mongoose;
 const UserSchema = new Schema({
    name: String,
    number: {
-      type: Number,
+      type: String,
       unique: true
    },
    campus: String,
-   email: {
+   personalEmail: String,
+   institutionalEmail: {
       type: String,
       unique: true
    },
