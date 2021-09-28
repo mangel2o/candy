@@ -11,24 +11,22 @@
 <template>
 	<ClickOutside on:clickoutside={() => (isDropdownActive = false)}>
 		<!--PROFILE BUTTON-->
-		<button class="dropdown-btn" on:click={() => (isDropdownActive = !isDropdownActive)}>
-			<span class:active={isDropdownActive}><Icon src={Account} /></span>
-			<span class:active={isDropdownActive}>User</span>
-		</button>
+		<div class="dropdown">
+			<button class="dropbtn" on:click={() => (isDropdownActive = !isDropdownActive)}>
+				<span class:active={isDropdownActive}><Icon src={Account} /></span>
+				<span class:active={isDropdownActive}>
+					{$userStore.name.split(' ')[0]}
+				</span>
+			</button>
 
-		<!--DROPDOWN CONTENT-->
-		{#if isDropdownActive}
-			<div class="dropdown-container">
-				<button> Ver perfil </button>
-				<button
-					on:click={() => {
-						$userStore = null;
-					}}
-				>
-					Cerrar sesión
-				</button>
-			</div>
-		{/if}
+			<!--DROPDOWN CONTENT-->
+			{#if isDropdownActive}
+				<div class="dropcontent">
+					<button> Ver perfil </button>
+					<button on:click={() => ($userStore = null)}> Cerrar sesión </button>
+				</div>
+			{/if}
+		</div>
 	</ClickOutside>
 </template>
 
@@ -39,7 +37,7 @@
 		align-items: center;
 		gap: 6px;
 		background-color: var(--area-color);
-		padding: 14px;
+		padding: 1rem;
 
 		span {
 			display: flex;
@@ -55,17 +53,31 @@
 		}
 	}
 
-	div.dropdown-container {
-		position: absolute;
-		top: 60px;
-		right: 10px;
-		background-color: var(--area-color);
-		& > button {
-			width: 100%;
-			border: 1px solid var(--border-color);
-			&:hover {
-				background-color: var(--input-color);
+	div {
+		&.dropdown {
+			display: inline-block;
+			position: relative;
+		}
+
+		&.dropcontent {
+			position: absolute;
+			background-color: var(--area-color);
+			right: 0;
+			width: 10rem;
+
+			button {
+				width: 100%;
+				border: 1px solid var(--border-color);
+				&:hover {
+					background-color: var(--input-color);
+				}
 			}
+		}
+	}
+
+	button {
+		&.dropbtn {
+			height: 64px;
 		}
 	}
 </style>

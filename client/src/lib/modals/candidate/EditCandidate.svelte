@@ -6,33 +6,26 @@
 	import { getContext } from 'svelte';
 	import { userStore } from '$lib/stores';
 	import { page } from '$app/stores';
+	import WarningToast from '$lib/components/WarningToast.svelte';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
 	const refetchCandidates: Function = getContext('refetchCandidates');
 	export let categories = [];
+	let availableCategories = [...categories].filter(
+		(category) => ![...candidate.categories].includes(category.uri)
+	);
 	let isPending = false;
 	let isOpen = false;
-	let isCategoriesEmpty = false;
-	let isTemplatesEmpty = false;
-	let warning = null;
+	let error = null;
 
 	export let candidate;
 	let editableCandidate = { ...candidate, newCategories: [] };
 
-	$: disableEdit = Object.keys(candidate).every(
+	$: disableSubmit = Object.keys(candidate).every(
 		(key) => editableCandidate.hasOwnProperty(key) && editableCandidate[key] === candidate[key]
 	);
 
 	function handleSubmit() {
-		for (const key of editableCandidate.newCategories) {
-			const categoryFound = categories.find((category) => category.uri === key);
-			if (categoryFound && categoryFound.templates < 1) {
-				isTemplatesEmpty = true;
-				return;
-			}
-		}
-		isCategoriesEmpty = false;
-		isTemplatesEmpty = false;
-
 		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
@@ -41,27 +34,33 @@
 			method: 'PUT',
 			body: formData
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				if (data.warning) {
-					warning = data.warning;
+				if (data.error) {
+					error = data.error;
 					isPending = false;
 					return;
 				}
-				warning = null;
+				error = null;
 				isPending = false;
 				handleCancel();
 				refetchCandidates();
 			})
 			.catch((err) => {
-				warning = err;
+				error = err;
 				isPending = false;
 			});
 	}
 
 	function handleCancel() {
 		editableCandidate = { ...candidate, newCategories: [] };
-		warning = null;
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -77,17 +76,16 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CandidateContent
-				isEditCandidate={true}
-				bind:categories
-				bind:warning
-				bind:isCategoriesEmpty
-				bind:isTemplatesEmpty
-				bind:candidate={editableCandidate}
-			/>
+			<CandidateContent bind:categories={availableCategories} bind:candidate={editableCandidate} />
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
+			{#if availableCategories.length < 1}
+				<WarningToast>Parece que no hay categorias que agregar</WarningToast>
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button disabled={disableEdit} class="submit" type="submit">
+				<button disabled={disableSubmit} class="submit" type="submit">
 					{#if isPending}
 						Loading...
 					{:else}

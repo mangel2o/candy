@@ -1,8 +1,8 @@
 import { Router } from "express";
-import * as candidatesController from "../controllers/candidates.controller";
-import * as documentsController from "../controllers/documents.controller";
-import * as observationsController from "../controllers/observations.controller";
-import * as archivesController from "../controllers/archives.controller";
+import * as candidatesController from "../controllers/candidates.controller.js";
+import * as documentsController from "../controllers/documents.controller.js";
+import * as observationsController from "../controllers/observations.controller.js";
+import * as archivesController from "../controllers/archives.controller.js";
 
 const router = Router();
 

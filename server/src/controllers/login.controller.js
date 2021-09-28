@@ -1,6 +1,4 @@
-import User from "../models/User";
-import config from "../config";
-import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 export const signIn = async (req, res) => {
    const { email, password } = req.fields;

@@ -1,17 +1,17 @@
-import Candidate from "../models/Candidate";
-import Template from "../models/Template";
-import Document from "../models/Document";
-import User from "../models/User";
+import Candidate from "../models/Candidate.js";
+import Template from "../models/Template.js";
+import Document from "../models/Document.js";
+import User from "../models/User.js";
 
 export const createCandidate = async (req, res) => {
    const data = req.fields;
    const categoryNames = data.categories.split(',');
 
    const userExists = await User.findOne({ number: data.number });
-   if (userExists) return res.json({ warning: "Esta matricula ya ha sido registrada" });
+   if (userExists) return res.json({ error: "Esta matricula ya ha sido registrada" });
 
    const candidateExists = await Candidate.findOne({ number: data.number });
-   if (candidateExists) return res.json({ warning: "Este candidato ya existe" });
+   if (candidateExists) return res.json({ error: "Este candidato ya existe" });
 
    const userCreated = await new User({
       name: data.name,

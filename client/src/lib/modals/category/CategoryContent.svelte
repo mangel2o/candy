@@ -1,12 +1,5 @@
 <script lang="ts">
 	export let category;
-	export let warning = null;
-
-	function handleInput() {
-		if (warning) {
-			warning = null;
-		}
-	}
 </script>
 
 <template>
@@ -14,17 +7,7 @@
 		<div class="row">
 			<div class="field">
 				<span class="tag">Nombre de la categoria</span>
-				<input
-					type="text"
-					bind:value={category.name}
-					on:input={handleInput}
-					placeholder="Nombre de la categoria"
-				/>
-				{#if warning}
-					<span class="warning">
-						{warning}
-					</span>
-				{/if}
+				<input type="text" bind:value={category.name} placeholder="Nombre de la categoria" />
 			</div>
 		</div>
 		<div class="row">
@@ -62,10 +45,6 @@
 	span {
 		&.tag {
 			color: var(--focus-color);
-		}
-
-		&.warning {
-			color: var(--orange-color);
 		}
 	}
 

@@ -3,21 +3,23 @@
 	import Pencil from '$lib/icons/pencil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
-	import { getContext, onMount } from 'svelte';
+	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { userStore } from '$lib/stores';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	let refetchCategories: Function = getContext('refetchCategories');
-	let refetchCategory: Function = getContext('refetchCategory');
+	const refetchCategories: Function = getContext('refetchCategories');
+	const refetchCategory: Function = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
-	let warning;
+	let error = null;
 
 	export let category;
 	let editableCategory = { ...category };
 
-	$: disableEdit = Object.keys(category).every(
+	// Disable submit button if there's no changes
+	$: disableSubmit = Object.keys(category).every(
 		(key) => editableCategory.hasOwnProperty(key) && editableCategory[key] === category[key]
 	);
 
@@ -30,14 +32,20 @@
 			method: 'PUT',
 			body: formData
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				if (data.warning) {
-					warning = data.warning;
+				if (data.error) {
+					error = data.error;
 					isPending = false;
 					return;
 				}
-				warning = null;
+				error = null;
 				isPending = false;
 				handleCancel();
 				refetchCategories();
@@ -45,14 +53,14 @@
 				goto(`/documents/${data.uri}`);
 			})
 			.catch((err) => {
-				warning = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
 
 	function handleCancel() {
 		editableCategory = { ...category };
-		warning = null;
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -68,10 +76,13 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:warning bind:category={editableCategory} />
+			<CategoryContent bind:category={editableCategory} />
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button disabled={disableEdit} class="submit" type="submit">
+				<button disabled={disableSubmit} class="submit" type="submit">
 					{#if isPending}
 						Loading...
 					{:else}

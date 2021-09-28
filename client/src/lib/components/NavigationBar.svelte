@@ -33,7 +33,9 @@
 		</div>
 
 		<!--DROPDOWN BUTTON-->
-		<ProfileDropdown />
+		{#if $userStore}
+			<ProfileDropdown />
+		{/if}
 	</nav>
 </template>
 

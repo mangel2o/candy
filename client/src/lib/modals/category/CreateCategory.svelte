@@ -3,15 +3,16 @@
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
+	import WarningToast from '$lib/components/ErrorToast.svelte';
 	import { getContext } from 'svelte';
 	import { userStore } from '$lib/stores';
 	import { goto } from '$app/navigation';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	let refetchCategories: Function = getContext('refetchCategories');
+	const refetchCategories: Function = getContext('refetchCategories');
 	let isPending = false;
 	let isOpen = false;
-	let warning;
-
+	let error = null;
 	let category = {
 		name: '',
 		description: ''
@@ -26,21 +27,27 @@
 			method: 'POST',
 			body: formData
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				if (data.warning) {
-					warning = data.warning;
+				if (data.error) {
+					error = data.error;
 					isPending = false;
 					return;
 				}
-				warning = null;
+				error = null;
 				isPending = false;
 				handleCancel();
 				refetchCategories();
 				goto(`/documents/${data.uri}`);
 			})
 			.catch((err) => {
-				warning = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
@@ -50,7 +57,7 @@
 			name: '',
 			description: ''
 		};
-		warning = null;
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -58,7 +65,7 @@
 <template>
 	<Modal bind:isOpen>
 		<button class="create" slot="trigger" let:open on:click={open}>
-			<Icon src={Plus} />
+			<div><Icon src={Plus} /></div>
 			<span>Crear categoria</span>
 		</button>
 
@@ -67,7 +74,10 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CategoryContent bind:warning bind:category />
+			<CategoryContent bind:category />
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

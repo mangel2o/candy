@@ -3,45 +3,50 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
-	import { getContext, onMount } from 'svelte';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
-	let refetchCategories: Function = getContext('refetchCategories');
+	const refetchCategories: Function = getContext('refetchCategories');
 	let isOpen = false;
 	let isPending = false;
-	let warning;
+	let error = null;
 
 	function handleSubmit() {
 		isPending = true;
 		fetch(`http://localhost:4000/documents/${$page.params.category}`, {
 			method: 'DELETE'
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				if (data.warning) {
-					warning = data.warning;
+				if (data.error) {
+					error = data.error;
 					isPending = false;
 					return;
 				}
-				warning = null;
+				error = null;
 				isPending = false;
 				handleCancel();
 				refetchCategories();
 				goto('/documents');
 			})
 			.catch((err) => {
-				warning = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
 
 	function handleCancel() {
-		warning = null;
+		error = null;
 		isOpen = false;
 	}
-
-	onMount(() => {});
 </script>
 
 <template>
@@ -52,12 +57,19 @@
 		</button>
 
 		<!--Header-->
-		<span class="header" slot="header"> Eliminar categoria </span>
+		<span slot="header"> Eliminar categoria </span>
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent bind:warning prop={'esta categoria'} />
+			<DeleteContent>
+				<span class="delete">¿Deseas eliminar esta categoria?</span>
+				<span class="delete"> Esta acción es irreversible</span>
+			</DeleteContent>
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
 			<div>
+				error
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">
 					{#if isPending}
@@ -81,6 +93,12 @@
 	div {
 		display: flex;
 		gap: 1rem;
+	}
+
+	span {
+		&.delete {
+			color: var(--placeholder-color);
+		}
 	}
 
 	button {

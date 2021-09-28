@@ -1,5 +1,5 @@
-import Template from "../models/Template";
-import Category from "../models/Category";
+import Template from "../models/Template.js";
+import Category from "../models/Category.js";
 import fs from "fs";
 import path from "path";
 
@@ -8,8 +8,9 @@ export const createTemplate = async (req, res) => {
    const { name, description, authorId } = req.fields;
    const tempFile = req.files.example;
 
+   const standardizedName = standardizeValue(name);
    const templateCreated = await new Template({
-      name: name,
+      name: standardizedName,
       description: description,
       category: categoryUri,
       createdBy: authorId,
@@ -56,17 +57,18 @@ export const updateTemplateById = async (req, res) => {
    const { name, description, authorId } = req.fields;
    const tempFile = req.files.example;
 
-   const templateExists = await Template.findOne({ _id: templateId });
+   const templateExists = await Template.findById(templateId);
    if (!templateExists) {
       fs.unlinkSync(tempFile.path);
-      return res.json({ warning: "Este documento ya no existe" });
+      return res.json({ error: "Este documento ya no existe" });
    }
 
-   const examplePath = path.join(process.cwd(), "uploads", "templates", templateExists._id + ".pdf");
-   const templateUpdated = await Template.findOneAndUpdate(
-      { _id: templateId },
+   const standardizedName = standardizeValue(name);
+   const examplePath = path.join(process.cwd(), "uploads", "templates", templateId + ".pdf");
+   const templateUpdated = await Template.findByIdAndUpdate(
+      templateId,
       {
-         name: name,
+         name: standardizedName,
          description: description,
          examplePath: examplePath,
          updatedBy: authorId
@@ -92,17 +94,20 @@ export const deleteTemplateById = async (req, res) => {
    const categoryUri = req.params.categoryId;
    const templateId = req.params.templateId;
 
-   const templateExists = await Template.findOne({ _id: templateId });
-   if (!templateExists) return res.json({ warning: "Este documento ya no existe" });
+   const templateExists = await Template.findById(templateId);
+   if (!templateExists) return res.json({ error: "Este documento ya no existe" });
 
    // Deletes existing file
+   /*
+   * Uncomment if you want to delete file
    if (fs.existsSync(templateExists.examplePath)) {
       fs.unlinkSync(templateExists.examplePath);
    }
+   */
 
-   const templateDeleted = await Template.findOneAndDelete({ _id: templateId });
+   const templateDeleted = await Template.findByIdAndDelete(templateId);
 
-   // Updates category by deleting ID of deleted template
+   // Updates category by removing ID of deleted template
    await Category.findOneAndUpdate(
       { uri: categoryUri },
       {
@@ -115,5 +120,8 @@ export const deleteTemplateById = async (req, res) => {
    res.json(templateDeleted);
 }
 
-
+function standardizeValue(value) {
+   return value[0].toString().toUpperCase() +
+      value.toString().toLowerCase().substring(1).replace(/-/g, ' ');
+}
 

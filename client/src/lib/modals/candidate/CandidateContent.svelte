@@ -1,4 +1,5 @@
 <script lang="ts">
+	import WarningToast from '$lib/components/ErrorToast.svelte';
 	import {
 		campuses,
 		careersEjecutive,
@@ -11,24 +12,8 @@
 		years
 	} from '$lib/data';
 
-	export let isEditCandidate = false;
-	export let categories = [];
 	export let candidate;
-	export let isCategoriesEmpty;
-	export let isTemplatesEmpty;
-	export let warning;
-	let candidateCategories = [...candidate.categories];
-	$: availableCategories = categories.filter(
-		(category) => !candidateCategories.includes(category.uri)
-	);
-
-	$: if (candidate.categories.length > 0) {
-		isCategoriesEmpty = false;
-	}
-
-	$: if (candidate.categories.length < 1) {
-		isTemplatesEmpty = false;
-	}
+	export let categories = [];
 </script>
 
 <template>
@@ -199,18 +184,13 @@
 		</div>
 
 		<!--Row 6-->
-		<div class="row">
-			<div class="field">
-				<span>
-					Categorias de documentos
-					{#if isEditCandidate}
-						(solo se muestran categorias que no tenga el alumno)
-					{/if}
-				</span>
-				{#if categories}
+		{#if categories.length > 0}
+			<div class="row">
+				<div class="field">
+					<span>Categorias de documentos</span>
 					<div class="categories">
-						{#if isEditCandidate}
-							{#each availableCategories as category}
+						{#if candidate.newCategories}
+							{#each categories as category}
 								<div class="category">
 									<input
 										type="checkbox"
@@ -239,35 +219,8 @@
 							{/each}
 						{/if}
 					</div>
-				{:else}
-					<div class="pending">Loading...</div>
-				{/if}
+				</div>
 			</div>
-		</div>
-		{#if isEditCandidate && availableCategories.length < 1}
-			<span class="warning"> Parece que no hay categorias que puedas agregar </span>
-		{/if}
-
-		{#if categories.length < 1}
-			<span class="warning">
-				No existen categorias, crea una antes de crear o editar candidatos
-			</span>
-		{/if}
-
-		{#if isCategoriesEmpty}
-			<span class="warning">
-				Debes seleccionar al menos una categoria para crear al candidato
-			</span>
-		{/if}
-
-		{#if isTemplatesEmpty}
-			<span class="warning"> Al menos una categoria seleccionada no tiene documentos </span>
-		{/if}
-
-		{#if warning}
-			<span class="warning">
-				{warning}
-			</span>
 		{/if}
 	</div>
 </template>
@@ -275,10 +228,6 @@
 <style lang="scss">
 	span {
 		color: var(--focus-color);
-
-		&.warning {
-			color: var(--orange-color);
-		}
 	}
 
 	div {
@@ -307,14 +256,6 @@
 			flex-wrap: wrap;
 			gap: 1rem;
 		}
-
-		&.pending {
-			width: 100%;
-			display: flex;
-			justify-content: center;
-			padding: 0.5rem;
-		}
-
 		.width-75 {
 			width: 75%;
 		}

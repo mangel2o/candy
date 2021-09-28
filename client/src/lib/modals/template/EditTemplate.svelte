@@ -2,22 +2,24 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Pencil from '$lib/icons/pencil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import { getContext } from 'svelte';
 	import TemplateContent from './TemplateContent.svelte';
+	import WarningToast from '$lib/components/ErrorToast.svelte';
+	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
 	let refetchCategory: Function = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
-	let warning;
+	let error = null;
 
 	export let template;
 	let editableTemplate = {
 		...template
 	};
 
-	$: disableEdit = Object.keys(template).every(
+	$: disableSubmit = Object.keys(template).every(
 		(key) => editableTemplate.hasOwnProperty(key) && editableTemplate[key] === template[key]
 	);
 
@@ -30,28 +32,33 @@
 			method: 'PUT',
 			body: formData
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				if (data.warning) {
-					warning = data.warning;
+				if (data.error) {
+					error = data.error;
 					isPending = false;
 					return;
 				}
-				warning = null;
+				error = null;
 				isPending = false;
 				isOpen = false;
 				refetchCategory();
 			})
 			.catch((err) => {
-				warning = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
 
 	function handleCancel() {
-		editableTemplate = {
-			...template
-		};
+		editableTemplate = { ...template };
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -67,10 +74,13 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<TemplateContent bind:warning bind:template={editableTemplate} />
+			<TemplateContent bind:template={editableTemplate} />
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button disabled={disableEdit} class="submit" type="submit">
+				<button disabled={disableSubmit} class="submit" type="submit">
 					{#if isPending}
 						Loading...
 					{:else}

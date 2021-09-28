@@ -1,4 +1,4 @@
-import Archive from "../models/Archive";
+import Archive from "../models/Archive.js";
 
 export const createArchive = (req, res) => {
    console.log(req.body);

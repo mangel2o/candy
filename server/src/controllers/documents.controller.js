@@ -1,4 +1,4 @@
-import Document from "../models/Document";
+import Document from "../models/Document.js";
 
 export const getDocuments = (req, res) => {
 

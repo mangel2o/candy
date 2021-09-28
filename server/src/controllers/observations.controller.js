@@ -1,4 +1,4 @@
-import Observation from "../models/Observation";
+import Observation from "../models/Observation.js";
 
 export const createObservation = (req, res) => {
    console.log(req.body);

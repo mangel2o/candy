@@ -3,13 +3,15 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
+	import WarningToast from '$lib/components/ErrorToast.svelte';
 	import { page } from '$app/stores';
 	import { getContext } from 'svelte';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
 	let refetchCategory: Function = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
-	let warning;
+	let error = null;
 
 	export let template;
 
@@ -18,25 +20,32 @@
 		fetch(`http://localhost:4000/documents/${$page.params.category}/templates/${template._id}`, {
 			method: 'DELETE'
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				if (data.warning) {
-					warning = data.warning;
+				if (data.error) {
+					error = data.error;
 					isPending = false;
 					return;
 				}
-				warning = null;
+				error = null;
 				isPending = false;
 				handleCancel();
 				refetchCategory();
 			})
 			.catch((err) => {
-				warning = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
 
 	function handleCancel() {
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -49,11 +58,17 @@
 		</button>
 
 		<!--Header-->
-		<span class="header" slot="header"> Eliminar documento </span>
+		<span slot="header"> Eliminar documento </span>
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent bind:warning prop={'este documento'} />
+			<DeleteContent>
+				<span class="delete">¿Deseas eliminar esta categoria?</span>
+				<span class="delete"> Esta acción es irreversible</span>
+			</DeleteContent>
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

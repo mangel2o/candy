@@ -5,15 +5,14 @@
 	import CandidateContent from './CandidateContent.svelte';
 	import { getContext } from 'svelte';
 	import { userStore } from '$lib/stores';
+	import WarningToast from '$lib/components/WarningToast.svelte';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
 	const refetchCandidates: Function = getContext('refetchCandidates');
 	export let categories = [];
 	let isPending = false;
 	let isOpen = false;
-	let isCategoriesEmpty = false;
-	let isTemplatesEmpty = false;
-	let warning = null;
-
+	let error = null;
 	let candidate = {
 		name: '',
 		number: '',
@@ -33,23 +32,19 @@
 	};
 
 	function handleSubmit() {
-		if (categories.length < 1) {
+		if (candidate.categories.length < 1) {
+			error = 'Debes seleccionar al menos una categoria para crear al candidato.';
 			return;
-		} else if (candidate.categories.length < 1) {
-			isCategoriesEmpty = true;
-			isTemplatesEmpty = false;
-			return;
-		} else {
-			for (const key of candidate.categories) {
-				const categoryFound = categories.find((category) => category.uri === key);
-				if (categoryFound.templates < 1) {
-					isTemplatesEmpty = true;
-					return;
-				}
-			}
-			isCategoriesEmpty = false;
-			isTemplatesEmpty = false;
 		}
+
+		for (const selectedCategory of candidate.categories) {
+			const categoryFound = categories.find((category) => category.uri === selectedCategory);
+			if (categoryFound && categoryFound.templates < 1) {
+				error = 'Al menos una de las categorias seleccionadas no tiene documentos.';
+				return;
+			}
+		}
+
 		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
@@ -58,20 +53,26 @@
 			method: 'POST',
 			body: formData
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				if (data.warning) {
-					warning = data.warning;
+				if (data.error) {
+					error = data.error;
 					isPending = false;
 					return;
 				}
-				warning = null;
+				error = null;
 				isPending = false;
 				handleCancel();
 				refetchCandidates();
 			})
 			.catch((err) => {
-				warning = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
@@ -94,7 +95,7 @@
 			graduationYear: '',
 			categories: []
 		};
-		warning = null;
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -102,7 +103,7 @@
 <template>
 	<Modal bind:isOpen>
 		<button class="create" slot="trigger" let:open on:click={open}>
-			<Icon src={AccountPlus} />
+			<div><Icon src={AccountPlus} /></div>
 			<span>Candidato</span>
 		</button>
 
@@ -111,16 +112,18 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<CandidateContent
-				bind:categories
-				bind:warning
-				bind:isCategoriesEmpty
-				bind:isTemplatesEmpty
-				bind:candidate
-			/>
+			<CandidateContent bind:categories bind:candidate />
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
+			{#if categories.length < 1}
+				<WarningToast>
+					Parece que no hay categorias, crea una antes de crear candidatos.
+				</WarningToast>
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit">
+				<button disabled={categories.length < 1} class="submit" type="submit">
 					{#if isPending}
 						Loading...
 					{:else}

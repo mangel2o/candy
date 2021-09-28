@@ -2,16 +2,17 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import { getContext } from 'svelte';
 	import TemplateContent from './TemplateContent.svelte';
+	import WarningToast from '$lib/components/ErrorToast.svelte';
+	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	let refetchCategory: Function = getContext('refetchCategory');
+	const refetchCategory: Function = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
-	let warning;
-
+	let error = null;
 	let template = {
 		name: '',
 		description: '',
@@ -27,13 +28,26 @@
 			method: 'POST',
 			body: formData
 		})
-			.then(() => {
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
+			.then((data) => {
+				if (data.error) {
+					error = data.error;
+					isPending = false;
+					return;
+				}
+				error = null;
 				isPending = false;
 				handleCancel();
 				refetchCategory();
 			})
 			.catch((err) => {
-				warning = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
@@ -44,6 +58,7 @@
 			description: '',
 			example: null
 		};
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -51,7 +66,7 @@
 <template>
 	<Modal bind:isOpen>
 		<button class="create" slot="trigger" let:open on:click={open}>
-			<Icon src={Plus} />
+			<div><Icon src={Plus} /></div>
 			<span>Crear documento</span>
 		</button>
 
@@ -60,7 +75,10 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<TemplateContent bind:warning bind:template />
+			<TemplateContent bind:template />
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

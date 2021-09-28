@@ -1,4 +1,4 @@
-import User from "../models/User";
+import User from "../models/User.js";
 import fs from "fs";
 
 export const createDirs = async () => {
