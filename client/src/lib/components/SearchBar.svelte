@@ -2,27 +2,37 @@
 	import Magnify from '$lib/icons/magnify.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import ClickOutside from '$lib/components/ClickOutside.svelte';
+	import Close from '$lib/icons/close.svelte';
 
 	let isFocused = false;
 	export let searchQuery = '';
 	export let searchParameter = 'name';
+
+	function handleCancel() {
+		searchQuery = '';
+	}
 </script>
 
 <!--CLICKING OUTSIDE LOSES FOCUS-->
 <template>
 	<ClickOutside on:clickoutside={() => (isFocused = false)}>
 		<div class:isFocused on:click={() => (isFocused = true)}>
-			<label for="searchbar">
-				<Icon src={Magnify} />
-			</label>
 			<select bind:value={searchParameter}>
 				<option selected value="name"> Nombre </option>
 				<option value="number"> Matricula </option>
 				<option value="phone"> Telefono </option>
-				<option value="email"> Correo </option>
+				<option value="personalEmail"> Correo </option>
 			</select>
 			<span />
+
+			<label for="searchbar">
+				<Icon src={Magnify} />
+			</label>
+
 			<input id="searchbar" type="text" placeholder="Buscar alumno..." bind:value={searchQuery} />
+			<button on:click={handleCancel} class:inactive={!searchQuery}>
+				<Icon src={Close} />
+			</button>
 		</div>
 	</ClickOutside>
 </template>
@@ -41,13 +51,32 @@
 
 		&.isFocused {
 			border: 2px solid var(--green-color);
+		}
+	}
+
+	button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1rem;
+		background-color: transparent;
+
+		&:hover {
 			background-color: var(--area-color);
+		}
+
+		&:active {
+			background-color: var(--input-color);
+		}
+
+		&.inactive {
+			display: none;
 		}
 	}
 
 	label {
 		cursor: pointer;
-		padding: 1rem 0.2rem 1rem 1rem;
+		padding: 1rem 0 1rem 1rem;
 		display: flex;
 		align-items: center;
 	}
@@ -55,7 +84,6 @@
 	span {
 		width: 2px;
 		height: 2rem;
-		margin: 0 0 0 1rem;
 		background-color: var(--focus-color);
 	}
 
@@ -73,7 +101,7 @@
 
 	select {
 		cursor: pointer;
-		padding: 1rem 0.5rem;
+		padding: 1rem;
 		-webkit-appearance: none;
 		-moz-appearance: none;
 

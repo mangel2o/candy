@@ -11,28 +11,17 @@
 	let error;
 	let candidates = [];
 	let categories = [];
+	let filteredCandidates = [];
+
 	let searchQuery;
 	let searchParameter;
-	let filters;
-	let parameters;
-	$: entries = 0;
-	$: slicedCandidates = candidates.slice(0, entries);
-	$: filteredCandidates = slicedCandidates.filter((candidate) => {
-		for (const key of filters) {
-			if (
-				parameters[key].toString().toLowerCase() !== '' &&
-				parameters[key].toString().toLowerCase() !== candidate[key].toString().toLowerCase()
-			) {
-				return false;
-			}
-		}
-		return true;
-	});
-	$: searchedCandidates = !searchQuery
-		? filteredCandidates
-		: filteredCandidates.filter((candidate) =>
-				candidate[searchParameter].toString().toLowerCase().includes(searchQuery.toLowerCase())
-		  );
+	$: searchedCandidates = filteredCandidates.filter((candidate) =>
+		candidate[searchParameter].toString().toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
+	let entries;
+	let limit;
+	$: slicedCandidates = searchedCandidates.slice(0, entries);
 
 	function fetchData() {
 		isPending = true;
@@ -42,8 +31,10 @@
 		])
 			.then(([dataCandidates, dataCategories]) => {
 				candidates = dataCandidates;
+				filteredCandidates = candidates;
 				categories = dataCategories;
 				entries = candidates.length;
+				limit = candidates.length;
 				isPending = false;
 			})
 			.catch((err) => {
@@ -65,11 +56,11 @@
 <template>
 	<div class="container">
 		<div class="tools">
-			<QuantityEntries bind:entries limit={candidates.length} />
+			<QuantityEntries bind:entries bind:limit />
 			<div class="options">
 				<CreateCandidate bind:categories />
 				<AddExcel />
-				<EditFilter bind:filters bind:parameters />
+				<EditFilter bind:entries bind:candidates bind:filteredCandidates />
 				<SearchBar bind:searchQuery bind:searchParameter />
 			</div>
 		</div>
@@ -78,7 +69,7 @@
 		{:else if error}
 			<span>Something went wrong {error}</span>
 		{:else}
-			<CandidatesTable bind:candidates={searchedCandidates} />
+			<CandidatesTable bind:candidates={slicedCandidates} />
 		{/if}
 	</div>
 </template>

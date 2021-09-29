@@ -3,12 +3,10 @@
 	export let limit;
 
 	function handleChange() {
-		if (entries <= 1) {
+		if (entries < 1) {
 			entries = 1;
-		} else if (entries >= limit) {
+		} else if (entries > limit) {
 			entries = limit;
-		} else {
-			entries = entries;
 		}
 	}
 </script>

@@ -5,9 +5,12 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import FilterMenu from '$lib/icons/filter-menu.svelte';
 
+	export let candidates = [];
+	export let filteredCandidates = [];
+	export let entries;
 	let isOpen = false;
-	export let filters = [];
-	export let parameters = {
+	let filters = [];
+	let parameters = {
 		status: '',
 		level: '',
 		campus: '',
@@ -17,16 +20,46 @@
 	};
 
 	function handleCheckbox(param) {
-		if (!filters.includes(param) && parameters[param] !== '') {
+		if (!filters.includes(param)) {
 			parameters[param] = '';
+		}
+
+		if (filters.includes('terminationPeriod')) {
+			filters = [...filters, 'terminationYear'];
+		} else {
+			parameters.terminationYear = '';
 		}
 	}
 
-	$: if (filters.includes('terminationPeriod')) {
-		filters = [...filters, 'terminationYear'];
-	} else {
-		filters = filters.filter((param) => param !== 'terminationYear');
-		parameters.terminationYear = '';
+	function handleFilter() {
+		filteredCandidates = candidates.filter((candidate) => {
+			for (const key of filters) {
+				if (
+					parameters[key].toString() !== '' &&
+					parameters[key].toString() !== candidate[key].toString()
+				) {
+					return false;
+				}
+			}
+			return true;
+		});
+		entries = filteredCandidates.length;
+		isOpen = false;
+	}
+
+	function handleCancel() {
+		filters = [];
+		parameters = {
+			status: '',
+			level: '',
+			campus: '',
+			modality: '',
+			terminationPeriod: '',
+			terminationYear: ''
+		};
+		filteredCandidates = candidates;
+		entries = candidates.length;
+		isOpen = false;
 	}
 </script>
 
@@ -60,7 +93,7 @@
 							</span>
 						</label>
 						<select
-							class:active={filters.includes('status') && parameters.status !== ''}
+							class:active={filters.includes('status') && parameters.status}
 							disabled={!filters.includes('status')}
 							bind:value={parameters.status}
 						>
@@ -87,7 +120,7 @@
 							</span>
 						</label>
 						<select
-							class:active={filters.includes('campus') && parameters.campus !== ''}
+							class:active={filters.includes('campus') && parameters.campus}
 							disabled={!filters.includes('campus')}
 							bind:value={parameters.campus}
 						>
@@ -114,7 +147,7 @@
 							</span>
 						</label>
 						<select
-							class:active={filters.includes('level') && parameters.level !== ''}
+							class:active={filters.includes('level') && parameters.level}
 							disabled={!filters.includes('level')}
 							bind:value={parameters.level}
 						>
@@ -141,7 +174,7 @@
 							</span>
 						</label>
 						<select
-							class:active={filters.includes('modality') && parameters.modality !== ''}
+							class:active={filters.includes('modality') && parameters.modality}
 							disabled={!filters.includes('modality')}
 							bind:value={parameters.modality}
 						>
@@ -172,8 +205,7 @@
 							</span>
 						</label>
 						<select
-							class:active={filters.includes('terminationPeriod') &&
-								parameters.terminationPeriod !== ''}
+							class:active={filters.includes('terminationPeriod') && parameters.terminationPeriod}
 							disabled={!filters.includes('terminationPeriod')}
 							bind:value={parameters.terminationPeriod}
 						>
@@ -184,9 +216,7 @@
 						</select>
 						<select
 							class="smaller-select"
-							class:active={filters.includes(
-								'terminationYear' && parameters.terminationYear !== ''
-							)}
+							class:active={filters.includes('terminationYear') && parameters.terminationYear}
 							disabled={!filters.includes('terminationYear')}
 							bind:value={parameters.terminationYear}
 						>
@@ -197,6 +227,10 @@
 						</select>
 					</div>
 				</div>
+			</div>
+			<div class="buttons">
+				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
+				<button class="submit" type="button" on:click={handleFilter}> Filtrar </button>
 			</div>
 		</div>
 	</Modal>
@@ -223,6 +257,11 @@
 		}
 
 		&.field {
+			display: flex;
+			gap: 1rem;
+		}
+
+		&.buttons {
 			display: flex;
 			gap: 1rem;
 		}
@@ -254,6 +293,36 @@
 			}
 			&:active {
 				border: 2px solid var(--blue-color);
+			}
+		}
+		&.submit {
+			width: 100%;
+
+			background-color: var(--green-color);
+			border: 2px solid var(--green-color);
+			cursor: pointer;
+
+			&:hover {
+				background-color: var(--darker-green-color);
+			}
+
+			&:active {
+				background-color: var(--green-color);
+			}
+		}
+
+		&.cancel {
+			width: 100%;
+			background-color: var(--input-color);
+			border: 2px solid var(--border-color);
+			cursor: pointer;
+
+			&:hover {
+				background: var(--area-color);
+			}
+
+			&:active {
+				background-color: var(--input-color);
 			}
 		}
 	}
