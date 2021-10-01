@@ -92,7 +92,7 @@ export const updateTemplateById = async (req, res) => {
    }
 
    // * Updates the template with new values
-   await Template.findByIdAndUpdate(
+   const templateUpdated = await Template.findByIdAndUpdate(
       templateId,
       {
          name: name,

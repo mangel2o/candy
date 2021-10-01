@@ -6,11 +6,12 @@
 	import ArchiveContent from '$lib/modals/archive/ArchiveContent.svelte';
 	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	let refetch: Function = getContext('refetch');
+	const refetchArchives: Function = getContext('refetchArchives');
 	let isOpen = false;
 	let isPending = false;
-
+	let error = null;
 	let archive = {
 		name: '',
 		description: '',
@@ -22,21 +23,32 @@
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(archive).forEach((key) => formData.append(key, archive[key]));
-
 		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives`, {
 			method: 'POST',
 			body: formData
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				console.log(data);
+				if (data.error) {
+					error = data.error;
+					isPending = false;
+					return;
+				}
+				error = null;
+				isPending = false;
+				handleCancel();
+				refetchArchives();
 			})
 			.catch((err) => {
-				console.log(err);
+				error = err.message;
+				isPending = false;
 			});
-
-		handleCancel();
-		refetch();
 	}
 
 	function handleCancel() {
@@ -45,6 +57,7 @@
 			description: '',
 			file: null
 		};
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -60,6 +73,9 @@
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<ArchiveContent bind:archive />
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">

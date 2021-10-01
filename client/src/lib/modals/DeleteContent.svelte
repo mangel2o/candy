@@ -19,7 +19,7 @@
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			min-width: 26rem;
+			min-width: 30rem;
 			gap: 1rem;
 		}
 

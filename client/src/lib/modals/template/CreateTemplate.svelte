@@ -3,7 +3,6 @@
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import TemplateContent from './TemplateContent.svelte';
-	import WarningToast from '$lib/components/ErrorToast.svelte';
 	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';

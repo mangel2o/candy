@@ -1,50 +1,41 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
 	import DeleteDocument from '$lib/modals/document/DeleteDocument.svelte';
 	import EditDocument from '$lib/modals/document/EditDocument.svelte';
+	import UploadDocument from '$lib/modals/document/UploadDocument.svelte';
 	import ViewDocument from '$lib/modals/document/ViewDocument.svelte';
+	import { userStore } from '$lib/stores';
+	import { convertDataToFile } from '$lib/utils';
 	import { onMount, setContext } from 'svelte';
 
 	let isPending = true;
 	let error = null;
-	let documents = [
-		{
-			name: 'Acta de nacimiento con nombre muy largo',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor ',
-			file: null
-		},
-		{
-			name: 'Certificado bachillerato etcetera',
-			description: 'Something about this idk',
-			file: null
-		},
-		{
-			name: 'CURP',
-			description: 'Something about this idk',
-			file: null
-		}
-	];
+	let documents = [];
 
 	function fetchData() {
-		/*
-      * ! something
-      TODO: fetch request to /documents/[category] for category 
-		description based on url param and all templates where category = [category]
-		fetch('https://jsonplaceholder.typicode.com/todos')
+		isPending = true;
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/documents`)
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
+				documents = data;
+
+				// Converts data to files
+				documents.forEach((document) => {
+					document.example = convertDataToFile(document.example, document._id);
+					if (document.file) {
+						document.file = convertDataToFile(document.file, document._id);
+					}
+				});
 				error = null;
-				categories = data;
+				isPending = false;
 			})
 			.catch((err) => {
+				error = err.message;
 				isPending = false;
-				error = err;
 			});
-			*/
-		isPending = false;
-		console.log('A fetch has been done at /candidates/[candidate]/documents.svelte');
 	}
-	setContext('refetch', fetchData);
+	setContext('refetchDocuments', fetchData);
 	onMount(() => {
 		fetchData();
 	});
@@ -61,11 +52,15 @@
 		{:else if error}
 			<span>Something went wrong</span>
 		{:else}
-			{#each documents as document}
+			{#each documents as document (document._id)}
 				<div class="button">
 					<ViewDocument {document} />
-					<EditDocument {document} />
-					<DeleteDocument {document} />
+					{#if $userStore.role === 'user' && document.status !== 'Completo'}
+						<UploadDocument {document} />
+					{/if}
+					{#if $userStore.role !== 'user' && document.file}
+						<EditDocument {document} />
+					{/if}
 				</div>
 			{/each}
 		{/if}
@@ -83,6 +78,7 @@
 		&.button {
 			display: flex;
 			width: 100%;
+			border: 2px solid var(--border-color);
 		}
 	}
 </style>

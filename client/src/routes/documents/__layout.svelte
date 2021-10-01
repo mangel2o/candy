@@ -17,7 +17,7 @@
 				isPending = false;
 			})
 			.catch((err) => {
-				error = err;
+				error = err.message;
 				isPending = false;
 			});
 	}

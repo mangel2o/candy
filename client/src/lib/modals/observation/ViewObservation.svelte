@@ -69,10 +69,8 @@
 			display: flex;
 			width: 100%;
 			align-items: center;
-			gap: 6px;
+			gap: 0.5rem;
 			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-			border-right: none;
 
 			&:hover {
 				background-color: var(--area-color);

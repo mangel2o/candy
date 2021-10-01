@@ -1,51 +1,42 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import CreateArchive from '$lib/modals/archive/CreateArchive.svelte';
 	import DeleteArchive from '$lib/modals/archive/DeleteArchive.svelte';
 	import EditArchive from '$lib/modals/archive/EditArchive.svelte';
 	import ViewArchive from '$lib/modals/archive/ViewArchive.svelte';
+	import { userStore } from '$lib/stores';
+	import { convertDataToFile } from '$lib/utils';
 	import { onMount, setContext } from 'svelte';
 
 	let isPending = true;
 	let error = null;
-	let archives = [
-		{
-			name: 'Acta de nacimiento con nombre muy largo',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor ',
-			file: null
-		},
-		{
-			name: 'Certificado bachillerato etcetera',
-			description: 'Something about this idk',
-			file: null
-		},
-		{
-			name: 'CURP',
-			description: 'Something about this idk',
-			file: null
-		}
-	];
+	let archives = [];
 
 	function fetchData() {
-		/*
-      * ! something
-      TODO: fetch request to /documents/[category] for category 
-		description based on url param and all templates where category = [category]
-		fetch('https://jsonplaceholder.typicode.com/todos')
+		isPending = true;
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives`)
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
+				if (data.error) {
+					error = data.error;
+					isPending = false;
+					return;
+				}
 				error = null;
-				categories = data;
+				archives = data;
+
+				// Converts data to files
+				archives.forEach(
+					(archive) => (archive.file = convertDataToFile(archive.file, archive._id))
+				);
+				isPending = false;
 			})
 			.catch((err) => {
-				isPending = false;
 				error = err;
+				isPending = false;
 			});
-			*/
-		isPending = false;
-		console.log('A fetch has been done at /candidates/[candidate]/archives.svelte');
 	}
-	setContext('refetch', fetchData);
+	setContext('refetchArchives', fetchData);
 	onMount(() => {
 		fetchData();
 	});
@@ -62,13 +53,17 @@
 		{:else if error}
 			<span>Something went wrong</span>
 		{:else}
-			<CreateArchive />
+			{#if $userStore.role !== 'user'}
+				<CreateArchive />
+			{/if}
 
 			{#each archives as archive}
 				<div class="button">
 					<ViewArchive {archive} />
-					<EditArchive {archive} />
-					<DeleteArchive {archive} />
+					{#if $userStore.role !== 'user'}
+						<EditArchive {archive} />
+						<DeleteArchive {archive} />
+					{/if}
 				</div>
 			{/each}
 		{/if}
@@ -86,6 +81,7 @@
 		&.button {
 			display: flex;
 			width: 100%;
+			border: 2px solid var(--border-color);
 		}
 	}
 </style>

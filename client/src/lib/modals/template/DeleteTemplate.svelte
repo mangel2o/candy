@@ -3,7 +3,6 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
-	import WarningToast from '$lib/components/ErrorToast.svelte';
 	import { page } from '$app/stores';
 	import { getContext } from 'svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';

@@ -1,46 +1,23 @@
 <script lang="ts">
 	export let document;
-
-	let files;
-
-	$: if (files) {
-		document.file = files[0];
-		files = null;
-	}
 </script>
 
 <template>
 	<div class="container">
 		<div class="row">
 			<div class="field">
-				<span class="tag">Nombre del documento</span>
-				<input required type="text" bind:value={document.name} placeholder="Nombre del documento" />
+				<span class="tag">Comentario</span>
+				<textarea bind:value={document.comment} placeholder="Descripción del documento" />
 			</div>
 		</div>
-		<div class="row">
-			<div class="field">
-				<span class="tag">Descripción</span>
-				<textarea
-					required
-					bind:value={document.description}
-					placeholder="Descripción del documento"
-				/>
-			</div>
-		</div>
-		<div class="row">
-			<div class="field">
-				<span class="tag">Documento de ejemplo</span>
-				<label class={document.file ? 'uploaded' : 'not-uploaded'}>
-					<input required name="file" type="file" bind:files />
-					{#if document.file}
-						<span>{document.file.name}</span>
-					{:else}
-						<span>Busca un archivo PDF</span>
-						<span>o arrastralo aqui</span>
-					{/if}
-				</label>
-			</div>
-		</div>
+		<select required bind:value={document.status}>
+			<option disabled selected value> Selecciona una opción </option>
+			<option value="Vacio">Vacio</option>
+			<option value="Completo">Completo</option>
+			<option value="Pendiente">Pendiente</option>
+			<option value="Retenido">Retenido</option>
+			<option value="Incompleto">Incompleto</option>
+		</select>
 	</div>
 </template>
 
@@ -99,41 +76,12 @@
 		}
 	}
 
-	label {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		align-items: center;
-		text-align: center;
+	select {
+		color: var(--white-color);
 		padding: 1rem;
-		width: 100%;
-		gap: 0.25rem;
-
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
-
-		&:hover {
-			border: 2px solid var(--blue-color);
-			color: var(--placeholder-color);
-		}
-
-		font-size: 20px;
-		font-weight: bold;
-
-		&.uploaded {
-			border: 2px solid var(--green-color);
-		}
-
-		&.not-uploaded {
-			border: 2px solid var(--red-color);
-		}
-	}
-
-	input {
-		padding: 14px;
 		width: 100%;
-		background-color: var(--input-color);
-		border: 2px solid var(--border-color);
 
 		&:hover {
 			border: 2px solid var(--blue-color);
@@ -150,9 +98,5 @@
 		&::placeholder {
 			color: var(--focus-color);
 		}
-	}
-
-	input[type='file'] {
-		display: none;
 	}
 </style>

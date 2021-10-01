@@ -9,7 +9,7 @@
 	import { userStore } from '$lib/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	let refetchCategory: Function = getContext('refetchCategory');
+	const refetchCategory: Function = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
 	let error = null;

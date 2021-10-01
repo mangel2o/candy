@@ -62,7 +62,7 @@
 		</div>
 
 		<div class="field ">
-			<span class="status">{candidate.status}</span>
+			<span class={'status ' + candidate.status.toLowerCase()}>{candidate.status}</span>
 		</div>
 	</div>
 </template>
@@ -103,8 +103,25 @@
 
 		&.status {
 			color: var(--white-color);
-			border: 2px solid var(--green-color);
+			border: 2px dashed var(--green-color);
 			padding: 1rem;
+			border-radius: 0.5rem;
+		}
+
+		&.vacio {
+			border: 2px dashed var(--focus-color);
+		}
+		&.completo {
+			border: 2px dashed var(--green-color);
+		}
+		&.pendiente {
+			border: 2px dashed var(--yellow-color);
+		}
+		&.incompleto {
+			border: 2px dashed var(--red-color);
+		}
+		&.retenido {
+			border: 2px dashed var(--blue-color);
 		}
 
 		&.name {

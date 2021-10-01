@@ -14,17 +14,14 @@
 			<div class="nav-btns">
 				{#if $userStore}
 					{#if $userStore.role === 'admin'}
-						<a href="/recent">Actividad</a>
 						<a href="/candidates">Candidatos</a>
 						<a href="/documents">Documentos</a>
 						<a href="/admin">Administración</a>
 					{:else if $userStore.role === 'moderator'}
-						<a href="/recent">Actividad</a>
 						<a href="/candidates">Candidatos</a>
 						<a href="/documents">Documentos</a>
 					{:else}
-						<a href="/pending">Pendientes</a>
-						<a href="/candidate">Tu Perfil</a>
+						<a href={`/candidates/${$userStore.candidateId}/documents`}>Tu Perfil</a>
 					{/if}
 				{:else}
 					<span>Cargando...</span>
@@ -54,7 +51,7 @@
 	a {
 		display: flex;
 		align-items: center;
-		padding: calc(#{$height} / 2) 0;
+		height: $height;
 		&:hover {
 			color: var(--placeholder-color);
 		}
@@ -70,7 +67,6 @@
 		&.nav-btns {
 			display: flex;
 			gap: 20px;
-			align-items: inherit;
 		}
 	}
 </style>

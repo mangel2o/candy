@@ -5,37 +5,63 @@
 	import { getContext } from 'svelte';
 	import ArchiveContent from './ArchiveContent.svelte';
 	import { page } from '$app/stores';
+	import { userStore } from '$lib/stores';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	let refetch: Function = getContext('refetch');
+	const refetchArchives: Function = getContext('refetchArchives');
 	let isOpen = false;
 	let isPending = false;
+	let error = null;
 
 	export let archive;
 	let editableArchive = { ...archive };
 
+	$: disableSubmit = Object.keys(archive).every(
+		(key) => editableArchive.hasOwnProperty(key) && editableArchive[key] === archive[key]
+	);
+
 	function handleSubmit() {
 		isPending = true;
 		const formData = new FormData();
-		Object.keys(archive).forEach((key) => formData.append(key, archive[key]));
+		formData.append('authorId', $userStore._id);
+		Object.keys(editableArchive).forEach((key) => formData.append(key, editableArchive[key]));
 
-		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives/${archive.name}`, {
+		// If the example file hasn't change, remove it
+		if (editableArchive.file === archive.file) {
+			formData.delete('file');
+		}
+
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives/${archive._id}`, {
 			method: 'PUT',
 			body: formData
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				console.log(data);
+				if (data.error) {
+					error = data.error;
+					isPending = false;
+					return;
+				}
+				error = null;
+				isPending = false;
+				isOpen = false;
+				refetchArchives();
 			})
 			.catch((err) => {
-				console.log(err);
+				error = err.message;
+				isPending = false;
 			});
-
-		handleCancel();
-		refetch();
 	}
 
 	function handleCancel() {
 		editableArchive = { ...archive };
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -52,9 +78,12 @@
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
 			<ArchiveContent bind:archive={editableArchive} />
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit">
+				<button disabled={disableSubmit} class="submit" type="submit">
 					{#if isPending}
 						Loading...
 					{:else}
@@ -86,10 +115,7 @@
 			display: flex;
 			align-items: center;
 			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-			border-left: none;
-			border-right: none;
-
+		
 			&:hover {
 				background-color: var(--area-color);
 			}

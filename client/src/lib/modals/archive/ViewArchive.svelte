@@ -2,10 +2,14 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Archive from '$lib/icons/archive.svelte';
+	import { onDestroy } from 'svelte';
 
 	export let archive;
 
 	// "http://africau.edu/images/default/sample.pdf#toolbar=0"
+	onDestroy(() => {
+		URL.revokeObjectURL(archive.file);
+	});
 </script>
 
 <template>
@@ -19,13 +23,7 @@
 		<span slot="header"> Ver archivo </span>
 
 		<!--View-->
-		<iframe
-			slot="view"
-			src={archive.file === null
-				? 'http://africau.edu/images/default/sample.pdf#toolbar=0'
-				: URL.createObjectURL(archive.file)}
-			title="PDF"
-		/>
+		<iframe slot="view" src={URL.createObjectURL(archive.file) + '#toolbar=0'} title="PDF" />
 
 		<!--Content-->
 		<div class="content" slot="content">
@@ -45,14 +43,14 @@
 
 <style lang="scss">
 	iframe {
-		width: 1000px;
-		height: 800px;
+		width: 60rem;
+		height: 50rem;
 	}
 
 	div {
 		&.content {
 			overflow-wrap: anywhere;
-			width: 320px;
+			width: 22rem;
 			display: flex;
 			flex-direction: column;
 			gap: 1rem;
@@ -85,10 +83,8 @@
 			display: flex;
 			width: 100%;
 			align-items: center;
-			gap: 6px;
+			gap: 0.5rem;
 			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-			border-right: none;
 
 			&:hover {
 				background-color: var(--area-color);

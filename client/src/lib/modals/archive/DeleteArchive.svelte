@@ -5,36 +5,47 @@
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
 	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
+	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	let refetch: Function = getContext('refetch');
+	const refetchArchives: Function = getContext('refetchArchives');
 	let isOpen = false;
 	let isPending = false;
-	let warning;
+	let error = null;
 
 	export let archive;
 
 	function handleSubmit() {
 		isPending = true;
-		const formData = new FormData();
-		Object.keys(archive).forEach((key) => formData.append(key, archive[key]));
 
-		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives/${archive.name}`, {
-			method: 'DELETE',
-			body: formData
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives/${archive._id}`, {
+			method: 'DELETE'
 		})
-			.then((res) => res.json())
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('Parece que algo salio mal');
+				}
+			})
 			.then((data) => {
-				console.log(data);
+				if (data.error) {
+					error = data.error;
+					isPending = false;
+					return;
+				}
+				error = null;
+				isPending = false;
+				isOpen = false;
+				refetchArchives();
 			})
 			.catch((err) => {
-				console.log(err);
+				error = err.message;
+				isPending = false;
 			});
-
-		handleCancel();
-		refetch();
 	}
 
 	function handleCancel() {
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -51,7 +62,13 @@
 
 		<!--Content-->
 		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<DeleteContent bind:warning prop={'este archivo'} />
+			<DeleteContent>
+				<span class="delete">¿Deseas eliminar este archivo?</span>
+				<span class="delete"> Esta acción es irreversible</span>
+			</DeleteContent>
+			{#if error}
+				<ErrorToast bind:error />
+			{/if}
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 				<button class="submit" type="submit">
@@ -86,9 +103,6 @@
 			display: flex;
 			align-items: center;
 			background-color: var(--input-color);
-
-			border: 2px solid var(--border-color);
-			border-left: none;
 
 			&:hover {
 				background-color: var(--area-color);

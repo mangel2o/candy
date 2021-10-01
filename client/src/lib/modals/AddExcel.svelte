@@ -1,17 +1,18 @@
-<script lang="ts">
+<script>
 	import Modal from '$lib/components/Modal.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import FileExcel from '$lib/icons/file-excel.svelte';
 
-	let files: FileList;
+	let files;
 	let isOpen = false;
+	let isPending = false;
 
 	function handleSubmit() {
 		console.log('Excel subido');
 	}
 
 	function handleCancel() {
-		files = undefined;
+		files = null;
 		isOpen = false;
 	}
 </script>
@@ -36,7 +37,7 @@
 					<span class="upper-text">Busca un archivo Excel</span>
 					<span class="lower-text">o arrastralo aqui</span>
 				{:else}
-					<span class="upper-text">Archivo subido</span>
+					<span class="upper-text">Archivo seleccionado</span>
 					{#each files as file}
 						<span class="lower-text">{file.name}</span>
 					{/each}
@@ -44,7 +45,13 @@
 			</label>
 			<div>
 				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit"> Crear </button>
+				<button class="submit" type="submit">
+					{#if isPending}
+						Loading...
+					{:else}
+						Editar
+					{/if}
+				</button>
 			</div>
 		</form>
 	</Modal>

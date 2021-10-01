@@ -1,52 +1,31 @@
 <script lang="ts">
-	import CreateArchive from '$lib/modals/archive/CreateArchive.svelte';
-	import DeleteArchive from '$lib/modals/archive/DeleteArchive.svelte';
-	import EditArchive from '$lib/modals/archive/EditArchive.svelte';
-	import ViewArchive from '$lib/modals/archive/ViewArchive.svelte';
+	import { page } from '$app/stores';
 	import CreateObservation from '$lib/modals/observation/CreateObservation.svelte';
 	import DeleteObservation from '$lib/modals/observation/DeleteObservation.svelte';
 	import EditObservation from '$lib/modals/observation/EditObservation.svelte';
 	import ViewObservation from '$lib/modals/observation/ViewObservation.svelte';
+	import { userStore } from '$lib/stores';
 	import { onMount, setContext } from 'svelte';
 
+	let observations = [];
 	let isPending = true;
 	let error = null;
-	let observations = [
-		{
-			name: 'Acta de nacimiento con nombre muy largo',
-			comment: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor '
-		},
-		{
-			name: 'Certificado bachillerato etcetera',
-			comment: 'Something about this idk'
-		},
-		{
-			name: 'CURP',
-			comment: 'Something about this idk'
-		}
-	];
 
 	function fetchData() {
-		/*
-      * ! something
-      TODO: fetch request to /documents/[category] for category 
-		description based on url param and all templates where category = [category]
-		fetch('https://jsonplaceholder.typicode.com/todos')
+		isPending = true;
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/observations`)
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
+				observations = data;
 				error = null;
-				categories = data;
+				isPending = false;
 			})
 			.catch((err) => {
+				error = err.message;
 				isPending = false;
-				error = err;
 			});
-			*/
-		isPending = false;
-		console.log('A fetch has been done at /candidates/[candidate]/observations.svelte');
 	}
-	setContext('refetch', fetchData);
+	setContext('refetchObservations', fetchData);
 	onMount(() => {
 		fetchData();
 	});
@@ -63,13 +42,17 @@
 		{:else if error}
 			<span>Something went wrong</span>
 		{:else}
-			<CreateObservation />
+			{#if $userStore.role !== 'user'}
+				<CreateObservation />
+			{/if}
 
-			{#each observations as observation}
+			{#each observations as observation (observation._id)}
 				<div class="button">
 					<ViewObservation {observation} />
-					<EditObservation {observation} />
-					<DeleteObservation {observation} />
+					{#if $userStore.role !== 'user'}
+						<EditObservation {observation} />
+						<DeleteObservation {observation} />
+					{/if}
 				</div>
 			{/each}
 		{/if}
@@ -87,6 +70,7 @@
 		&.button {
 			display: flex;
 			width: 100%;
+			border: 2px solid var(--border-color);
 		}
 	}
 </style>

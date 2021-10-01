@@ -11,6 +11,7 @@
 	import Account from '$lib/icons/account.svelte';
 	import CandidateInfo from '$lib/components/CandidateInfo.svelte';
 	import { onMount, setContext } from 'svelte';
+	import { userStore } from '$lib/stores';
 
 	let isPending = true;
 	let error = null;
@@ -65,20 +66,22 @@
 					<CandidateInfo {candidate} />
 				</div>
 
-				<!--OPTIONS-->
-				<div class="options">
-					<div class="upper">
-						<EditCandidate {categories} {candidate} />
-						<DeleteCandidate />
-					</div>
+				{#if $userStore.role !== 'user'}
+					<!--OPTIONS-->
+					<div class="options">
+						<div class="upper">
+							<EditCandidate {categories} {candidate} />
+							<DeleteCandidate />
+						</div>
 
-					<button
-						class:isCategoriesActive
-						on:click={() => (isCategoriesActive = !isCategoriesActive)}
-					>
-						<Icon src={ChevronDown} />
-					</button>
-				</div>
+						<button
+							class:isCategoriesActive
+							on:click={() => (isCategoriesActive = !isCategoriesActive)}
+						>
+							<Icon src={ChevronDown} />
+						</button>
+					</div>
+				{/if}
 			</div>
 
 			<!--CATEGORIES-->
@@ -206,7 +209,8 @@
 
 		&.category {
 			padding: 10px;
-			border: 2px solid var(--green-color);
+			border: 2px dashed var(--green-color);
+			border-radius: 0.5rem;
 		}
 
 		&.isCategoriesActive {
