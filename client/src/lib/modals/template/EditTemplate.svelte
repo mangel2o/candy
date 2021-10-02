@@ -1,15 +1,14 @@
-<script lang="ts">
+<script>
 	import Modal from '$lib/components/Modal.svelte';
 	import Pencil from '$lib/icons/pencil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import TemplateContent from './TemplateContent.svelte';
-	import WarningToast from '$lib/components/ErrorToast.svelte';
 	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	const refetchCategory: Function = getContext('refetchCategory');
+	const refetchCategory = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
 	let error = null;
@@ -69,36 +68,34 @@
 	}
 </script>
 
-<template>
-	<Modal bind:isOpen>
-		<button class="edit" slot="trigger" let:open on:click={open}>
-			<Icon src={Pencil} />
-		</button>
+<Modal bind:isOpen>
+	<button class="edit" slot="trigger" let:open on:click={open}>
+		<Icon src={Pencil} />
+	</button>
 
-		<!--Header-->
-		<span slot="header"> Editar documento </span>
+	<!--Header-->
+	<span slot="header"> Editar documento </span>
 
-		<!--Content-->
-		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<TemplateContent bind:template={editableTemplate} />
-			{#if error}
-				<ErrorToast bind:error />
-			{/if}
-			<div>
-				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button disabled={disableSubmit} class="submit" type="submit">
-					{#if isPending}
-						Loading...
-					{:else}
-						Editar
-					{/if}
-				</button>
-			</div>
-		</form>
-	</Modal>
-</template>
+	<!--Content-->
+	<form on:submit|preventDefault={handleSubmit} slot="content">
+		<TemplateContent bind:template={editableTemplate} />
+		{#if error}
+			<ErrorToast bind:error />
+		{/if}
+		<div>
+			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
+			<button disabled={disableSubmit} class="submit" type="submit">
+				{#if isPending}
+					Loading...
+				{:else}
+					Editar
+				{/if}
+			</button>
+		</div>
+	</form>
+</Modal>
 
-<style lang="scss">
+<style>
 	form {
 		display: flex;
 		flex-direction: column;
@@ -112,47 +109,43 @@
 
 	button {
 		padding: 1rem;
+	}
+	button.edit {
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		background-color: var(--input-color);
+	}
+	button.edit:hover {
+		background-color: var(--area-color);
+	}
 
-		&.edit {
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			background-color: var(--input-color);
+	button.submit {
+		width: 100%;
 
-			&:hover {
-				background-color: var(--area-color);
-			}
-		}
+		background-color: var(--blue-color);
+		border: 2px solid var(--blue-color);
+		cursor: pointer;
+	}
+	button.submit:hover {
+		background: var(--blue-color);
+	}
 
-		&.submit {
-			width: 100%;
+	button.submit:active {
+		background-color: var(--blue-color);
+	}
 
-			background-color: var(--blue-color);
-			border: 2px solid var(--blue-color);
-			cursor: pointer;
+	button.cancel {
+		width: 100%;
+		background-color: var(--input-color);
+		border: 2px solid var(--border-color);
+		cursor: pointer;
+	}
+	button.cancel:hover {
+		background: var(--area-color);
+	}
 
-			&:hover {
-				background: var(--blue-color);
-			}
-
-			&:active {
-				background-color: var(--blue-color);
-			}
-		}
-
-		&.cancel {
-			width: 100%;
-			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-			cursor: pointer;
-
-			&:hover {
-				background: var(--area-color);
-			}
-
-			&:active {
-				background-color: var(--input-color);
-			}
-		}
+	button.cancel:active {
+		background-color: var(--input-color);
 	}
 </style>

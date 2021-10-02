@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import { page } from '$app/stores';
 
 	import DeleteDocument from '$lib/modals/document/DeleteDocument.svelte';
@@ -45,40 +45,36 @@
 	<title>Documentos del candidato • Tecmilenio</title>
 </svelte:head>
 
-<template>
-	<div class="container">
-		{#if isPending}
-			<span>Loading...</span>
-		{:else if error}
-			<span>Something went wrong</span>
-		{:else}
-			{#each documents as document (document._id)}
-				<div class="button">
-					<ViewDocument {document} />
-					{#if $userStore.role === 'user' && document.status !== 'Completo'}
-						<UploadDocument {document} />
-					{/if}
-					{#if $userStore.role !== 'user' && document.file}
-						<EditDocument {document} />
-					{/if}
-				</div>
-			{/each}
-		{/if}
-	</div>
-</template>
+<div class="container">
+	{#if isPending}
+		<span>Loading...</span>
+	{:else if error}
+		<span>Something went wrong</span>
+	{:else}
+		{#each documents as document (document._id)}
+			<div class="button">
+				<ViewDocument {document} />
+				{#if $userStore.role === 'user' && document.status !== 'Completo'}
+					<UploadDocument {document} />
+				{/if}
+				{#if $userStore.role !== 'user' && document.file}
+					<EditDocument {document} />
+				{/if}
+			</div>
+		{/each}
+	{/if}
+</div>
 
-<style lang="scss">
-	div {
-		&.container {
-			display: flex;
-			flex-direction: column;
-			gap: 1rem;
-		}
+<style>
+	div.container {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
 
-		&.button {
-			display: flex;
-			width: 100%;
-			border: 2px solid var(--border-color);
-		}
+	div.button {
+		display: flex;
+		width: 100%;
+		border: 2px solid var(--border-color);
 	}
 </style>

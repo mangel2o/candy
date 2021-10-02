@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import QuantityEntries from '$lib/components/QuantityEntries.svelte';
 	import EditFilter from '$lib/modals/EditFilter.svelte';
 	import CreateCandidate from '$lib/modals/candidate/CreateCandidate.svelte';
@@ -53,43 +53,39 @@
 	<title>Candidatos • Tecmilenio</title>
 </svelte:head>
 
-<template>
-	<div class="container">
-		<div class="tools">
-			<QuantityEntries bind:entries bind:limit />
-			<div class="options">
-				<CreateCandidate bind:categories />
-				<AddExcel />
-				<EditFilter bind:entries bind:candidates bind:filteredCandidates />
-				<SearchBar bind:searchQuery bind:searchParameter />
-			</div>
+<div class="container">
+	<div class="tools">
+		<QuantityEntries bind:entries bind:limit />
+		<div class="options">
+			<CreateCandidate bind:categories />
+			<AddExcel />
+			<EditFilter bind:entries bind:candidates bind:filteredCandidates />
+			<SearchBar bind:searchQuery bind:searchParameter />
 		</div>
-		{#if isPending}
-			<span>Loading...</span>
-		{:else if error}
-			<span>Something went wrong {error}</span>
-		{:else}
-			<CandidatesTable bind:candidates={slicedCandidates} />
-		{/if}
 	</div>
-</template>
+	{#if isPending}
+		<span>Loading...</span>
+	{:else if error}
+		<span>Something went wrong {error}</span>
+	{:else}
+		<CandidatesTable bind:candidates={slicedCandidates} />
+	{/if}
+</div>
 
-<style lang="scss">
-	div {
-		&.container {
-			display: flex;
-			flex-direction: column;
-			gap: 20px;
-		}
+<style>
+	div.container {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
 
-		&.tools {
-			display: flex;
-			justify-content: space-between;
-		}
+	div.tools {
+		display: flex;
+		justify-content: space-between;
+	}
 
-		&.options {
-			display: flex;
-			gap: 1rem;
-		}
+	div.options {
+		display: flex;
+		gap: 1rem;
 	}
 </style>

@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import Modal from '$lib/components/Modal.svelte';
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
@@ -8,7 +8,7 @@
 	import { userStore } from '$lib/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	const refetchCategory: Function = getContext('refetchCategory');
+	const refetchCategory = getContext('refetchCategory');
 	let isOpen = false;
 	let isPending = false;
 	let error = null;
@@ -62,37 +62,35 @@
 	}
 </script>
 
-<template>
-	<Modal bind:isOpen>
-		<button class="create" slot="trigger" let:open on:click={open}>
-			<div><Icon src={Plus} /></div>
-			<span>Crear documento</span>
-		</button>
+<Modal bind:isOpen>
+	<button class="create" slot="trigger" let:open on:click={open}>
+		<div><Icon src={Plus} /></div>
+		<span>Crear documento</span>
+	</button>
 
-		<!--Header-->
-		<span slot="header"> Crear documento </span>
+	<!--Header-->
+	<span slot="header"> Crear documento </span>
 
-		<!--Content-->
-		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<TemplateContent bind:template />
-			{#if error}
-				<ErrorToast bind:error />
-			{/if}
-			<div>
-				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit">
-					{#if isPending}
-						Loading...
-					{:else}
-						Crear
-					{/if}
-				</button>
-			</div>
-		</form>
-	</Modal>
-</template>
+	<!--Content-->
+	<form on:submit|preventDefault={handleSubmit} slot="content">
+		<TemplateContent bind:template />
+		{#if error}
+			<ErrorToast bind:error />
+		{/if}
+		<div>
+			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
+			<button class="submit" type="submit">
+				{#if isPending}
+					Loading...
+				{:else}
+					Crear
+				{/if}
+			</button>
+		</div>
+	</form>
+</Modal>
 
-<style lang="scss">
+<style>
 	form {
 		display: flex;
 		flex-direction: column;
@@ -106,59 +104,56 @@
 
 	button {
 		padding: 1rem;
+	}
+	button.create {
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		width: 100%;
 
-		&.create {
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 6px;
-			width: 100%;
+		background-color: var(--input-color);
+		border: 2px solid var(--border-color);
+	}
+	button.create:hover {
+		background-color: var(--area-color);
+		border: 2px solid var(--blue-color);
+	}
+	button.create:focus {
+		border: 2px solid var(--green-color);
+	}
+	button.create:active {
+		border: 2px solid var(--blue-color);
+	}
 
-			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-			&:hover {
-				background-color: var(--area-color);
-				border: 2px solid var(--blue-color);
-			}
-			&:focus {
-				border: 2px solid var(--green-color);
-			}
-			&:active {
-				border: 2px solid var(--blue-color);
-			}
-		}
+	button.submit {
+		width: 100%;
 
-		&.submit {
-			width: 100%;
+		background-color: var(--darker-green-color);
+		border: 2px solid var(--green-color);
+		cursor: pointer;
+	}
+	button.submit:hover {
+		background: var(--green-color);
+	}
 
-			background-color: var(--darker-green-color);
-			border: 2px solid var(--green-color);
-			cursor: pointer;
+	button.submit:active {
+		background-color: var(--darker-green-color);
+	}
 
-			&:hover {
-				background: var(--green-color);
-			}
+	button.cancel {
+		width: 100%;
 
-			&:active {
-				background-color: var(--darker-green-color);
-			}
-		}
+		background-color: var(--input-color);
+		border: 2px solid var(--border-color);
+		cursor: pointer;
+	}
+	button.cancel:hover {
+		background: var(--area-color);
+	}
 
-		&.cancel {
-			width: 100%;
-
-			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-			cursor: pointer;
-
-			&:hover {
-				background: var(--area-color);
-			}
-
-			&:active {
-				background-color: var(--input-color);
-			}
-		}
+	button.cancel:active {
+		background-color: var(--input-color);
 	}
 </style>

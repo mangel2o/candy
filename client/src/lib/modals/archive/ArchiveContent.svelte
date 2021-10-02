@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	export let archive;
 	let files;
 
@@ -8,64 +8,58 @@
 	}
 </script>
 
-<template>
-	<div class="container">
-		<div class="row">
-			<div class="field">
-				<span class="tag">Nombre del archivo</span>
-				<input required type="text" bind:value={archive.name} placeholder="Nombre del archivo" />
-			</div>
-		</div>
-		<div class="row">
-			<div class="field">
-				<span class="tag">Descripción</span>
-				<textarea required bind:value={archive.description} placeholder="Descripción del archivo" />
-			</div>
-		</div>
-		<div class="row">
-			<div class="field">
-				<span class="tag">Archivo de ejemplo</span>
-				<label class={archive.file ? 'uploaded' : 'not-uploaded'}>
-					<input required={archive.file ? false : true} name="file" type="file" bind:files />
-					{#if archive.file}
-						<span>{archive.file.name}</span>
-					{:else}
-						<span>Busca un archivo PDF</span>
-						<span>o arrastralo aqui</span>
-					{/if}
-				</label>
-			</div>
+<div class="container">
+	<div class="row">
+		<div class="field">
+			<span class="tag">Nombre del archivo</span>
+			<input required type="text" bind:value={archive.name} placeholder="Nombre del archivo" />
 		</div>
 	</div>
-</template>
+	<div class="row">
+		<div class="field">
+			<span class="tag">Descripción</span>
+			<textarea required bind:value={archive.description} placeholder="Descripción del archivo" />
+		</div>
+	</div>
+	<div class="row">
+		<div class="field">
+			<span class="tag">Archivo de ejemplo</span>
+			<label class={archive.file ? 'uploaded' : 'not-uploaded'}>
+				<input required={archive.file ? false : true} name="file" type="file" bind:files />
+				{#if archive.file}
+					<span>{archive.file.name}</span>
+				{:else}
+					<span>Busca un archivo PDF</span>
+					<span>o arrastralo aqui</span>
+				{/if}
+			</label>
+		</div>
+	</div>
+</div>
 
-<style lang="scss">
-	div {
-		&.container {
-			width: 38rem;
-			display: flex;
-			flex-direction: column;
-			gap: 1rem;
-		}
-
-		&.row {
-			display: flex;
-			width: 100%;
-			gap: 1rem;
-		}
-
-		&.field {
-			display: flex;
-			flex-direction: column;
-			width: 100%;
-			gap: 0.5rem;
-		}
+<style>
+	div.container {
+		width: 38rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 
-	span {
-		&.tag {
-			color: var(--focus-color);
-		}
+	div.row {
+		display: flex;
+		width: 100%;
+		gap: 1rem;
+	}
+
+	div.field {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		gap: 0.5rem;
+	}
+
+	span.tag {
+		color: var(--focus-color);
 	}
 
 	textarea {
@@ -76,22 +70,22 @@
 		width: 100%;
 		height: 200px;
 		resize: none;
+	}
 
-		&:hover {
-			border: 2px solid var(--blue-color);
+	textarea:hover {
+		border: 2px solid var(--blue-color);
+	}
 
-			&::placeholder {
-				color: var(--placeholder-color);
-			}
-		}
+	textarea:hover::placeholder {
+		color: var(--placeholder-color);
+	}
 
-		&:focus {
-			border: 2px solid var(--green-color);
-		}
+	textarea:focus {
+		border: 2px solid var(--green-color);
+	}
 
-		&::placeholder {
-			color: var(--focus-color);
-		}
+	textarea::placeholder {
+		color: var(--focus-color);
 	}
 
 	label {
@@ -107,21 +101,21 @@
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
 
-		&:hover {
-			border: 2px solid var(--blue-color);
-			color: var(--placeholder-color);
-		}
-
 		font-size: 20px;
 		font-weight: bold;
+	}
 
-		&.uploaded {
-			border: 2px solid var(--green-color);
-		}
+	label:hover {
+		border: 2px solid var(--blue-color);
+		color: var(--placeholder-color);
+	}
 
-		&.not-uploaded {
-			border: 2px solid var(--red-color);
-		}
+	label.uploaded {
+		border: 2px solid var(--green-color);
+	}
+
+	label.not-uploaded {
+		border: 2px solid var(--red-color);
 	}
 
 	input {
@@ -129,22 +123,21 @@
 		width: 100%;
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
+	}
+	input:hover {
+		border: 2px solid var(--blue-color);
+	}
 
-		&:hover {
-			border: 2px solid var(--blue-color);
+	input:hover::placeholder {
+		color: var(--placeholder-color);
+	}
 
-			&::placeholder {
-				color: var(--placeholder-color);
-			}
-		}
+	input:focus {
+		border: 2px solid var(--green-color);
+	}
 
-		&:focus {
-			border: 2px solid var(--green-color);
-		}
-
-		&::placeholder {
-			color: var(--focus-color);
-		}
+	input::placeholder {
+		color: var(--focus-color);
 	}
 
 	input[type='file'] {

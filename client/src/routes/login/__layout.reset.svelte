@@ -23,24 +23,22 @@
 	<slot />
 </template>
 
-<style lang="scss">
-	div {
-		&.container {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			height: 100vh;
-			width: 100%;
-		}
+<style>
+	div.container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100vh;
+		width: 100%;
+	}
 
-		&.redirect {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			background: var(--area-color);
-			width: 30rem;
-			padding: 2.5rem;
-			gap: 1.25rem;
-		}
+	div.redirect {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		background: var(--area-color);
+		width: 30rem;
+		padding: 2.5rem;
+		gap: 1.25rem;
 	}
 </style>

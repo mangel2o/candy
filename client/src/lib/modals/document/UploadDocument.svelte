@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import Modal from '$lib/components/Modal.svelte';
 	import Upload from '$lib/icons/upload.svelte';
 	import Icon from '$lib/components/Icon.svelte';
@@ -7,12 +7,12 @@
 	import FileDocument from '$lib/icons/file-document.svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	const refetchDocuments: Function = getContext('refetchDocuments');
+	const refetchDocuments = getContext('refetchDocuments');
 	let isOpen = false;
 	let isPending = false;
 
 	export let document;
-	let files: FileList;
+	let files;
 	let error = null;
 
 	function handleSubmit() {
@@ -45,48 +45,46 @@
 	}
 </script>
 
-<template>
-	<Modal bind:isOpen>
-		<button class="edit" slot="trigger" let:open on:click={open}>
-			<Icon src={Upload} />
-		</button>
+<Modal bind:isOpen>
+	<button class="edit" slot="trigger" let:open on:click={open}>
+		<Icon src={Upload} />
+	</button>
 
-		<!--Header-->
-		<span slot="header"> Subir documento </span>
+	<!--Header-->
+	<span slot="header"> Subir documento </span>
 
-		<!--Content-->
-		<form on:submit|preventDefault={handleSubmit} slot="content">
-			<label class={files ? 'uploaded' : 'not-uploaded'}>
-				<input required type="file" bind:files accept=".pdf" />
-				<Icon src={FileDocument} size={'80'} />
-				{#if !files}
-					<span class="upper-text">Busca un archivo PDF</span>
-					<span class="lower-text">o arrastralo aqui</span>
-				{:else}
-					<span class="upper-text">Archivo seleccionado</span>
-					{#each files as file}
-						<span class="lower-text">{file.name}</span>
-					{/each}
-				{/if}
-			</label>
-			{#if error}
-				<ErrorToast bind:error />
+	<!--Content-->
+	<form on:submit|preventDefault={handleSubmit} slot="content">
+		<label class={files ? 'uploaded' : 'not-uploaded'}>
+			<input required type="file" bind:files accept=".pdf" />
+			<Icon src={FileDocument} size={'80'} />
+			{#if !files}
+				<span class="upper-text">Busca un archivo PDF</span>
+				<span class="lower-text">o arrastralo aqui</span>
+			{:else}
+				<span class="upper-text">Archivo seleccionado</span>
+				{#each files as file}
+					<span class="lower-text">{file.name}</span>
+				{/each}
 			{/if}
-			<div>
-				<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-				<button class="submit" type="submit">
-					{#if isPending}
-						Loading...
-					{:else}
-						Subir
-					{/if}
-				</button>
-			</div>
-		</form>
-	</Modal>
-</template>
+		</label>
+		{#if error}
+			<ErrorToast bind:error />
+		{/if}
+		<div>
+			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
+			<button class="submit" type="submit">
+				{#if isPending}
+					Loading...
+				{:else}
+					Subir
+				{/if}
+			</button>
+		</div>
+	</form>
+</Modal>
 
-<style lang="scss">
+<style>
 	form {
 		display: flex;
 		flex-direction: column;
@@ -100,48 +98,44 @@
 
 	button {
 		padding: 1rem;
+	}
+	button.edit {
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		background-color: var(--input-color);
+	}
+	button.edit:hover {
+		background-color: var(--area-color);
+	}
 
-		&.edit {
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			background-color: var(--input-color);
+	button.submit {
+		width: 100%;
 
-			&:hover {
-				background-color: var(--area-color);
-			}
-		}
+		background-color: var(--blue-color);
+		border: 2px solid var(--blue-color);
+		cursor: pointer;
+	}
+	button.submit:hover {
+		background: var(--blue-color);
+	}
 
-		&.submit {
-			width: 100%;
+	button.submit:active {
+		background-color: var(--blue-color);
+	}
 
-			background-color: var(--blue-color);
-			border: 2px solid var(--blue-color);
-			cursor: pointer;
+	button.cancel {
+		width: 100%;
+		background-color: var(--input-color);
+		border: 2px solid var(--border-color);
+		cursor: pointer;
+	}
+	button.cancel:hover {
+		background: var(--area-color);
+	}
 
-			&:hover {
-				background: var(--blue-color);
-			}
-
-			&:active {
-				background-color: var(--blue-color);
-			}
-		}
-
-		&.cancel {
-			width: 100%;
-			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-			cursor: pointer;
-
-			&:hover {
-				background: var(--area-color);
-			}
-
-			&:active {
-				background-color: var(--input-color);
-			}
-		}
+	button.cancel:active {
+		background-color: var(--input-color);
 	}
 
 	label {
@@ -156,30 +150,27 @@
 
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
-
-		&:hover {
-			border: 2px solid var(--blue-color);
-			color: var(--placeholder-color);
-		}
-
-		&.uploaded {
-			border: 2px solid var(--green-color);
-		}
-
-		&.not-uploaded {
-			border: 2px solid var(--red-color);
-		}
+	}
+	label:hover {
+		border: 2px solid var(--blue-color);
+		color: var(--placeholder-color);
 	}
 
-	span {
-		&.upper-text {
-			font-size: 20px;
-			font-weight: bold;
-		}
+	label.uploaded {
+		border: 2px solid var(--green-color);
+	}
 
-		&.lower-text {
-			font-size: 18px;
-		}
+	label.not-uploaded {
+		border: 2px solid var(--red-color);
+	}
+
+	span.upper-text {
+		font-size: 20px;
+		font-weight: bold;
+	}
+
+	span.lower-text {
+		font-size: 18px;
 	}
 
 	input {

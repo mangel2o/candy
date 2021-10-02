@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import { page } from '$app/stores';
 	import CreateObservation from '$lib/modals/observation/CreateObservation.svelte';
 	import DeleteObservation from '$lib/modals/observation/DeleteObservation.svelte';
@@ -35,42 +35,38 @@
 	<title>Observaciones del candidato • Tecmilenio</title>
 </svelte:head>
 
-<template>
-	<div class="container">
-		{#if isPending}
-			<span>Loading...</span>
-		{:else if error}
-			<span>Something went wrong</span>
-		{:else}
-			{#if $userStore.role !== 'user'}
-				<CreateObservation />
-			{/if}
-
-			{#each observations as observation (observation._id)}
-				<div class="button">
-					<ViewObservation {observation} />
-					{#if $userStore.role !== 'user'}
-						<EditObservation {observation} />
-						<DeleteObservation {observation} />
-					{/if}
-				</div>
-			{/each}
+<div class="container">
+	{#if isPending}
+		<span>Loading...</span>
+	{:else if error}
+		<span>Something went wrong</span>
+	{:else}
+		{#if $userStore.role !== 'user'}
+			<CreateObservation />
 		{/if}
-	</div>
-</template>
 
-<style lang="scss">
-	div {
-		&.container {
-			display: flex;
-			flex-direction: column;
-			gap: 1rem;
-		}
+		{#each observations as observation (observation._id)}
+			<div class="button">
+				<ViewObservation {observation} />
+				{#if $userStore.role !== 'user'}
+					<EditObservation {observation} />
+					<DeleteObservation {observation} />
+				{/if}
+			</div>
+		{/each}
+	{/if}
+</div>
 
-		&.button {
-			display: flex;
-			width: 100%;
-			border: 2px solid var(--border-color);
-		}
+<style>
+	div.container {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	div.button {
+		display: flex;
+		width: 100%;
+		border: 2px solid var(--border-color);
 	}
 </style>
