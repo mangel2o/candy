@@ -16,7 +16,7 @@
 	let isPending = true;
 	let error = null;
 	let isCategoriesActive = false;
-	let categories = [];
+	let categories;
 	let candidate;
 
 	function fetchData() {
@@ -144,7 +144,7 @@
 		}
 
 		&.avatar {
-			width: 16rem;
+			width: 12rem;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -157,7 +157,7 @@
 		}
 
 		&.info {
-			width: 100%;
+			flex-grow: 1;
 			padding: 20px;
 			display: flex;
 			flex-direction: column;

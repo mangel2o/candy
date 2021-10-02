@@ -29,7 +29,7 @@
 		<div class="content" slot="content">
 			<div class="field">
 				<div class="title">
-					<div><Icon src={Archive} size={'32'} /></div>
+					<Icon src={Archive} size={'32'} />
 					<div>{archive.name}</div>
 				</div>
 			</div>

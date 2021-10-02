@@ -22,7 +22,8 @@
 	function handleSubmit() {
 		isPending = true;
 		const formData = new FormData();
-		Object.keys(editableDocument).forEach((key) => formData.append(key, editableDocument[key]));
+		formData.append('comment', editableDocument.comment);
+		formData.append('status', editableDocument.status);
 		fetch(
 			`http://localhost:4000/candidates/${$page.params.candidate}/documents/${document._id}/update`,
 			{
