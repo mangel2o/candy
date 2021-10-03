@@ -46,7 +46,7 @@
 				}
 				error = null;
 				isPending = false;
-				handleCancel();
+				isOpen = false;
 				refetchCategories();
 				refetchCategory();
 			})

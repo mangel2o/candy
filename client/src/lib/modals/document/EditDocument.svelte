@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
+	const refetchCandidate = getContext('refetchCandidate');
 	const refetchDocuments = getContext('refetchDocuments');
 	let isOpen = false;
 	let isPending = false;
@@ -35,7 +36,8 @@
 			.then((data) => {
 				error = null;
 				isPending = false;
-				handleCancel();
+				isOpen = false;
+				refetchCandidate();
 				refetchDocuments();
 			})
 			.catch((err) => {
@@ -46,6 +48,7 @@
 
 	function handleCancel() {
 		editableDocument = { ...document };
+		error = null;
 		isOpen = false;
 	}
 </script>
@@ -100,6 +103,10 @@
 	}
 	button.edit:hover {
 		background-color: var(--area-color);
+	}
+
+	button:disabled {
+		background: red;
 	}
 
 	button.submit {

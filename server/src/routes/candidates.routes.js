@@ -17,6 +17,7 @@ router.delete('/:candidateId', candidatesController.deleteCandidateById);
 router.get('/:candidateId/documents', documentsController.getDocuments);
 router.put('/:candidateId/documents/:documentId/upload', documentsController.uploadDocumentById);
 router.put('/:candidateId/documents/:documentId/update', documentsController.updateDocumentById);
+router.delete('/:candidateId/documents/:documentId/upload', documentsController.deleteDocumentById);
 
 // OBSERVATIONS
 router.get('/:candidateId/observations', observationsController.getObservations);

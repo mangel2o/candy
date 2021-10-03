@@ -6,12 +6,12 @@
 	<div class="row">
 		<div class="field">
 			<span class="tag">Comentario</span>
-			<textarea bind:value={document.comment} placeholder="Descripción del documento" />
+			<textarea bind:value={document.comment} placeholder="Comentario" />
 		</div>
 	</div>
 	<select required bind:value={document.status}>
 		<option disabled selected value> Selecciona una opción </option>
-		<option value="Vacio">Vacio</option>
+		<option disabled value="Vacio">Vacio</option>
 		<option value="Completo">Completo</option>
 		<option value="Pendiente">Pendiente</option>
 		<option value="Retenido">Retenido</option>

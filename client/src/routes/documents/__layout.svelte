@@ -9,7 +9,6 @@
 	let categories = [];
 
 	function fetchData() {
-		isPending = true;
 		fetch('http://localhost:4000/documents')
 			.then((res) => res.json())
 			.then((data) => {
@@ -24,6 +23,7 @@
 
 	setContext('refetchCategories', fetchData);
 	onMount(() => {
+		isPending = true;
 		fetchData();
 	});
 </script>

@@ -11,7 +11,7 @@ export const createArchive = async (req, res) => {
    const tempFile = req.files.file;
 
    // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId);
+   const candidateExist = await Candidate.findById(candidateId).lean();
    if (!candidateExist) return res.json({ warning: "Este candidato ya no existe" });
 
    // * Creates a new archive
@@ -26,7 +26,7 @@ export const createArchive = async (req, res) => {
    }).save();
 
    // * Adds the new template id to the category
-   await Candidate.findByIdAndUpdate(candidateExist, { $push: { archives: archiveCreated._id } },);
+   await Candidate.findByIdAndUpdate(candidateExist, { $push: { archives: archiveCreated._id } }).lean();
 
    // * Creates the file in the current working directory
    fs.writeFileSync(archiveCreated.filepath, fs.readFileSync(tempFile.path));
@@ -42,12 +42,12 @@ export const getArchives = async (req, res) => {
    const candidateId = req.params.candidateId;
 
    // * Finds all templates from the respective category
-   const archivesFound = await Archive.find({ owner: candidateId });
+   const archivesFound = await Archive.find({ owner: candidateId }).lean();
 
    // * Creates a new array of templates with the data of the corresponding filepaths
    let candidatesComputed = [];
    for (let i = 0; i < archivesFound.length; i++) {
-      candidatesComputed.push({ ...archivesFound[i]._doc, file: fs.readFileSync(archivesFound[i]._doc.filepath) });
+      candidatesComputed.push({ ...archivesFound[i], file: fs.readFileSync(archivesFound[i].filepath) });
    }
 
    // * Sends the templates as response
@@ -63,11 +63,11 @@ export const updateArchiveById = async (req, res) => {
    const tempFile = req.files.file;
 
    // * Checks if the category exists
-   const candidateExist = await Candidate.findById(candidateId);
+   const candidateExist = await Candidate.findById(candidateId).lean();
    if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
 
    // * Check if the template exists, if not then delete the temporal file
-   const archiveExist = await Archive.findById(archiveId);
+   const archiveExist = await Archive.findById(archiveId).lean();
    if (!archiveExist) {
       if (tempFile) {
          fs.unlinkSync(tempFile.path);
@@ -84,7 +84,7 @@ export const updateArchiveById = async (req, res) => {
          updatedBy: authorId
       },
       { new: true }
-   )
+   ).lean();
 
    // * If theres a temporal file, updates the file corresponding to this template
    if (tempFile) {
@@ -105,21 +105,21 @@ export const deleteArchiveById = async (req, res) => {
    const archiveId = req.params.archiveId;
 
    // * Checks if the category exists
-   const candidateExist = await Candidate.findById(candidateId);
+   const candidateExist = await Candidate.findById(candidateId).lean();
    if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
 
    // * Checks if the template exists
-   const archiveExist = await Archive.findById(archiveId);
+   const archiveExist = await Archive.findById(archiveId).lean();
    if (!archiveExist) return res.json({ error: "Este archivo ya no existe" });
 
    // * Deletes the archive
-   const archiveDeleted = await Archive.findByIdAndDelete(archiveId);
+   const archiveDeleted = await Archive.findByIdAndDelete(archiveId).lean();
 
    // * Deletes the file
    fs.unlinkSync(archiveDeleted.filepath);
 
    // * Removes the template id from the corresponding category
-   await Candidate.findByIdAndUpdate(candidateId, { $pull: { archives: archiveId } });
+   await Candidate.findByIdAndUpdate(candidateId, { $pull: { archives: archiveId } }).lean();
 
    // * Sends a success response
    res.json({ success: "Se realizo la operación exitosamente" });

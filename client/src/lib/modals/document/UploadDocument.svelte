@@ -7,6 +7,7 @@
 	import FileDocument from '$lib/icons/file-document.svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
+	const refetchCandidate = getContext('refetchCandidate');
 	const refetchDocuments = getContext('refetchDocuments');
 	let isOpen = false;
 	let isPending = false;
@@ -31,6 +32,7 @@
 				error = null;
 				isPending = false;
 				handleCancel();
+				refetchCandidate();
 				refetchDocuments();
 			})
 			.catch((err) => {
@@ -73,7 +75,7 @@
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-			<button class="submit" type="submit">
+			<button disabled={!files} class="submit" type="submit">
 				{#if isPending}
 					Loading...
 				{:else}

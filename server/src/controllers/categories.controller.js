@@ -17,7 +17,7 @@ export const createCategory = async (req, res) => {
    const standardizedName = standardizeValue(name);
 
    // * Checks if category's name is in use
-   const categoryExist = await Category.findOne({ name: standardizedName });
+   const categoryExist = await Category.findOne({ name: standardizedName }).lean();
    if (categoryExist) return res.json({ error: "Esta categoria ya existe" });
 
 
@@ -39,7 +39,7 @@ export const createCategory = async (req, res) => {
  */
 export const getCategories = async (req, res) => {
    // * Finds all categories and sends them to the client
-   const categoriesFound = await Category.find();
+   const categoriesFound = await Category.find().lean();
    res.json(categoriesFound);
 }
 
@@ -55,7 +55,7 @@ export const getCategoryById = async (req, res) => {
    if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.json({ error: "Esta categoria no existe" });
 
    // * Checks if the category exists
-   const categoryExist = await Category.findById(categoryId);
+   const categoryExist = await Category.findById(categoryId).lean();
    if (!categoryExist) return res.json({ error: "Esta categoria no existe" });
 
    // * Sends the category as response
@@ -77,12 +77,12 @@ export const updateCategoryById = async (req, res) => {
    const { name, description, authorId, } = req.fields;
 
    // * Checks if the category exists
-   const categoryExist = await Category.findById(categoryId);
+   const categoryExist = await Category.findById(categoryId).lean();
    if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
 
    // * Checks if the new category's name isn't used already
    const standardizedName = standardizeValue(name);
-   const categoryExistByName = await Category.findOne({ _id: { $ne: categoryId }, name: standardizedName });
+   const categoryExistByName = await Category.findOne({ _id: { $ne: categoryId }, name: standardizedName }).lean();
    if (categoryExistByName) return res.json({ error: "Esta categoria ya existe" });
 
    // * Updates the existing category with the new values
@@ -94,7 +94,7 @@ export const updateCategoryById = async (req, res) => {
          updatedBy: authorId
       },
       { new: true }
-   )
+   ).lean();
 
    // * Sends the updated category as response
    res.json(categoryUpdated);
@@ -112,19 +112,19 @@ export const deleteCategoryById = async (req, res) => {
    if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.json({ error: "Esta categoria no existe" });
 
    // * Checks if the category exists
-   const categoryExist = await Category.findById(categoryId);
+   const categoryExist = await Category.findById(categoryId).lean();
    if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
 
    // * If there are no candidates created with this category, then the category can be deleted
-   const candidatesExist = await Candidate.findOne({ categories: { $in: categoryId } });
+   const candidatesExist = await Candidate.findOne({ categories: { $in: categoryId } }).lean();
    if (candidatesExist) {
       return res.json({ error: "Esta categoria no se puede eliminar" });
    } else {
       // * Deletes the category
-      await Category.findByIdAndDelete(categoryId);
+      await Category.findByIdAndDelete(categoryId).lean();
 
       // * Deletes the files corresponding to this category
-      const templatesFound = await Template.find({ category: categoryId });
+      const templatesFound = await Template.find({ category: categoryId }).lean();
       for (const template of templatesFound) {
          fs.unlinkSync(template.examplePath);
       }

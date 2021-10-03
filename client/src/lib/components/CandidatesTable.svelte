@@ -87,7 +87,7 @@
 		text-align: center;
 	}
 
-	td .status {
+	td.status {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;

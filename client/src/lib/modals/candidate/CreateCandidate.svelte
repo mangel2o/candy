@@ -156,14 +156,14 @@
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
 	}
-	button.create :hover {
+	button.create:hover {
 		background-color: var(--area-color);
 		border: 2px solid var(--blue-color);
 	}
-	button.create :focus {
+	button.create:focus {
 		border: 2px solid var(--green-color);
 	}
-	button.create :active {
+	button.create:active {
 		border: 2px solid var(--blue-color);
 	}
 

@@ -8,7 +8,7 @@ export const createObservation = async (req, res) => {
    const { name, comment, authorId } = req.fields;
 
    // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId);
+   const candidateExist = await Candidate.findById(candidateId).lean();
    if (!candidateExist) return res.json({ warning: "Este candidato ya no existe" });
 
    // * Creates a new archive
@@ -22,7 +22,7 @@ export const createObservation = async (req, res) => {
    }).save();
 
    // * Adds the new template id to the category
-   await Candidate.findByIdAndUpdate(candidateExist, { $push: { observations: observationCreated._id } },);
+   await Candidate.findByIdAndUpdate(candidateExist, { $push: { observations: observationCreated._id } }).lean();
 
    // * Sends the created template as response
    res.json(observationCreated);
@@ -33,7 +33,7 @@ export const getObservations = async (req, res) => {
    const candidateId = req.params.candidateId;
 
    // * Finds all observations from the respective candidate
-   const observationsFound = await Observation.find({ owner: candidateId });
+   const observationsFound = await Observation.find({ owner: candidateId }).lean();
 
    // * Sends the observations as response
    res.json(observationsFound);
@@ -46,11 +46,11 @@ export const updateObservationById = async (req, res) => {
    const { name, comment, authorId } = req.fields;
 
    // * Checks if the category exists
-   const candidateExist = await Candidate.findById(candidateId);
+   const candidateExist = await Candidate.findById(candidateId).lean();
    if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
 
    // * Check if the template exists, if not then delete the temporal file
-   const observationExist = await Observation.findById(observationId);
+   const observationExist = await Observation.findById(observationId).lean();
    if (!observationExist) return res.json({ error: "Esta observación ya no existe" });
 
 
@@ -63,7 +63,7 @@ export const updateObservationById = async (req, res) => {
          updatedBy: authorId
       },
       { new: true }
-   )
+   ).lean();
 
    // * Sends a success response
    res.json({ success: "Se realizo la operación exitosamente" });
@@ -75,18 +75,18 @@ export const deleteObservationById = async (req, res) => {
    const observationId = req.params.observationId;
 
    // * Checks if the category exists
-   const candidateExist = await Candidate.findById(candidateId);
+   const candidateExist = await Candidate.findById(candidateId).lean();
    if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
 
    // * Checks if the template exists
-   const observationExist = await Observation.findById(observationId);
+   const observationExist = await Observation.findById(observationId).lean();
    if (!observationExist) return res.json({ error: "Esta observación ya no existe" });
 
    // * Deletes the archive
-   const observationDeleted = await Observation.findByIdAndDelete(observationId);
+   const observationDeleted = await Observation.findByIdAndDelete(observationId).lean();
 
    // * Removes the template id from the corresponding category
-   await Candidate.findByIdAndUpdate(candidateId, { $pull: { observations: observationId } });
+   await Candidate.findByIdAndUpdate(candidateId, { $pull: { observations: observationId } }).lean();
 
    // * Sends a success response
    res.json({ success: "Se realizo la operación exitosamente" });

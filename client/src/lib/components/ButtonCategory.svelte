@@ -25,7 +25,7 @@
 		border-left: 2px solid var(--focus-color);
 	}
 
-	a:hover:active {
+	a:hover.active {
 		border-left: 2px solid var(--orange-color);
 	}
 </style>

@@ -17,7 +17,6 @@
 	let templates = [];
 
 	function fetchData() {
-		isPending = true;
 		Promise.all([
 			fetch(`http://localhost:4000/documents/${$page.params.category}`).then((res) => res.json()),
 			fetch(`http://localhost:4000/documents/${$page.params.category}/templates`).then((res) =>
@@ -47,6 +46,7 @@
 	}
 	setContext('refetchCategory', fetchData);
 	onMount(() => {
+		isPending = true;
 		fetchData();
 	});
 </script>

@@ -18,7 +18,7 @@ export const createTemplate = async (req, res) => {
    const tempFile = req.files.example;
 
    // * Checks if the category exists
-   const categoryExist = await Category.findById(categoryId);
+   const categoryExist = await Category.findById(categoryId).lean();
    if (!categoryExist) return res.json({ warning: "Esta categoría no existe" });
 
    // * Creates a new template
@@ -33,7 +33,7 @@ export const createTemplate = async (req, res) => {
    }).save();
 
    // * Adds the new template id to the category
-   await Category.findByIdAndUpdate(categoryId, { $push: { templates: templateCreated._id } },);
+   await Category.findByIdAndUpdate(categoryId, { $push: { templates: templateCreated._id } }).lean();
 
    // * Creates the file in the current working directory
    fs.writeFileSync(templateCreated.examplePath, fs.readFileSync(tempFile.path));
@@ -53,12 +53,12 @@ export const getTemplates = async (req, res) => {
    const categoryId = req.params.categoryId;
 
    // * Finds all templates from the respective category
-   const templatesFound = await Template.find({ category: categoryId });
+   const templatesFound = await Template.find({ category: categoryId }).lean();
 
    // * Creates a new array of templates with the data of the corresponding filepaths
    let templatesComputed = [];
    for (let i = 0; i < templatesFound.length; i++) {
-      templatesComputed.push({ ...templatesFound[i]._doc, example: fs.readFileSync(templatesFound[i]._doc.examplePath) });
+      templatesComputed.push({ ...templatesFound[i], example: fs.readFileSync(templatesFound[i].examplePath) });
    }
 
    // * Sends the templates as response
@@ -79,11 +79,11 @@ export const updateTemplateById = async (req, res) => {
    const tempFile = req.files.example;
 
    // * Checks if the category exists
-   const categoryExist = await Category.findById(categoryId);
+   const categoryExist = await Category.findById(categoryId).lean();
    if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
 
    // * Check if the template exists, if not then delete the temporal file
-   const templateExist = await Template.findById(templateId);
+   const templateExist = await Template.findById(templateId).lean();
    if (!templateExist) {
       if (tempFile) {
          fs.unlinkSync(tempFile.path);
@@ -100,7 +100,7 @@ export const updateTemplateById = async (req, res) => {
          updatedBy: authorId
       },
       { new: true }
-   )
+   ).lean();
 
    // * If theres a temporal file, updates the file corresponding to this template
    if (tempFile) {
@@ -127,26 +127,26 @@ export const deleteTemplateById = async (req, res) => {
    const templateId = req.params.templateId;
 
    // * Checks if the category exists
-   const categoryExist = await Category.findById(categoryId);
+   const categoryExist = await Category.findById(categoryId).lean();
    if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
 
    // * Checks if the template exists
-   const templateExist = await Template.findById(templateId);
+   const templateExist = await Template.findById(templateId).lean();
    if (!templateExist) return res.json({ error: "Este documento ya no existe" });
 
    // * Checks if there are no documents created with this template
-   const documentsExist = await Document.findOne({ template: templateId });
+   const documentsExist = await Document.findOne({ template: templateId }).lean();
    if (documentsExist) {
       return res.json({ error: "Este documento no se puede eliminar" });
    } else {
       // * Deletes the template
-      const templateDeleted = await Template.findByIdAndDelete(templateId);
+      const templateDeleted = await Template.findByIdAndDelete(templateId).lean();
 
       // * Deletes the file
       fs.unlinkSync(templateDeleted.examplePath);
 
       // * Removes the template id from the corresponding category
-      await Category.findByIdAndUpdate(categoryId, { $pull: { templates: templateId } });
+      await Category.findByIdAndUpdate(categoryId, { $pull: { templates: templateId } }).lean();
    }
 
    // * Sends a success response

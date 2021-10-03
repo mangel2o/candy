@@ -21,6 +21,7 @@
 		})
 			.then((res) => res.json())
 			.then((data) => {
+				error = null;
 				isPending = false;
 				handleCancel();
 				refetch();

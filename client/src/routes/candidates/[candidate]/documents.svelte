@@ -1,6 +1,5 @@
 <script>
 	import { page } from '$app/stores';
-
 	import DeleteDocument from '$lib/modals/document/DeleteDocument.svelte';
 	import EditDocument from '$lib/modals/document/EditDocument.svelte';
 	import UploadDocument from '$lib/modals/document/UploadDocument.svelte';
@@ -14,7 +13,6 @@
 	let documents = [];
 
 	function fetchData() {
-		isPending = true;
 		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/documents`)
 			.then((res) => res.json())
 			.then((data) => {
@@ -57,8 +55,11 @@
 				{#if $userStore.role === 'user' && document.status !== 'Completo'}
 					<UploadDocument {document} />
 				{/if}
-				{#if $userStore.role !== 'user' && document.file}
-					<EditDocument {document} />
+				{#if $userStore.role !== 'user'}
+					{#if document.file}
+						<EditDocument {document} />
+					{/if}
+					<DeleteDocument {document} />
 				{/if}
 			</div>
 		{/each}

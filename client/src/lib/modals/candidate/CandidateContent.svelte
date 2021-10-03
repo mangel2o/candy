@@ -241,7 +241,6 @@
 	}
 
 	div.field {
-		width: 100%;
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
@@ -252,23 +251,23 @@
 		flex-wrap: wrap;
 		gap: 1rem;
 	}
-	div.width-75 {
+	.width-75 {
 		width: 75%;
 	}
 
-	div.width-25 {
+	.width-25 {
 		width: 25%;
 	}
 
-	div.width-30 {
+	.width-30 {
 		width: 30%;
 	}
 
-	div.width-35 {
+	.width-35 {
 		width: 35%;
 	}
 
-	div.width-100 {
+	.width-100 {
 		display: flex;
 		width: 100%;
 	}

@@ -20,7 +20,6 @@
 	let candidate;
 
 	function fetchData() {
-		isPending = true;
 		Promise.all([
 			fetch(`http://localhost:4000/candidates/${$page.params.candidate}`).then((res) => res.json()),
 			fetch(`http://localhost:4000/documents`).then((res) => res.json())
@@ -121,9 +120,7 @@
 
 		<!--CONTENT-->
 		<div class="content">
-			{#key candidate}
-				<slot />
-			{/key}
+			<slot />
 		</div>
 	{/if}
 </div>

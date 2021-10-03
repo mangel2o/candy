@@ -1,6 +1,5 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';
 
 	$: if ($userStore) {
@@ -10,18 +9,15 @@
 	}
 </script>
 
-<template>
-	{#if $userStore}
-		<div class="container">
-			<div class="redirect">
-				<span>Redireccionando...</span>
-			</div>
+{#if $userStore}
+	<div class="container">
+		<div class="redirect">
+			<span>Redireccionando...</span>
 		</div>
-	{:else}
-		<slot />
-	{/if}
+	</div>
+{:else}
 	<slot />
-</template>
+{/if}
 
 <style>
 	div.container {

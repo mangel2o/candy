@@ -16,7 +16,7 @@ export const signIn = async (req, res) => {
                { number: identificator }
             ]
       }
-   );
+   ).lean();
    if (!userExist) return res.json({ error: "El usuario o contraseña son incorrectos" });
 
    // * Checks if the password matches
@@ -25,7 +25,7 @@ export const signIn = async (req, res) => {
 
    let user = { ...userExist._doc };
    if (userExist.role === "user") {
-      const candidateFound = await Candidate.findOne({ number: userExist.number });
+      const candidateFound = await Candidate.findOne({ number: userExist.number }).lean();
       user.candidateId = candidateFound._id;
    }
 

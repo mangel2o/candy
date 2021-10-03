@@ -2,22 +2,20 @@
 	export let category;
 </script>
 
-<template>
-	<div class="container">
-		<div class="row">
-			<div class="field">
-				<span class="tag">Nombre de la categoria</span>
-				<input type="text" bind:value={category.name} placeholder="Nombre de la categoria" />
-			</div>
-		</div>
-		<div class="row">
-			<div class="field">
-				<span class="tag">Descripción</span>
-				<textarea bind:value={category.description} placeholder="Descripción de la categoria" />
-			</div>
+<div class="container">
+	<div class="row">
+		<div class="field">
+			<span class="tag">Nombre de la categoria</span>
+			<input type="text" bind:value={category.name} placeholder="Nombre de la categoria" />
 		</div>
 	</div>
-</template>
+	<div class="row">
+		<div class="field">
+			<span class="tag">Descripción</span>
+			<textarea bind:value={category.description} placeholder="Descripción de la categoria" />
+		</div>
+	</div>
+</div>
 
 <style>
 	div.container {
