@@ -32,7 +32,9 @@
 				}
 				error = null;
 				candidate = dataCandidate;
-				categories = dataCategories;
+				categories = dataCategories.filter(
+					(category) => !candidate.categories.find(({ _id }) => category._id === _id)
+				);
 				isPending = false;
 			})
 			.catch((err) => {
@@ -68,7 +70,7 @@
 				<!--OPTIONS-->
 				<div class="options">
 					<div class="upper">
-						<EditCandidate {categories} {candidate} />
+						<EditCandidate {categories} bind:candidate />
 						<DeleteCandidate />
 					</div>
 

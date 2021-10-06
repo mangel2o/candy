@@ -92,26 +92,24 @@ export const updateDocumentById = async (req, res) => {
       { new: true }
    ).lean();
 
-   updateCandidateStatus(candidateId);
+   updateCandidateStatus(candidateId, documentId, status);
 
    // * Sends a success response
    res.json({ success: "Se realizo la operación exitosamente" });
 }
 
-const updateCandidateStatus = async (candidateId) => {
-   const statuses = ["Completo", "Incompleto", "Retenido"];
+const updateCandidateStatus = async (candidateId, documentId, updatedStatus) => {
    const candidateDocuments = await Document.find({ owner: candidateId }).lean().select("status");
-   if (candidateDocuments.some((document) => document.status === "Pendiente" || document.status === "Retenido")) {
+   const documents = candidateDocuments.filter((document) => document.status !== "Vacio");
+
+   if (documents.every((document) => document.status === updatedStatus)) {
+      await Candidate.findByIdAndUpdate(candidateId, { status: updatedStatus }, { new: true }).lean();
+   } else if (documents.some((document) => document.status === "Pendiente")) {
       await Candidate.findByIdAndUpdate(candidateId, { status: "Pendiente" }, { new: true }).lean();
-   } else if (candidateDocuments.every((document) => document.status === "Vacio")) {
-      await Candidate.findByIdAndUpdate(candidateId, { status: "Vacio" }, { new: true }).lean();
-   } else {
-      const filteredDocuments = candidateDocuments.filter((document) => document.status !== "Vacio");
-      for (const value of statuses) {
-         if (filteredDocuments.every((document) => document.status === value)) {
-            await Candidate.findByIdAndUpdate(candidateId, { status: value }, { new: true }).lean();
-         }
-      }
+   } else if (documents.some((document) => document.status === "Retenido")) {
+      await Candidate.findByIdAndUpdate(candidateId, { status: "Retenido" }, { new: true }).lean();
+   } else if (documents.some((document) => document.status === "Incompleto")) {
+      await Candidate.findByIdAndUpdate(candidateId, { status: "Incompleto" }, { new: true }).lean();
    }
 }
 

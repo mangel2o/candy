@@ -8,7 +8,7 @@
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	const refetchCandidate = getContext('refetchCandidate');
+	//const refetchCandidate = getContext('refetchCandidate');
 	let isPending = false;
 	let isOpen = false;
 	let error = null;
@@ -16,9 +16,6 @@
 	export let candidate;
 	export let categories = [];
 	let editableCandidate = { ...candidate, newCategories: [] };
-	let availableCategories = categories.filter(
-		(category) => !candidate.categories.find(({ _id }) => category._id === _id)
-	);
 
 	let disableSubmit;
 	$: if (editableCandidate.newCategories.length > 0) {
@@ -62,8 +59,9 @@
 				}
 				error = null;
 				isPending = false;
-				handleCancel();
-				refetchCandidate();
+				candidate = data;
+				editableCandidate = { ...data, newCategories: [] };
+				isOpen = false;
 			})
 			.catch((err) => {
 				error = err;
@@ -88,7 +86,7 @@
 
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">
-		<CandidateContent bind:categories={availableCategories} bind:candidate={editableCandidate} />
+		<CandidateContent bind:categories bind:candidate={editableCandidate} />
 		{#if error}
 			<ErrorToast bind:error />
 		{/if}

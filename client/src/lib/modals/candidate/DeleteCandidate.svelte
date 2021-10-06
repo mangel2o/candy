@@ -12,7 +12,6 @@
 	let error;
 
 	function handleSubmit() {
-		isPending = true;
 		fetch(`http://localhost:4000/candidates/${$page.params.candidate}`, {
 			method: 'DELETE'
 		})

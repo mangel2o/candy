@@ -173,7 +173,7 @@ export const updateCandidateById = async (req, res) => {
    }
 
    // * Updates the existing candidate with the new values
-   await Candidate.findByIdAndUpdate(
+   const candidateUpdated = await Candidate.findByIdAndUpdate(
       candidateId,
       {
          name: data.name,
@@ -196,11 +196,11 @@ export const updateCandidateById = async (req, res) => {
             documents: { $each: documentIds }
          },
          updatedBy: data.authorId,
-      }
+      }, { new: true }
    ).lean();
 
    // * Sends a success response
-   res.json({ success: "Se realizo la operación exitosamente" });
+   res.send(candidateUpdated);
 }
 
 /**

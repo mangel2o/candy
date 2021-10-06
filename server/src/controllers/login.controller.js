@@ -23,7 +23,7 @@ export const signIn = async (req, res) => {
    const passwordMatches = await User.comparePassword(password, userExist.password);
    if (!passwordMatches) return res.json({ error: "El usuario o contraseña son incorrectos" });
 
-   let user = { ...userExist._doc };
+   let user = { ...userExist };
    if (userExist.role === "user") {
       const candidateFound = await Candidate.findOne({ number: userExist.number }).lean();
       user.candidateId = candidateFound._id;
