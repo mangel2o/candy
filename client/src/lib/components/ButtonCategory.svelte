@@ -1,10 +1,16 @@
 <script>
 	import { page } from '$app/stores';
+	import { fade, slide } from 'svelte/transition';
 	export let category;
 	export let path;
 </script>
 
-<a href={path} class:active={$page.path === path}>
+<a
+	in:fade={{ duration: 200 }}
+	out:fade|local={{ duration: 200 }}
+	href={path}
+	class:active={$page.path === path}
+>
 	{category.name}
 </a>
 

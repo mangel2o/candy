@@ -1,8 +1,10 @@
 <script>
 	import { page } from '$app/stores';
 	import ButtonCategory from '$lib/components/ButtonCategory.svelte';
+	import Spinner from '$lib/components/Spinner.svelte';
 	import CreateCategory from '$lib/modals/category/CreateCategory.svelte';
 	import { onMount, setContext } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let isPending = true;
 	let error;
@@ -35,7 +37,9 @@
 <div class="container">
 	<div class="categories">
 		{#if isPending}
-			<span>Loading...</span>
+			<div class="spinner">
+				<Spinner />
+			</div>
 		{:else if error}
 			<span>Something went wrong: {error}</span>
 		{:else}
@@ -69,5 +73,14 @@
 		flex-direction: column;
 		width: 75%;
 		gap: 20px;
+	}
+
+	div.spinner {
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 10rem;
 	}
 </style>

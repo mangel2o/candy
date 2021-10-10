@@ -28,7 +28,13 @@
 			<Icon src={Magnify} />
 		</label>
 
-		<input id="searchbar" type="text" placeholder="Buscar alumno..." bind:value={searchQuery} />
+		<input
+			id="searchbar"
+			type="text"
+			autocomplete="off"
+			placeholder="Buscar alumno..."
+			bind:value={searchQuery}
+		/>
 		<button on:click={handleCancel} class:inactive={!searchQuery}>
 			<Icon src={Close} />
 		</button>

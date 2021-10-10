@@ -1,10 +1,11 @@
 <script>
 	import Icon from '$lib/components/Icon.svelte';
 	import Close from '$lib/icons/close.svelte';
+	import { fade } from 'svelte/transition';
 	export let error;
 </script>
 
-<div class="container">
+<div in:fade={{ duration: 200 }} class="container">
 	<div class="error">
 		<span class="tag">ERROR: </span>
 		<span>{error}</span>

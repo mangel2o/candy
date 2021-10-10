@@ -1,6 +1,7 @@
 <script>
 	import Close from '$lib/icons/close.svelte';
 	import Icon from '$lib/components/Icon.svelte';
+	import { fade, scale } from 'svelte/transition';
 
 	export let isOpen = false;
 
@@ -16,10 +17,10 @@
 <slot name="trigger" {open} />
 
 {#if isOpen}
-	<div class="modal">
+	<div transition:fade|local={{ duration: 200 }} class="modal">
 		<div class="backdrop" on:click={close} />
 
-		<div class="wrapper">
+		<div transition:scale|local={{ duration: 200 }} class="wrapper">
 			<div class="header">
 				<slot name="header" />
 				<button class="close" on:click={close}>

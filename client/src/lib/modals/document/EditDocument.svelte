@@ -9,6 +9,7 @@
 
 	const refetchCandidate = getContext('refetchCandidate');
 	const refetchDocuments = getContext('refetchDocuments');
+
 	let isOpen = false;
 	let isPending = false;
 	let error = null;

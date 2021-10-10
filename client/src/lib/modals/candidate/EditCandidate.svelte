@@ -7,8 +7,9 @@
 	import { userStore } from '$lib/stores';
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import { goto } from '$app/navigation';
 
-	//const refetchCandidate = getContext('refetchCandidate');
+	const refetchCandidate = getContext('refetchCandidate');
 	let isPending = false;
 	let isOpen = false;
 	let error = null;

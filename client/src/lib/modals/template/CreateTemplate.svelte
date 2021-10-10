@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import { fade } from 'svelte/transition';
 
 	const refetchCategory = getContext('refetchCategory');
 	let isOpen = false;
@@ -63,7 +64,13 @@
 </script>
 
 <Modal bind:isOpen>
-	<button class="create" slot="trigger" let:open on:click={open}>
+	<button
+		transition:fade|local={{ duration: 200 }}
+		class="create"
+		slot="trigger"
+		let:open
+		on:click={open}
+	>
 		<div><Icon src={Plus} /></div>
 		<span>Crear documento</span>
 	</button>

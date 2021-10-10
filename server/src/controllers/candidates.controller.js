@@ -197,7 +197,7 @@ export const updateCandidateById = async (req, res) => {
          },
          updatedBy: data.authorId,
       }, { new: true }
-   ).lean();
+   ).populate("categories").lean();
 
    // * Sends a success response
    res.send(candidateUpdated);

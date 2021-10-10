@@ -12,6 +12,8 @@
 	import CandidateInfo from '$lib/components/CandidateInfo.svelte';
 	import { onMount, setContext } from 'svelte';
 	import { userStore } from '$lib/stores';
+	import Spinner from '$lib/components/Spinner.svelte';
+	import { fade, slide } from 'svelte/transition';
 
 	let isPending = true;
 	let error = null;
@@ -51,11 +53,13 @@
 
 <div class="container">
 	{#if isPending}
-		<span>Loading...</span>
+		<div class="spinner">
+			<Spinner />
+		</div>
 	{:else if error}
 		<span>Something went wrong: {error}</span>
 	{:else}
-		<div class="user">
+		<div in:fade={{ duration: 200 }} class="user">
 			<!--AVATAR-->
 			<div class="avatar">
 				<Icon src={Account} size={'96'} />
@@ -74,10 +78,7 @@
 						<DeleteCandidate />
 					</div>
 
-					<button
-						class:isCategoriesActive
-						on:click={() => (isCategoriesActive = !isCategoriesActive)}
-					>
+					<button on:click={() => (isCategoriesActive = !isCategoriesActive)}>
 						<Icon src={ChevronDown} />
 					</button>
 				</div>
@@ -85,17 +86,19 @@
 		</div>
 
 		<!--CATEGORIES-->
-		<div class="categories" class:isCategoriesActive>
-			<span class="text">Categorias de documentos</span>
-			<span class="divider" />
-			<div class="categories-container">
-				{#each candidate.categories as category}
-					<div class="category">
-						{category.name}
-					</div>
-				{/each}
+		{#if isCategoriesActive}
+			<div in:slide={{ duration: 200 }} out:slide|local={{ duration: 200 }} class="categories">
+				<span class="text">Categorias de documentos</span>
+				<span class="divider" />
+				<div class="categories-container">
+					{#each candidate.categories as category}
+						<div class="category">
+							{category.name}
+						</div>
+					{/each}
+				</div>
 			</div>
-		</div>
+		{/if}
 
 		<!--NAVEGATION-->
 		<div class="navigation">
@@ -122,7 +125,9 @@
 
 		<!--CONTENT-->
 		<div class="content">
-			<slot />
+			{#key candidate}
+				<slot />
+			{/key}
 		</div>
 	{/if}
 </div>
@@ -174,7 +179,7 @@
 	}
 
 	div.categories {
-		display: none;
+		display: flex;
 		width: 100%;
 		height: 56px;
 		border: 2px solid var(--border-color);
@@ -208,10 +213,6 @@
 		border-radius: 0.5rem;
 	}
 
-	div.isCategoriesActive {
-		display: flex;
-	}
-
 	div.navigation {
 		display: flex;
 		margin-top: 6px;
@@ -236,5 +237,14 @@
 
 	button:focus {
 		border: 2px solid var(--green-color);
+	}
+
+	div.spinner {
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 16rem;
 	}
 </style>

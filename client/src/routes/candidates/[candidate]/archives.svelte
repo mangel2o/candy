@@ -1,5 +1,6 @@
 <script>
 	import { page } from '$app/stores';
+	import Spinner from '$lib/components/Spinner.svelte';
 	import CreateArchive from '$lib/modals/archive/CreateArchive.svelte';
 	import DeleteArchive from '$lib/modals/archive/DeleteArchive.svelte';
 	import EditArchive from '$lib/modals/archive/EditArchive.svelte';
@@ -7,6 +8,7 @@
 	import { userStore } from '$lib/stores';
 	import { convertDataToFile } from '$lib/utils';
 	import { onMount, setContext } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let isPending = true;
 	let error = null;
@@ -48,23 +50,27 @@
 
 <div class="container">
 	{#if isPending}
-		<span>Loading...</span>
+		<div class="spinner">
+			<Spinner />
+		</div>
 	{:else if error}
 		<span>Something went wrong</span>
 	{:else}
-		{#if $userStore.role !== 'user'}
-			<CreateArchive />
-		{/if}
+		<div in:fade={{ duration: 200 }} class="container">
+			{#if $userStore.role !== 'user'}
+				<CreateArchive />
+			{/if}
 
-		{#each archives as archive}
-			<div class="button">
-				<ViewArchive {archive} />
-				{#if $userStore.role !== 'user'}
-					<EditArchive {archive} />
-					<DeleteArchive {archive} />
-				{/if}
-			</div>
-		{/each}
+			{#each archives as archive}
+				<div out:fade|local={{ duration: 200 }} class="button">
+					<ViewArchive {archive} />
+					{#if $userStore.role !== 'user'}
+						<EditArchive {archive} />
+						<DeleteArchive {archive} />
+					{/if}
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
 
@@ -79,5 +85,14 @@
 		display: flex;
 		width: 100%;
 		border: 2px solid var(--border-color);
+	}
+
+	div.spinner {
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 16rem;
 	}
 </style>

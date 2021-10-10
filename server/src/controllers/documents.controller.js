@@ -73,7 +73,7 @@ export const updateDocumentById = async (req, res) => {
    const documentId = req.params.documentId;
    const { comment, status, authorId } = req.fields;
 
-   // * Checks if the category exists
+   // * Checks if the candidate exists
    const candidateExist = await Candidate.findById(candidateId).lean();
    if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
 
@@ -92,13 +92,50 @@ export const updateDocumentById = async (req, res) => {
       { new: true }
    ).lean();
 
-   updateCandidateStatus(candidateId, documentId, status);
+   updateCandidateStatus(candidateId, status);
 
    // * Sends a success response
    res.json({ success: "Se realizo la operación exitosamente" });
 }
 
-const updateCandidateStatus = async (candidateId, documentId, updatedStatus) => {
+
+export const deleteDocumentById = async (req, res) => {
+   // * Initializes values
+   const candidateId = req.params.candidateId;
+   const documentId = req.params.documentId;
+
+   // * Checks if the candidate exists
+   const candidateExist = await Candidate.findById(candidateId).lean();
+   if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
+
+   // * Checks if the document exists
+   const documentExist = await Document.findById(documentId).lean();
+   if (!documentExist) return res.json({ error: "Este documento ya no existe" });
+
+   // * Deletes the document 
+   const documentDeleted = await Document.findByIdAndDelete(documentId).lean();
+
+   // * Deletes the file corresponeding to this document
+   if (documentDeleted.filepath) {
+      fs.unlinkSync(documentDeleted.filepath);
+   }
+
+   // * Checks if there are documents with the same category remaining, if not then pull the id from the candidate
+   const candidateDocuments = await Document.find({ owner: candidateId, category: documentDeleted.category }).lean();
+   if (candidateDocuments.length < 1) {
+      await Candidate.findByIdAndUpdate(
+         candidateId,
+         { $pull: { categories: documentDeleted.category } },
+         { new: true }
+      ).lean();
+   }
+
+
+   // * Sends a success response
+   res.json({ success: "Se realizo la operación exitosamente" });
+}
+
+const updateCandidateStatus = async (candidateId, updatedStatus) => {
    const candidateDocuments = await Document.find({ owner: candidateId }).lean().select("status");
    const documents = candidateDocuments.filter((document) => document.status !== "Vacio");
 
@@ -111,8 +148,4 @@ const updateCandidateStatus = async (candidateId, documentId, updatedStatus) => 
    } else if (documents.some((document) => document.status === "Incompleto")) {
       await Candidate.findByIdAndUpdate(candidateId, { status: "Incompleto" }, { new: true }).lean();
    }
-}
-
-export const deleteDocumentById = async (req, res) => {
-
 }

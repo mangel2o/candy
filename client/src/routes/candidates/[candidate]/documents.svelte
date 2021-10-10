@@ -1,5 +1,6 @@
 <script>
 	import { page } from '$app/stores';
+	import Spinner from '$lib/components/Spinner.svelte';
 	import DeleteDocument from '$lib/modals/document/DeleteDocument.svelte';
 	import EditDocument from '$lib/modals/document/EditDocument.svelte';
 	import UploadDocument from '$lib/modals/document/UploadDocument.svelte';
@@ -7,6 +8,7 @@
 	import { userStore } from '$lib/stores';
 	import { convertDataToFile } from '$lib/utils';
 	import { onMount, setContext } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let isPending = true;
 	let error = null;
@@ -45,24 +47,28 @@
 
 <div class="container">
 	{#if isPending}
-		<span>Loading...</span>
+		<div class="spinner">
+			<Spinner />
+		</div>
 	{:else if error}
 		<span>Something went wrong</span>
 	{:else}
-		{#each documents as document (document._id)}
-			<div class="button">
-				<ViewDocument {document} />
-				{#if $userStore.role === 'user' && document.status !== 'Completo'}
-					<UploadDocument {document} />
-				{/if}
-				{#if $userStore.role !== 'user'}
-					{#if document.file}
-						<EditDocument {document} />
+		<div in:fade={{ duration: 200 }} class="container">
+			{#each documents as document (document._id)}
+				<div in:fade={{ duration: 200 }} out:fade|local={{ duration: 200 }} class="button">
+					<ViewDocument {document} />
+					{#if $userStore.role === 'user' && document.status !== 'Completo'}
+						<UploadDocument {document} />
 					{/if}
-					<DeleteDocument {document} />
-				{/if}
-			</div>
-		{/each}
+					{#if $userStore.role !== 'user'}
+						{#if document.file}
+							<EditDocument {document} />
+						{/if}
+						<DeleteDocument {document} />
+					{/if}
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
 
@@ -77,5 +83,13 @@
 		display: flex;
 		width: 100%;
 		border: 2px solid var(--border-color);
+	}
+	div.spinner {
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 16rem;
 	}
 </style>

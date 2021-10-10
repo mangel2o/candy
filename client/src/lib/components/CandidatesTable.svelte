@@ -2,34 +2,35 @@
 	import { goto } from '$app/navigation';
 	import Icon from '$lib/components/Icon.svelte';
 	import OpenInNew from '$lib/icons/open-in-new.svelte';
+	import { fade, slide } from 'svelte/transition';
 
 	export let candidates;
 </script>
 
-<table>
+<table in:fade={{ duration: 200 }}>
 	<tr>
 		<th class="id">ID</th>
 		<th class="name">Nombre</th>
 		<th class="number">Matricula</th>
-		<th>Nivel</th>
-		<th>Campus</th>
-		<th>Terminación</th>
-		<th>Estatus</th>
-		<th>Ver</th>
+		<th class="level">Nivel</th>
+		<th class="campus">Campus</th>
+		<th class="termination">Terminación</th>
+		<th class="status">Estatus</th>
+		<th class="link">Ver</th>
 	</tr>
 	{#each candidates as candidate, i}
-		<tr>
+		<tr transition:fade|local={{ duration: 200 }}>
 			<td class="id">{i + 1}</td>
 			<td class="name">{candidate.name}</td>
 			<td class="number">{candidate.number}</td>
-			<td>{candidate.level}</td>
-			<td>{candidate.campus}</td>
-			<td>{candidate.terminationPeriod} {candidate.terminationYear}</td>
-			<td class="status">
+			<td class="level">{candidate.level}</td>
+			<td class="campus"> {candidate.campus}</td>
+			<td class="termination">{candidate.terminationPeriod} {candidate.terminationYear}</td>
+			<td class="status flex">
 				<div class={candidate.status.toLowerCase()} />
-				{candidate.status}
+				<span>{candidate.status}</span>
 			</td>
-			<td>
+			<td class="link">
 				<button on:click={() => goto(`/candidates/${candidate._id}/documents`)}>
 					<span><Icon src={OpenInNew} /></span>
 				</button>
@@ -87,7 +88,7 @@
 		text-align: center;
 	}
 
-	td.status {
+	.flex {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
@@ -131,5 +132,38 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+
+	.id {
+		width: 6%;
+	}
+
+	.name {
+		width: 16%;
+	}
+
+	.number {
+		width: 10%;
+	}
+
+	.level {
+		width: 13%;
+	}
+
+	.campus {
+		width: 18%;
+	}
+
+	.termination {
+		width: 16%;
+	}
+
+	th.status {
+		min-width: 12%;
+		max-width: 12%;
+	}
+
+	.link {
+		width: 8%;
 	}
 </style>

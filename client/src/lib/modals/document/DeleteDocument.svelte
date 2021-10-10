@@ -7,7 +7,7 @@
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 
-	let refetch = getContext('refetchDocuments');
+	let refetchDocuments = getContext('refetchDocuments');
 	let isOpen = false;
 	let isPending = false;
 	let error;
@@ -24,7 +24,7 @@
 				error = null;
 				isPending = false;
 				handleCancel();
-				refetch();
+				refetchDocuments();
 			})
 			.catch((err) => {
 				error = err.message;

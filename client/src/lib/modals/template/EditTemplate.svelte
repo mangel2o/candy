@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import { fade } from 'svelte/transition';
 
 	const refetchCategory = getContext('refetchCategory');
 	let isOpen = false;

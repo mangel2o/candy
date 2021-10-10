@@ -10,6 +10,8 @@
 	import EditCategory from '$lib/modals/Category/EditCategory.svelte';
 	import { onMount, setContext } from 'svelte';
 	import { convertDataToFile } from '$lib/utils';
+	import Spinner from '$lib/components/Spinner.svelte';
+	import { fade } from 'svelte/transition';
 
 	let isPending = true;
 	let error = null;
@@ -53,11 +55,13 @@
 
 <div class="container">
 	{#if isPending}
-		<span>Loading...</span>
+		<div class="spinner">
+			<Spinner />
+		</div>
 	{:else if error}
 		<span>Something went wrong: {error}</span>
 	{:else}
-		<div class="content">
+		<div transition:fade|local={{ duration: 200 }} class="content">
 			<div class="category">
 				<div class="title">
 					<div class="icon"><Icon src={FileDocumentMultiple} size={'28'} /></div>
@@ -77,15 +81,13 @@
 		</div>
 
 		<CreateTemplate />
-		{#key templates}
-			{#each templates as template}
-				<div class="button">
-					<ViewTemplate {template} />
-					<EditTemplate {template} />
-					<DeleteTemplate {template} />
-				</div>
-			{/each}
-		{/key}
+		{#each templates as template (template._id)}
+			<div in:fade={{ duration: 200 }} out:fade|local={{ duration: 200 }} class="button">
+				<ViewTemplate {template} />
+				<EditTemplate {template} />
+				<DeleteTemplate {template} />
+			</div>
+		{/each}
 	{/if}
 </div>
 
@@ -145,5 +147,14 @@
 		flex-direction: column;
 		gap: 0.25rem;
 		padding: 0 1rem 1rem 1rem;
+	}
+
+	div.spinner {
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 10rem;
 	}
 </style>

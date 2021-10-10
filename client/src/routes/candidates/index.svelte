@@ -5,6 +5,7 @@
 	import AddExcel from '$lib/modals/AddExcel.svelte';
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import CandidatesTable from '$lib/components/CandidatesTable.svelte';
+	import Spinner from '$lib/components/Spinner.svelte';
 	import { onMount, setContext } from 'svelte';
 
 	let isPending = true;
@@ -24,7 +25,6 @@
 	$: slicedCandidates = searchedCandidates.slice(0, entries);
 
 	function fetchData() {
-		isPending = true;
 		Promise.all([
 			fetch(`http://localhost:4000/candidates`).then((res) => res.json()),
 			fetch(`http://localhost:4000/documents`).then((res) => res.json())
@@ -39,12 +39,13 @@
 			})
 			.catch((err) => {
 				error = err;
-				isPending = false;
+				//isPending = false;
 			});
 	}
 
 	setContext('refetchCandidates', fetchData);
 	onMount(() => {
+		isPending = true;
 		fetchData();
 	});
 </script>
@@ -64,7 +65,9 @@
 		</div>
 	</div>
 	{#if isPending}
-		<span>Loading...</span>
+		<div class="spinner">
+			<Spinner />
+		</div>
 	{:else if error}
 		<span>Something went wrong {error}</span>
 	{:else}
@@ -74,6 +77,7 @@
 
 <style>
 	div.container {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
@@ -87,5 +91,15 @@
 	div.options {
 		display: flex;
 		gap: 1rem;
+	}
+
+	div.spinner {
+		position: absolute;
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 30rem;
 	}
 </style>
