@@ -252,4 +252,11 @@ export const deleteCandidateById = async (req, res) => {
 }
 
 
+export const createCandidatesWithExcel = async (req, res) => {
+   // TODO: USE xlsx OR ExcelJS to create candidates with an excel
+}
 
+
+export const getExcel = async (req, res) => {
+   // TODO: Create an excel with the existing categories
+}
