@@ -9,6 +9,8 @@ const router = Router();
 // CANDIDATES
 router.get('/', candidatesController.getCandidates);
 router.post('/', candidatesController.createCandidate);
+router.post('/excel', candidatesController.createCandidatesWithExcel);
+router.get('/excel', candidatesController.getExcel);
 router.get('/:candidateId', candidatesController.getCandidateById);
 router.put('/:candidateId', candidatesController.updateCandidateById);
 router.delete('/:candidateId', candidatesController.deleteCandidateById);
