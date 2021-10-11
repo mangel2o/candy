@@ -2,6 +2,7 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import FileExcel from '$lib/icons/file-excel.svelte';
+	import Loading from '$lib/components/Loading.svelte';
 
 	let files;
 	let isOpen = false;
@@ -46,7 +47,7 @@
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
 				{#if isPending}
-					Loading...
+					<Loading />
 				{:else}
 					Editar
 				{/if}

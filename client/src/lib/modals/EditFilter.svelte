@@ -4,10 +4,12 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import FilterMenu from '$lib/icons/filter-menu.svelte';
+	import Loading from '$lib/components/Loading.svelte';
 
 	export let candidates = [];
 	export let filteredCandidates = [];
 	export let entries;
+	let isPending = false;
 	let isOpen = false;
 	let filters = [];
 	let parameters = {
@@ -32,6 +34,7 @@
 	}
 
 	function handleFilter() {
+		isPending = true;
 		filteredCandidates = candidates.filter((candidate) => {
 			for (const key of filters) {
 				if (
@@ -44,6 +47,7 @@
 			return true;
 		});
 		entries = filteredCandidates.length;
+		isPending = false;
 		isOpen = false;
 	}
 
@@ -229,7 +233,13 @@
 		</div>
 		<div class="buttons">
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-			<button class="submit" type="button" on:click={handleFilter}> Filtrar </button>
+			<button class="submit" type="button" on:click={handleFilter}>
+				{#if isPending}
+					<Loading />
+				{:else}
+					Filtrar
+				{/if}
+			</button>
 		</div>
 	</div>
 </Modal>

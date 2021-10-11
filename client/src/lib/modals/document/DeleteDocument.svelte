@@ -6,6 +6,7 @@
 	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import Loading from '$lib/components/Loading.svelte';
 
 	let refetchDocuments = getContext('refetchDocuments');
 	let isOpen = false;
@@ -59,7 +60,7 @@
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
 				{#if isPending}
-					Loading...
+					<Loading />
 				{:else}
 					Eliminar
 				{/if}

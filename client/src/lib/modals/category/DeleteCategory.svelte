@@ -4,6 +4,7 @@
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import Loading from '$lib/components/Loading.svelte';
 	import { getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -71,7 +72,7 @@
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
 				{#if isPending}
-					Loading...
+					<Loading />
 				{:else}
 					Eliminar
 				{/if}

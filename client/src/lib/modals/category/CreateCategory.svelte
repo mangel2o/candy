@@ -7,6 +7,7 @@
 	import { userStore } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import Loading from '$lib/components/Loading.svelte';
 
 	const refetchCategories = getContext('refetchCategories');
 	let isPending = false;
@@ -80,7 +81,7 @@
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
 				{#if isPending}
-					Loading...
+					<Loading />
 				{:else}
 					Crear
 				{/if}

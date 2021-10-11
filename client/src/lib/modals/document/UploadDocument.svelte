@@ -6,6 +6,7 @@
 	import { page } from '$app/stores';
 	import FileDocument from '$lib/icons/file-document.svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import Loading from '$lib/components/Loading.svelte';
 
 	const refetchCandidate = getContext('refetchCandidate');
 	const refetchDocuments = getContext('refetchDocuments');
@@ -77,7 +78,7 @@
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button disabled={!files} class="submit" type="submit">
 				{#if isPending}
-					Loading...
+					<Loading />
 				{:else}
 					Subir
 				{/if}

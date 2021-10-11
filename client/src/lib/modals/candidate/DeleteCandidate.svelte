@@ -6,6 +6,7 @@
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import { goto } from '$app/navigation';
+	import Loading from '$lib/components/Loading.svelte';
 
 	let isOpen = false;
 	let isPending = false;
@@ -67,7 +68,7 @@
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
 				{#if isPending}
-					Loading...
+					<Loading />
 				{:else}
 					Eliminar
 				{/if}
