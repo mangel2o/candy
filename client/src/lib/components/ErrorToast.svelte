@@ -1,44 +1,39 @@
 <script>
 	import Icon from '$lib/components/Icon.svelte';
 	import Close from '$lib/icons/close.svelte';
+	import { fade } from 'svelte/transition';
 	export let error;
 </script>
 
-<template>
-	<div class="container">
-		<div class="error">
-			<span class="tag">ERROR: </span>
-			<span>{error}</span>
-		</div>
-		<button type="button" on:click={() => (error = null)}>
-			<Icon src={Close} />
-		</button>
+<div in:fade={{ duration: 200 }} class="container">
+	<div class="error">
+		<span class="tag">ERROR: </span>
+		<span>{error}</span>
 	</div>
-</template>
+	<button type="button" on:click={() => (error = null)}>
+		<Icon src={Close} />
+	</button>
+</div>
 
-<style lang="scss">
-	div {
-		&.container {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			width: 100%;
-			gap: 1rem;
-			border: 2px solid var(--red-color);
-		}
-
-		&.error {
-			display: flex;
-			width: 100%;
-			gap: 0.5rem;
-			padding: 1rem;
-		}
+<style>
+	div.container {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+		gap: 1rem;
+		border: 2px solid var(--red-color);
 	}
 
-	span {
-		&.tag {
-			color: var(--orange-color);
-		}
+	div.error {
+		display: flex;
+		width: 100%;
+		gap: 0.5rem;
+		padding: 1rem;
+	}
+
+	span.tag {
+		color: var(--orange-color);
 	}
 
 	button {
@@ -48,9 +43,9 @@
 		background-color: var(--area-color);
 		padding: 1rem;
 		cursor: pointer;
+	}
 
-		&:hover {
-			background-color: var(--input-color);
-		}
+	button:hover {
+		background-color: var(--input-color);
 	}
 </style>

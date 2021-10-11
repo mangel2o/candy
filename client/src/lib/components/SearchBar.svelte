@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import Magnify from '$lib/icons/magnify.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import ClickOutside from '$lib/components/ClickOutside.svelte';
@@ -14,44 +14,48 @@
 </script>
 
 <!--CLICKING OUTSIDE LOSES FOCUS-->
-<template>
-	<ClickOutside on:clickoutside={() => (isFocused = false)}>
-		<div class:isFocused on:click={() => (isFocused = true)}>
-			<select bind:value={searchParameter}>
-				<option selected value="name"> Nombre </option>
-				<option value="number"> Matricula </option>
-				<option value="phone"> Telefono </option>
-				<option value="personalEmail"> Correo </option>
-			</select>
-			<span />
+<ClickOutside on:clickoutside={() => (isFocused = false)}>
+	<div class:isFocused on:click={() => (isFocused = true)}>
+		<select bind:value={searchParameter}>
+			<option selected value="name"> Nombre </option>
+			<option value="number"> Matricula </option>
+			<option value="phone"> Telefono </option>
+			<option value="personalEmail"> Correo </option>
+		</select>
+		<span />
 
-			<label for="searchbar">
-				<Icon src={Magnify} />
-			</label>
+		<label for="searchbar">
+			<Icon src={Magnify} />
+		</label>
 
-			<input id="searchbar" type="text" placeholder="Buscar alumno..." bind:value={searchQuery} />
-			<button on:click={handleCancel} class:inactive={!searchQuery}>
-				<Icon src={Close} />
-			</button>
-		</div>
-	</ClickOutside>
-</template>
+		<input
+			id="searchbar"
+			type="text"
+			autocomplete="off"
+			placeholder="Buscar alumno..."
+			bind:value={searchQuery}
+		/>
+		<button on:click={handleCancel} class:inactive={!searchQuery}>
+			<Icon src={Close} />
+		</button>
+	</div>
+</ClickOutside>
 
-<style lang="scss">
+<style>
 	div {
 		display: flex;
 		align-items: center;
 		width: 500px;
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
+	}
 
-		&:hover {
-			border: 2px solid var(--blue-color);
-		}
+	div:hover {
+		border: 2px solid var(--blue-color);
+	}
 
-		&.isFocused {
-			border: 2px solid var(--green-color);
-		}
+	div.isFocused {
+		border: 2px solid var(--green-color);
 	}
 
 	button {
@@ -60,18 +64,18 @@
 		justify-content: center;
 		padding: 1rem;
 		background-color: transparent;
+	}
 
-		&:hover {
-			background-color: var(--area-color);
-		}
+	button:hover {
+		background-color: var(--area-color);
+	}
 
-		&:active {
-			background-color: var(--input-color);
-		}
+	button:active {
+		background-color: var(--input-color);
+	}
 
-		&.inactive {
-			display: none;
-		}
+	button.inactive {
+		display: none;
 	}
 
 	label {
@@ -104,20 +108,21 @@
 		padding: 1rem;
 		-webkit-appearance: none;
 		-moz-appearance: none;
+	}
 
-		&:hover {
-			color: var(--placeholder-color);
-		}
+	select:hover {
+		color: var(--placeholder-color);
 	}
 
 	input {
 		width: 100%;
 		padding: 1rem;
-		&::placeholder {
-			color: var(--focus-color);
-		}
-		&:hover::placeholder {
-			color: var(--placeholder-color);
-		}
+	}
+
+	input::placeholder {
+		color: var(--focus-color);
+	}
+	input:hover::placeholder {
+		color: var(--placeholder-color);
 	}
 </style>

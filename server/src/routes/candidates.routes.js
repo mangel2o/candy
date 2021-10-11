@@ -15,8 +15,8 @@ router.delete('/:candidateId', candidatesController.deleteCandidateById);
 
 // DOCUMENTS
 router.get('/:candidateId/documents', documentsController.getDocuments);
-router.post('/:candidateId/documents', documentsController.createDocument);
-router.put('/:candidateId/documents/:documentId', documentsController.updateDocumentById);
+router.put('/:candidateId/documents/:documentId/upload', documentsController.uploadDocumentById);
+router.put('/:candidateId/documents/:documentId/update', documentsController.updateDocumentById);
 router.delete('/:candidateId/documents/:documentId', documentsController.deleteDocumentById);
 
 // OBSERVATIONS

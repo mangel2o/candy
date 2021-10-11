@@ -1,15 +1,16 @@
-<script lang="ts">
+<script>
 	import { page } from '$app/stores';
 	import ButtonCategory from '$lib/components/ButtonCategory.svelte';
+	import Spinner from '$lib/components/Spinner.svelte';
 	import CreateCategory from '$lib/modals/category/CreateCategory.svelte';
 	import { onMount, setContext } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let isPending = true;
 	let error;
 	let categories = [];
 
 	function fetchData() {
-		isPending = true;
 		fetch('http://localhost:4000/documents')
 			.then((res) => res.json())
 			.then((data) => {
@@ -17,13 +18,14 @@
 				isPending = false;
 			})
 			.catch((err) => {
-				error = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
 
 	setContext('refetchCategories', fetchData);
 	onMount(() => {
+		isPending = true;
 		fetchData();
 	});
 </script>
@@ -32,46 +34,53 @@
 	<title>Documentos • Tecmilenio</title>
 </svelte:head>
 
-<template>
-	<div class="container">
-		<div class="categories">
-			{#if isPending}
-				<span>Loading...</span>
-			{:else if error}
-				<span>Something went wrong: {error}</span>
-			{:else}
-				{#each categories as category}
-					<ButtonCategory {category} path={`/documents/${category._id}`} />
-				{/each}
-			{/if}
-			<CreateCategory />
-		</div>
-		<div class="documents">
-			{#key $page.params.category}
-				<slot />
-			{/key}
-		</div>
+<div class="container">
+	<div class="categories">
+		{#if isPending}
+			<div class="spinner">
+				<Spinner />
+			</div>
+		{:else if error}
+			<span>Something went wrong: {error}</span>
+		{:else}
+			{#each categories as category}
+				<ButtonCategory {category} path={`/documents/${category._id}`} />
+			{/each}
+		{/if}
+		<CreateCategory />
 	</div>
-</template>
+	<div class="documents">
+		{#key $page.params.category}
+			<slot />
+		{/key}
+	</div>
+</div>
 
-<style lang="scss">
-	div {
-		&.container {
-			display: flex;
-			gap: 20px;
-		}
+<style>
+	div.container {
+		display: flex;
+		gap: 20px;
+	}
 
-		&.categories {
-			display: flex;
-			flex-direction: column;
-			width: 25%;
-		}
+	div.categories {
+		display: flex;
+		flex-direction: column;
+		width: 25%;
+	}
 
-		&.documents {
-			display: flex;
-			flex-direction: column;
-			width: 75%;
-			gap: 20px;
-		}
+	div.documents {
+		display: flex;
+		flex-direction: column;
+		width: 75%;
+		gap: 20px;
+	}
+
+	div.spinner {
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 10rem;
 	}
 </style>

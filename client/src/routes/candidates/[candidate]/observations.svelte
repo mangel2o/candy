@@ -1,52 +1,33 @@
-<script lang="ts">
-	import CreateArchive from '$lib/modals/archive/CreateArchive.svelte';
-	import DeleteArchive from '$lib/modals/archive/DeleteArchive.svelte';
-	import EditArchive from '$lib/modals/archive/EditArchive.svelte';
-	import ViewArchive from '$lib/modals/archive/ViewArchive.svelte';
+<script>
+	import { page } from '$app/stores';
+	import Spinner from '$lib/components/Spinner.svelte';
 	import CreateObservation from '$lib/modals/observation/CreateObservation.svelte';
 	import DeleteObservation from '$lib/modals/observation/DeleteObservation.svelte';
 	import EditObservation from '$lib/modals/observation/EditObservation.svelte';
 	import ViewObservation from '$lib/modals/observation/ViewObservation.svelte';
+	import { userStore } from '$lib/stores';
 	import { onMount, setContext } from 'svelte';
+	import { fade } from 'svelte/transition';
 
+	let observations = [];
 	let isPending = true;
 	let error = null;
-	let observations = [
-		{
-			name: 'Acta de nacimiento con nombre muy largo',
-			comment: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor '
-		},
-		{
-			name: 'Certificado bachillerato etcetera',
-			comment: 'Something about this idk'
-		},
-		{
-			name: 'CURP',
-			comment: 'Something about this idk'
-		}
-	];
 
 	function fetchData() {
-		/*
-      * ! something
-      TODO: fetch request to /documents/[category] for category 
-		description based on url param and all templates where category = [category]
-		fetch('https://jsonplaceholder.typicode.com/todos')
+		isPending = true;
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/observations`)
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
+				observations = data;
 				error = null;
-				categories = data;
+				isPending = false;
 			})
 			.catch((err) => {
+				error = err.message;
 				isPending = false;
-				error = err;
 			});
-			*/
-		isPending = false;
-		console.log('A fetch has been done at /candidates/[candidate]/observations.svelte');
 	}
-	setContext('refetch', fetchData);
+	setContext('refetchObservations', fetchData);
 	onMount(() => {
 		fetchData();
 	});
@@ -56,37 +37,51 @@
 	<title>Observaciones del candidato • Tecmilenio</title>
 </svelte:head>
 
-<template>
-	<div class="container">
-		{#if isPending}
-			<span>Loading...</span>
-		{:else if error}
-			<span>Something went wrong</span>
-		{:else}
-			<CreateObservation />
+<div class="container">
+	{#if isPending}
+		<div class="spinner">
+			<Spinner />
+		</div>
+	{:else if error}
+		<span>Something went wrong</span>
+	{:else}
+		<div in:fade={{ duration: 200 }} class="container">
+			{#if $userStore.role !== 'user'}
+				<CreateObservation />
+			{/if}
 
 			{#each observations as observation}
-				<div class="button">
+				<div out:fade|local={{ duration: 200 }} class="button">
 					<ViewObservation {observation} />
-					<EditObservation {observation} />
-					<DeleteObservation {observation} />
+					{#if $userStore.role !== 'user'}
+						<EditObservation {observation} />
+						<DeleteObservation {observation} />
+					{/if}
 				</div>
 			{/each}
-		{/if}
-	</div>
-</template>
+		</div>
+	{/if}
+</div>
 
-<style lang="scss">
-	div {
-		&.container {
-			display: flex;
-			flex-direction: column;
-			gap: 1rem;
-		}
+<style>
+	div.container {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
 
-		&.button {
-			display: flex;
-			width: 100%;
-		}
+	div.button {
+		display: flex;
+		width: 100%;
+		border: 2px solid var(--border-color);
+	}
+
+	div.spinner {
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 16rem;
 	}
 </style>

@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	export let entries;
 	export let limit;
 
@@ -11,22 +11,20 @@
 	}
 </script>
 
-<template>
-	<label for="quantity">
-		Mostrar
-		<input
-			bind:value={entries}
-			on:change={handleChange}
-			id="quantity"
-			type="number"
-			min="1"
-			max={limit}
-		/>
-		Entradas
-	</label>
-</template>
+<label for="quantity">
+	Mostrar
+	<input
+		bind:value={entries}
+		on:change={handleChange}
+		id="quantity"
+		type="number"
+		min="1"
+		max={limit}
+	/>
+	Entradas
+</label>
 
-<style lang="scss">
+<style>
 	label {
 		cursor: pointer;
 		display: flex;
@@ -43,17 +41,17 @@
 		background-color: var(--input-color);
 		padding: 1rem;
 		width: 7rem;
+	}
 
-		&::placeholder {
-			color: var(--focus-color);
-		}
+	input::placeholder {
+		color: var(--focus-color);
+	}
 
-		&:hover {
-			background-color: var(--area-color);
-			border: 2px solid var(--blue-color);
-		}
-		&:focus {
-			border: 2px solid var(--green-color);
-		}
+	input:hover {
+		background-color: var(--area-color);
+		border: 2px solid var(--blue-color);
+	}
+	input:focus {
+		border: 2px solid var(--green-color);
 	}
 </style>

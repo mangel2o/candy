@@ -8,6 +8,7 @@ const DocumentSchema = new Schema({
       ref: 'Category',
       type: Schema.Types.ObjectId,
    },
+   comment: String,
    status: String,
    examplePath: String,
    filepath: String,

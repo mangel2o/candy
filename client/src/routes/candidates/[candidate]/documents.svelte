@@ -1,50 +1,41 @@
-<script lang="ts">
+<script>
+	import { page } from '$app/stores';
+	import Spinner from '$lib/components/Spinner.svelte';
 	import DeleteDocument from '$lib/modals/document/DeleteDocument.svelte';
 	import EditDocument from '$lib/modals/document/EditDocument.svelte';
+	import UploadDocument from '$lib/modals/document/UploadDocument.svelte';
 	import ViewDocument from '$lib/modals/document/ViewDocument.svelte';
+	import { userStore } from '$lib/stores';
+	import { convertDataToFile } from '$lib/utils';
 	import { onMount, setContext } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let isPending = true;
 	let error = null;
-	let documents = [
-		{
-			name: 'Acta de nacimiento con nombre muy largo',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor ',
-			file: null
-		},
-		{
-			name: 'Certificado bachillerato etcetera',
-			description: 'Something about this idk',
-			file: null
-		},
-		{
-			name: 'CURP',
-			description: 'Something about this idk',
-			file: null
-		}
-	];
+	let documents = [];
 
 	function fetchData() {
-		/*
-      * ! something
-      TODO: fetch request to /documents/[category] for category 
-		description based on url param and all templates where category = [category]
-		fetch('https://jsonplaceholder.typicode.com/todos')
+		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/documents`)
 			.then((res) => res.json())
 			.then((data) => {
-				isPending = false;
+				documents = data;
+
+				// Converts data to files
+				documents.forEach((document) => {
+					document.example = convertDataToFile(document.example, document._id);
+					if (document.file) {
+						document.file = convertDataToFile(document.file, document._id);
+					}
+				});
 				error = null;
-				categories = data;
+				isPending = false;
 			})
 			.catch((err) => {
+				error = err.message;
 				isPending = false;
-				error = err;
 			});
-			*/
-		isPending = false;
-		console.log('A fetch has been done at /candidates/[candidate]/documents.svelte');
 	}
-	setContext('refetch', fetchData);
+	setContext('refetchDocuments', fetchData);
 	onMount(() => {
 		fetchData();
 	});
@@ -54,35 +45,51 @@
 	<title>Documentos del candidato • Tecmilenio</title>
 </svelte:head>
 
-<template>
-	<div class="container">
-		{#if isPending}
-			<span>Loading...</span>
-		{:else if error}
-			<span>Something went wrong</span>
-		{:else}
-			{#each documents as document}
-				<div class="button">
+<div class="container">
+	{#if isPending}
+		<div class="spinner">
+			<Spinner />
+		</div>
+	{:else if error}
+		<span>Something went wrong</span>
+	{:else}
+		<div in:fade={{ duration: 200 }} class="container">
+			{#each documents as document (document._id)}
+				<div in:fade={{ duration: 200 }} out:fade|local={{ duration: 200 }} class="button">
 					<ViewDocument {document} />
-					<EditDocument {document} />
-					<DeleteDocument {document} />
+					{#if $userStore.role === 'user' && document.status !== 'Completo'}
+						<UploadDocument {document} />
+					{/if}
+					{#if $userStore.role !== 'user'}
+						{#if document.file}
+							<EditDocument {document} />
+						{/if}
+						<DeleteDocument {document} />
+					{/if}
 				</div>
 			{/each}
-		{/if}
-	</div>
-</template>
+		</div>
+	{/if}
+</div>
 
-<style lang="scss">
-	div {
-		&.container {
-			display: flex;
-			flex-direction: column;
-			gap: 1rem;
-		}
+<style>
+	div.container {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
 
-		&.button {
-			display: flex;
-			width: 100%;
-		}
+	div.button {
+		display: flex;
+		width: 100%;
+		border: 2px solid var(--border-color);
+	}
+	div.spinner {
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 16rem;
 	}
 </style>

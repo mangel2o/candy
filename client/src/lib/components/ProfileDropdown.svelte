@@ -1,36 +1,34 @@
-<script lang="ts">
+<script>
 	import { goto } from '$app/navigation';
 
 	import ClickOutside from '$lib/components/ClickOutside.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Account from '$lib/icons/account.svelte';
 	import { userStore } from '$lib/stores';
-	let isDropdownActive: boolean = false;
+	let isDropdownActive = false;
 </script>
 
-<template>
-	<ClickOutside on:clickoutside={() => (isDropdownActive = false)}>
-		<!--PROFILE BUTTON-->
-		<div class="dropdown">
-			<button class="dropbtn" on:click={() => (isDropdownActive = !isDropdownActive)}>
-				<span class:active={isDropdownActive}><Icon src={Account} /></span>
-				<span class:active={isDropdownActive}>
-					{$userStore.name.split(' ')[0]}
-				</span>
-			</button>
+<ClickOutside on:clickoutside={() => (isDropdownActive = false)}>
+	<!--PROFILE BUTTON-->
+	<div class="dropdown">
+		<button class="dropbtn" on:click={() => (isDropdownActive = !isDropdownActive)}>
+			<span class:active={isDropdownActive}><Icon src={Account} /></span>
+			<span class:active={isDropdownActive}>
+				{$userStore.name.split(' ')[0]}
+			</span>
+		</button>
 
-			<!--DROPDOWN CONTENT-->
-			{#if isDropdownActive}
-				<div class="dropcontent">
-					<button> Ver perfil </button>
-					<button on:click={() => ($userStore = null)}> Cerrar sesión </button>
-				</div>
-			{/if}
-		</div>
-	</ClickOutside>
-</template>
+		<!--DROPDOWN CONTENT-->
+		{#if isDropdownActive}
+			<div class="dropcontent">
+				<button> Ver perfil </button>
+				<button on:click={() => ($userStore = null)}> Cerrar sesión </button>
+			</div>
+		{/if}
+	</div>
+</ClickOutside>
 
-<style lang="scss">
+<style>
 	button {
 		cursor: pointer;
 		display: flex;
@@ -38,46 +36,43 @@
 		gap: 6px;
 		background-color: var(--area-color);
 		padding: 1rem;
-
-		span {
-			display: flex;
-			align-items: center;
-		}
-
-		&:hover > span {
-			color: var(--placeholder-color);
-		}
-
-		&:hover > span.active {
-			color: var(--white-color);
-		}
 	}
 
-	div {
-		&.dropdown {
-			display: inline-block;
-			position: relative;
-		}
-
-		&.dropcontent {
-			position: absolute;
-			background-color: var(--area-color);
-			right: 0;
-			width: 10rem;
-
-			button {
-				width: 100%;
-				border: 1px solid var(--border-color);
-				&:hover {
-					background-color: var(--input-color);
-				}
-			}
-		}
+	button:hover > span {
+		color: var(--placeholder-color);
 	}
 
-	button {
-		&.dropbtn {
-			height: 64px;
-		}
+	button:hover > span.active {
+		color: var(--white-color);
+	}
+
+	span {
+		display: flex;
+		align-items: center;
+	}
+
+	div.dropdown {
+		display: inline-block;
+		position: relative;
+	}
+
+	div.dropcontent {
+		position: absolute;
+		background-color: var(--area-color);
+		right: 0;
+		width: 10rem;
+	}
+
+	div.dropcontent button {
+		width: 100%;
+		border: 1px solid var(--border-color);
+	}
+
+	div.dropcontent button:hover {
+		background-color: var(--input-color);
+	}
+
+	button.dropbtn {
+		height: 64px;
 	}
 </style>

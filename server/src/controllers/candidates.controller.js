@@ -20,7 +20,7 @@ export const createCandidate = async (req, res) => {
    const categoryIds = data.categories.split(',');
 
    // * Checks if the candidate already exists
-   const candidateExist = await Candidate.findOne({ number: data.number });
+   const candidateExist = await Candidate.findOne({ number: data.number }).lean();
    if (candidateExist) return res.json({ error: "Esta matricula ya esta en uso" });
 
    // TODO: Create a random generated password
@@ -63,12 +63,13 @@ export const createCandidate = async (req, res) => {
 
    // * Creates the documents for the candidate based on the categories selected
    for (const categoryId of categoryIds) {
-      const templates = await Template.find({ category: categoryId });
+      const templates = await Template.find({ category: categoryId }).lean();
       for (const template of templates) {
          const documentCreated = await new Document({
             name: template.name,
             description: template.description,
             category: template.category,
+            comment: "",
             status: "Vacio",
             examplePath: template.examplePath,
             template: template._id,
@@ -93,7 +94,7 @@ export const createCandidate = async (req, res) => {
  */
 export const getCandidates = async (req, res) => {
    // * Finds all candidates and sends them to the client
-   const candidates = await Candidate.find();
+   const candidates = await Candidate.find().lean();
    res.json(candidates);
 }
 
@@ -109,7 +110,7 @@ export const getCandidateById = async (req, res) => {
    if (!Mongoose.Types.ObjectId.isValid(candidateId)) return res.json({ error: "Este candidato no existe" });
 
    // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId).populate("categories");
+   const candidateExist = await Candidate.findById(candidateId).lean().populate("categories");
    if (!candidateExist) return res.json({ error: "Este candidato no existe" });
 
    // * Sends the candidate as response
@@ -133,11 +134,11 @@ export const updateCandidateById = async (req, res) => {
    const categoryIds = data.newCategories ? data.newCategories.split(',') : [];
 
    // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId);
+   const candidateExist = await Candidate.findById(candidateId).lean();
    if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
 
    // * Checks if the new candidate's number isn't used already
-   const candidateExistByNumber = await Candidate.findOne({ _id: { $ne: candidateId }, number: data.number });
+   const candidateExistByNumber = await Candidate.findOne({ _id: { $ne: candidateId }, number: data.number }).lean();
    if (candidateExistByNumber) return res.json({ error: "Esta matricula ya esta en uso" });
 
    // * Updates the user based on the candidate data
@@ -150,7 +151,7 @@ export const updateCandidateById = async (req, res) => {
          personalEmail: data.personalEmail,
          institutionalEmail: data.number + "@tecmilenio.mx",
       }
-   )
+   ).lean();
 
    // * Creates the documents for the candidate based on the categories selected
    const documentIds = [];
@@ -172,7 +173,7 @@ export const updateCandidateById = async (req, res) => {
    }
 
    // * Updates the existing candidate with the new values
-   await Candidate.findByIdAndUpdate(
+   const candidateUpdated = await Candidate.findByIdAndUpdate(
       candidateId,
       {
          name: data.name,
@@ -195,11 +196,11 @@ export const updateCandidateById = async (req, res) => {
             documents: { $each: documentIds }
          },
          updatedBy: data.authorId,
-      }
-   )
+      }, { new: true }
+   ).populate("categories").lean();
 
    // * Sends a success response
-   res.json({ success: "Se realizo la operación exitosamente" });
+   res.send(candidateUpdated);
 }
 
 /**
@@ -214,17 +215,17 @@ export const deleteCandidateById = async (req, res) => {
    if (!Mongoose.Types.ObjectId.isValid(candidateId)) return res.json({ error: "Este candidato no existe" });
 
    // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId);
+   const candidateExist = await Candidate.findById(candidateId).lean();
    if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
 
    // * Deletes the candidate
-   const candidateDeleted = await Candidate.findByIdAndDelete(candidateId);
+   const candidateDeleted = await Candidate.findByIdAndDelete(candidateId).lean();
 
    // * Deletes the user
-   await User.findOneAndDelete({ number: candidateDeleted.number });
+   await User.findOneAndDelete({ number: candidateDeleted.number }).lean();
 
    // * Deletes all documents from the candidate
-   const documents = await Document.find({ owner: candidateId });
+   const documents = await Document.find({ owner: candidateId }).lean();
    if (documents) {
       await Document.deleteMany({ owner: candidateId });
       for (const document of documents) {
@@ -235,7 +236,7 @@ export const deleteCandidateById = async (req, res) => {
    }
 
    // * Deletes all archives from the candidate
-   const archives = await Archive.find({ owner: candidateId });
+   const archives = await Archive.find({ owner: candidateId }).lean();
    if (archives) {
       await Archive.deleteMany({ owner: candidateId });
       for (const archive of archives) {

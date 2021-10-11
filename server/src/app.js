@@ -15,7 +15,6 @@ const app = express();
 createUsers();
 createDirs();
 
-
 app.use(cors());
 app.use(morgan('dev'));
 app.use(formidable({

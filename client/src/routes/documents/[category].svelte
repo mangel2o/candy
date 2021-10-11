@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 	import { page } from '$app/stores';
 	import Icon from '$lib/components/Icon.svelte';
 	import FileDocumentMultiple from '$lib/icons/file-document-multiple.svelte';
@@ -10,6 +10,8 @@
 	import EditCategory from '$lib/modals/Category/EditCategory.svelte';
 	import { onMount, setContext } from 'svelte';
 	import { convertDataToFile } from '$lib/utils';
+	import Spinner from '$lib/components/Spinner.svelte';
+	import { fade } from 'svelte/transition';
 
 	let isPending = true;
 	let error = null;
@@ -17,7 +19,6 @@
 	let templates = [];
 
 	function fetchData() {
-		isPending = true;
 		Promise.all([
 			fetch(`http://localhost:4000/documents/${$page.params.category}`).then((res) => res.json()),
 			fetch(`http://localhost:4000/documents/${$page.params.category}/templates`).then((res) =>
@@ -47,107 +48,113 @@
 	}
 	setContext('refetchCategory', fetchData);
 	onMount(() => {
+		isPending = true;
 		fetchData();
 	});
 </script>
 
-<template>
-	<div class="container">
-		{#if isPending}
-			<span>Loading...</span>
-		{:else if error}
-			<span>Something went wrong: {error}</span>
-		{:else}
-			<div class="content">
-				<div class="category">
-					<div class="title">
-						<div class="icon"><Icon src={FileDocumentMultiple} size={'28'} /></div>
-						<div>
-							{category.name}
-						</div>
-					</div>
-					<div class="buttons">
-						<EditCategory {category} />
-						<DeleteCategory />
+<div class="container">
+	{#if isPending}
+		<div class="spinner">
+			<Spinner />
+		</div>
+	{:else if error}
+		<span>Something went wrong: {error}</span>
+	{:else}
+		<div transition:fade|local={{ duration: 200 }} class="content">
+			<div class="category">
+				<div class="title">
+					<div class="icon"><Icon src={FileDocumentMultiple} size={'28'} /></div>
+					<div>
+						{category.name}
 					</div>
 				</div>
-				<div class="description">
-					<div class="tag">Descripción</div>
-					<div>{category.description}</div>
+				<div class="buttons">
+					<EditCategory {category} />
+					<DeleteCategory />
 				</div>
 			</div>
+			<div class="description">
+				<div class="tag">Descripción</div>
+				<div>{category.description}</div>
+			</div>
+		</div>
 
-			<CreateTemplate />
-			{#key templates}
-				{#each templates as template}
-					<div class="button">
-						<ViewTemplate {template} />
-						<EditTemplate {template} />
-						<DeleteTemplate {template} />
-					</div>
-				{/each}
-			{/key}
-		{/if}
-	</div>
-</template>
+		<CreateTemplate />
+		{#each templates as template (template._id)}
+			<div in:fade={{ duration: 200 }} out:fade|local={{ duration: 200 }} class="button">
+				<ViewTemplate {template} />
+				<EditTemplate {template} />
+				<DeleteTemplate {template} />
+			</div>
+		{/each}
+	{/if}
+</div>
 
-<style lang="scss">
-	div {
-		&.container {
-			width: 100%;
-			display: flex;
-			flex-direction: column;
-			gap: 1rem;
-		}
+<style>
+	div.container {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
 
-		&.button {
-			display: flex;
-			border: 2px solid var(--border-color);
-			width: 100%;
-		}
+	div.button {
+		display: flex;
+		border: 2px solid var(--border-color);
+		width: 100%;
+	}
 
-		&.icon {
-			display: flex;
-			align-items: center;
-		}
+	div.icon {
+		display: flex;
+		align-items: center;
+	}
 
-		&.content {
-			overflow-wrap: anywhere;
-			display: flex;
-			flex-direction: column;
-			gap: 1rem;
-			background-color: var(--input-color);
-			border: 2px solid var(--border-color);
-		}
+	div.content {
+		overflow-wrap: anywhere;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		background-color: var(--input-color);
+		border: 2px solid var(--border-color);
+	}
 
-		&.tag {
-			color: var(--focus-color);
-		}
+	div.tag {
+		color: var(--focus-color);
+	}
 
-		&.title {
-			display: flex;
-			align-items: center;
-			gap: 0.5rem;
-			font-size: 1.2rem;
-			padding-top: 1rem;
-		}
+	div.title {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 1.2rem;
+		padding-top: 1rem;
+	}
 
-		&.buttons {
-			display: flex;
-			align-items: center;
-		}
+	div.buttons {
+		display: flex;
+		align-items: center;
+	}
 
-		&.category {
-			display: flex;
-			justify-content: space-between;
-			padding-left: 1rem;
-		}
+	div.category {
+		display: flex;
+		justify-content: space-between;
+		padding-left: 1rem;
+	}
 
-		&.description {
-			display: flex;
-			flex-direction: column;
-			gap: 0.25rem;
-			padding: 0 1rem 1rem 1rem;
-		}
+	div.description {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: 0 1rem 1rem 1rem;
+	}
+
+	div.spinner {
+		display: flex;
+		flex-flow: column;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 10rem;
 	}
 </style>

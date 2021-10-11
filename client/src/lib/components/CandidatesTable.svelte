@@ -2,136 +2,168 @@
 	import { goto } from '$app/navigation';
 	import Icon from '$lib/components/Icon.svelte';
 	import OpenInNew from '$lib/icons/open-in-new.svelte';
+	import { fade, slide } from 'svelte/transition';
 
 	export let candidates;
 </script>
 
-<template>
-	<table>
-		<tr>
-			<th class="id">ID</th>
-			<th class="name">Nombre</th>
-			<th class="number">Matricula</th>
-			<th>Nivel</th>
-			<th>Campus</th>
-			<th>Terminación</th>
-			<th>Estatus</th>
-			<th>Ver</th>
+<table in:fade={{ duration: 200 }}>
+	<tr>
+		<th class="id">ID</th>
+		<th class="name">Nombre</th>
+		<th class="number">Matricula</th>
+		<th class="level">Nivel</th>
+		<th class="campus">Campus</th>
+		<th class="termination">Terminación</th>
+		<th class="status">Estatus</th>
+		<th class="link">Ver</th>
+	</tr>
+	{#each candidates as candidate, i}
+		<tr transition:fade|local={{ duration: 200 }}>
+			<td class="id">{i + 1}</td>
+			<td class="name">{candidate.name}</td>
+			<td class="number">{candidate.number}</td>
+			<td class="level">{candidate.level}</td>
+			<td class="campus"> {candidate.campus}</td>
+			<td class="termination">{candidate.terminationPeriod} {candidate.terminationYear}</td>
+			<td class="status flex">
+				<div class={candidate.status.toLowerCase()} />
+				<span>{candidate.status}</span>
+			</td>
+			<td class="link">
+				<button on:click={() => goto(`/candidates/${candidate._id}/documents`)}>
+					<span><Icon src={OpenInNew} /></span>
+				</button>
+			</td>
 		</tr>
-		{#each candidates as candidate, i}
-			<tr>
-				<td class="id">{i + 1}</td>
-				<td class="name">{candidate.name}</td>
-				<td class="number">{candidate.number}</td>
-				<td>{candidate.level}</td>
-				<td>{candidate.campus}</td>
-				<td>{candidate.terminationPeriod} {candidate.terminationYear}</td>
-				<td class="status">
-					<div class={candidate.status.toLowerCase()} />
-					{candidate.status}
-				</td>
-				<td>
-					<button on:click={() => goto(`/candidates/${candidate._id}/documents`)}>
-						<span><Icon src={OpenInNew} /></span>
-					</button>
-				</td>
-			</tr>
-		{/each}
-	</table>
-</template>
+	{/each}
+</table>
 
-<style lang="scss">
+<style>
 	table {
 		width: 100%;
 		border-color: var(--border-color);
 		border-collapse: collapse;
 		background-color: var(--input-color);
+	}
 
-		tr {
-			outline: none;
-			border: 2px solid var(--border-color);
+	tr {
+		outline: none;
+		border: 2px solid var(--border-color);
+	}
+	tr:hover {
+		background-color: var(--area-color);
+	}
 
-			&:hover {
-				background-color: var(--area-color);
-			}
+	th {
+		font-weight: bold;
+		text-align: center;
+		background-color: var(--area-color);
+	}
+	th,
+	td {
+		text-align: left;
+		vertical-align: middle;
+		padding: 0 30px;
+		height: 56px;
+	}
 
-			th {
-				font-weight: bold;
-				text-align: center;
-				background-color: var(--area-color);
-			}
+	th.id,
+	td.id {
+		max-width: 40px;
+	}
 
-			th,
-			td {
-				text-align: left;
-				vertical-align: middle;
-				padding: 0 30px;
-				height: 56px;
+	th.name,
+	td.name {
+		max-width: 300px;
+	}
 
-				&.id {
-					max-width: 40px;
-				}
+	th.number,
+	td.number {
+		max-width: 120px;
+	}
 
-				&.name {
-					max-width: 300px;
-				}
+	th:last-child,
+	td:last-child {
+		text-align: center;
+	}
 
-				&.number {
-					max-width: 120px;
-				}
+	.flex {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 
-				&:last-child {
-					text-align: center;
-				}
-			}
+	div {
+		width: 0.6rem;
+		height: 0.6rem;
+		border-radius: 0.5rem;
+	}
 
-			td {
-				&.status {
-					display: flex;
-					align-items: center;
-					gap: 0.5rem;
-				}
-			}
-		}
+	div.vacio {
+		background-color: var(--focus-color);
+	}
+	div.completo {
+		background-color: var(--green-color);
+	}
+	div.pendiente {
+		background-color: var(--yellow-color);
+	}
+	div.incompleto {
+		background-color: var(--red-color);
+	}
+	div.retenido {
+		background-color: var(--blue-color);
+	}
 
-		div {
-			width: 0.6rem;
-			height: 0.6rem;
-			border-radius: 0.5rem;
+	button {
+		cursor: pointer;
+		background-color: var(--area-color);
+		border: 2px solid var(--border-color);
+		padding: 0.5rem;
+	}
 
-			&.vacio {
-				background-color: var(--focus-color);
-			}
-			&.completo {
-				background-color: var(--green-color);
-			}
-			&.pendiente {
-				background-color: var(--yellow-color);
-			}
-			&.incompleto {
-				background-color: var(--red-color);
-			}
-			&.retenido {
-				background-color: var(--blue-color);
-			}
-		}
+	button:hover {
+		background-color: var(--input-color);
+		border: 2px solid var(--blue-color);
+	}
 
-		button {
-			cursor: pointer;
-			background-color: var(--area-color);
-			border: 2px solid var(--border-color);
-			padding: 0.5rem;
+	button span {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-			&:hover {
-				background-color: var(--input-color);
-				border: 2px solid var(--blue-color);
-			}
+	.id {
+		width: 6%;
+	}
 
-			span {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			}
-		}
+	.name {
+		width: 16%;
+	}
+
+	.number {
+		width: 10%;
+	}
+
+	.level {
+		width: 13%;
+	}
+
+	.campus {
+		width: 18%;
+	}
+
+	.termination {
+		width: 16%;
+	}
+
+	th.status {
+		min-width: 12%;
+		max-width: 12%;
+	}
+
+	.link {
+		width: 8%;
 	}
 </style>
