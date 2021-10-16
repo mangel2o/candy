@@ -31,6 +31,12 @@
 		} else {
 			parameters.terminationYear = '';
 		}
+
+		if (filters.includes('graduationPeriod')) {
+			filters = [...filters, 'graduationYear'];
+		} else {
+			parameters.graduationYear = '';
+		}
 	}
 
 	function handleFilter() {
@@ -230,6 +236,48 @@
 					</select>
 				</div>
 			</div>
+			<div class="row">
+				<span class="tag">Periodo de graduación</span>
+				<div class="field">
+					<input
+						bind:group={filters}
+						on:change={() => handleCheckbox('graduationPeriod')}
+						value={'graduationPeriod'}
+						type="checkbox"
+						id="graduation"
+					/>
+					<label for="graduation">
+						<span>
+							<Icon
+								src={Check}
+								isCheckbox={true}
+								isChecked={filters.includes('graduationPeriod' || 'graduationYear')}
+							/>
+						</span>
+					</label>
+					<select
+						class:active={filters.includes('graduationPeriod') && parameters.graduationPeriod}
+						disabled={!filters.includes('graduationPeriod')}
+						bind:value={parameters.graduationPeriod}
+					>
+						<option disabled selected value> Selecciona un periodo </option>
+						{#each periods as period}
+							<option value={period}>{period}</option>
+						{/each}
+					</select>
+					<select
+						class="smaller-select"
+						class:active={filters.includes('graduationYear') && parameters.graduationYear}
+						disabled={!filters.includes('graduationYear')}
+						bind:value={parameters.graduationYear}
+					>
+						<option disabled selected value> Año </option>
+						{#each years as year}
+							<option value={year}>{year}</option>
+						{/each}
+					</select>
+				</div>
+			</div>
 		</div>
 		<div class="buttons">
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
@@ -291,7 +339,6 @@
 		border: 2px solid var(--border-color);
 	}
 	button.filter:hover {
-		background-color: var(--area-color);
 		border: 2px solid var(--blue-color);
 	}
 	button.filter:focus {

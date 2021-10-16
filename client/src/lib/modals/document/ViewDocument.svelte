@@ -7,10 +7,6 @@
 	export let document;
 	let currentTab = document.file ? 'document' : 'example';
 
-	function handleSubmit() {
-		console.log('submitted');
-	}
-
 	onDestroy(() => {
 		if (document.file) {
 			URL.revokeObjectURL(document.file);

@@ -78,8 +78,11 @@
 						<DeleteCandidate />
 					</div>
 
-					<button on:click={() => (isCategoriesActive = !isCategoriesActive)}>
-						<Icon src={ChevronDown} />
+					<button
+						class:isCategoriesActive
+						on:click={() => (isCategoriesActive = !isCategoriesActive)}
+					>
+						<Icon rotate={isCategoriesActive} src={ChevronDown} />
 					</button>
 				</div>
 			{/if}

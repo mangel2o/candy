@@ -8,9 +8,12 @@
 	export let stroke = false;
 	export let fill = true;
 
-	//FOR CHECKBOX INPUT
+	// FOR CHECKBOX INPUT
 	export let isCheckbox = false;
 	export let isChecked = false;
+
+	// FOR DROPDOWN
+	export let rotate = false;
 </script>
 
 <svg
@@ -20,6 +23,7 @@
 	viewBox="0 0 24 24"
 	aria-labelledby={name}
 	role="presentation"
+	class:rotate
 	class={isCheckbox ? (isChecked ? '' : 'isNotChecked') : ''}
 >
 	<title id={name} lang="en">{name} icon</title>
@@ -29,7 +33,15 @@
 </svg>
 
 <style>
+	svg {
+		transition: all 0.2s ease;
+	}
+
 	svg.isNotChecked {
 		display: none;
+	}
+
+	svg.rotate {
+		transform: rotate(180deg);
 	}
 </style>

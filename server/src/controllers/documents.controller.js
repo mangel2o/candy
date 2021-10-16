@@ -1,6 +1,5 @@
 import Document from "../models/Document.js";
 import fs from "fs";
-import Mongoose from "mongoose";
 import path from "path";
 import Candidate from "../models/Candidate.js";
 

@@ -158,7 +158,6 @@
 		border: 2px solid var(--border-color);
 	}
 	button.create:hover {
-		background-color: var(--area-color);
 		border: 2px solid var(--blue-color);
 	}
 	button.create:focus {

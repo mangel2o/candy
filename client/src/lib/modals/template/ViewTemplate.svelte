@@ -3,7 +3,6 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import File from '$lib/icons/file-document.svelte';
 	import { onDestroy } from 'svelte';
-	import { fade } from 'svelte/transition';
 
 	export let template;
 

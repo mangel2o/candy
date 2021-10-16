@@ -48,7 +48,6 @@
 	}
 
 	input:hover {
-		background-color: var(--area-color);
 		border: 2px solid var(--blue-color);
 	}
 	input:focus {

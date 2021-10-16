@@ -7,6 +7,7 @@
 	import CandidatesTable from '$lib/components/CandidatesTable.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
 	import { onMount, setContext } from 'svelte';
+	import { getData, getMultipleData } from '$lib/fetcher';
 
 	let isPending = true;
 	let error;
@@ -24,6 +25,15 @@
 	let limit;
 	$: slicedCandidates = searchedCandidates.slice(0, entries);
 
+	let { fetchedData, pending, bad } = getMultipleData([
+		`http://localhost:4000/candidates`,
+		`http://localhost:4000/documents`
+	]);
+
+	function fetching() {
+		let { fetchedData, pending, bad } = getData(`http://localhost:4000/candidates`);
+	}
+
 	function fetchData() {
 		Promise.all([
 			fetch(`http://localhost:4000/candidates`).then((res) => res.json()),
@@ -39,14 +49,17 @@
 			})
 			.catch((err) => {
 				error = err;
-				//isPending = false;
+				isPending = false;
 			});
 	}
 
 	setContext('refetchCandidates', fetchData);
 	onMount(() => {
 		isPending = true;
-		fetchData();
+		setTimeout(() => {
+			fetchData();
+		}, 1000);
+		//fetching();
 	});
 </script>
 
@@ -64,6 +77,22 @@
 			<SearchBar bind:searchQuery bind:searchParameter />
 		</div>
 	</div>
+	<!--
+
+	{#if $fetchedData}
+		{#each $fetchedData[0] as item}
+			{JSON.stringify(item.name)}<br />
+		{/each}
+		{#each $fetchedData[1] as item}
+			{JSON.stringify(item.name)}<br />
+		{/each}
+	{/if}
+	-->
+
+	{$fetchedData}<br />
+	{$pending}<br />
+	{$bad}<br />
+
 	{#if isPending}
 		<div class="spinner">
 			<Spinner />
