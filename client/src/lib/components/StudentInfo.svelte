@@ -1,67 +1,67 @@
 <script>
-	export let candidate;
+	export let student;
 </script>
 
 <div class="row">
 	<div class="field">
 		<span>Nombre</span>
-		<span class="value name">{candidate.name}</span>
+		<span class="value name">{student.name}</span>
 	</div>
 	<div class="field ">
 		<span>Matricula</span>
-		<span class="value">{candidate.number}</span>
+		<span class="value">{student.number}</span>
 	</div>
 	<div class="field ">
 		<span>Genero</span>
-		<span class="value">{candidate.genre}</span>
+		<span class="value">{student.genre}</span>
 	</div>
 	<div class="field ">
 		<span>Estatus</span>
-		<span class="value">{candidate.active}</span>
+		<span class="value">{student.active}</span>
 	</div>
 	<div class="field ">
 		<span>Nivel</span>
-		<span class="value">{candidate.level}</span>
+		<span class="value">{student.level}</span>
 	</div>
 	<div class="field ">
 		<span>Campus</span>
-		<span class="value">{candidate.campus}</span>
+		<span class="value">{student.campus}</span>
 	</div>
 </div>
 <div class="row">
 	<div class="field ">
 		<span>Carrera</span>
 		<span class="value">
-			{candidate.career}
+			{student.career}
 		</span>
 	</div>
 	<div class="field ">
 		<span>Modalidad</span>
-		<span class="value">{candidate.modality}</span>
+		<span class="value">{student.modality}</span>
 	</div>
 </div>
 <div class="row space-between">
 	<div class="group">
 		<div class="field ">
 			<span>Telefono</span>
-			<span class="value">{candidate.phone}</span>
+			<span class="value">{student.phone}</span>
 		</div>
 		<div class="field ">
 			<span>Correo personal</span>
-			<span class="value">{candidate.personalEmail}</span>
+			<span class="value">{student.personalEmail}</span>
 		</div>
 		<div class="field ">
 			<span>Terminación</span>
-			<span class="value">{candidate.terminationPeriod} {candidate.terminationYear}</span>
+			<span class="value">{student.terminationPeriod} {student.terminationYear}</span>
 		</div>
 		<div class="field ">
 			<span>Graduación</span>
-			<span class="value">{candidate.graduationPeriod} {candidate.graduationYear}</span>
+			<span class="value">{student.graduationPeriod} {student.graduationYear}</span>
 		</div>
 	</div>
 
 	<div class="field ">
-		<span class={'status ' + candidate.status.toLowerCase()}>{candidate.status}</span>
+		<span class={'status ' + student.status.toLowerCase()}>{student.status}</span>
 	</div>
 </div>
 

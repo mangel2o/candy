@@ -17,7 +17,7 @@
 
 	function handleSubmit() {
 		isPending = true;
-		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/documents/${document._id}`, {
+		fetch(`http://localhost:4000/students/${$page.params.students}/documents/${document._id}`, {
 			method: 'DELETE'
 		})
 			.then((res) => res.json())

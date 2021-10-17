@@ -1,36 +1,40 @@
 <script>
 	import Modal from '$lib/components/Modal.svelte';
-	import Pencil from '$lib/icons/pencil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import CandidateContent from './CandidateContent.svelte';
+	import AccountPlus from '$lib/icons/account-plus.svelte';
+	import StudentContent from './StudentContent.svelte';
 	import { getContext } from 'svelte';
 	import { userStore } from '$lib/stores';
-	import { page } from '$app/stores';
+	import WarningToast from '$lib/components/WarningToast.svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
-	import { goto } from '$app/navigation';
 	import Loading from '$lib/components/Loading.svelte';
 
-	const refetchCandidate = getContext('refetchCandidate');
+	const refetchStudents = getContext('refetchStudents');
+	export let categories = [];
 	let isPending = false;
 	let isOpen = false;
 	let error = null;
-
-	export let candidate;
-	export let categories = [];
-	let editableCandidate = { ...candidate, newCategories: [] };
-
-	let disableSubmit;
-	$: if (editableCandidate.newCategories.length > 0) {
-		disableSubmit = false;
-	} else {
-		disableSubmit = Object.keys(candidate).every(
-			(key) => editableCandidate.hasOwnProperty(key) && editableCandidate[key] === candidate[key]
-		);
-	}
+	let student = {
+		name: '',
+		number: '',
+		level: '',
+		campus: '',
+		genre: '',
+		active: '',
+		career: '',
+		phone: '',
+		personalEmail: '',
+		modality: '',
+		terminationPeriod: '',
+		terminationYear: '',
+		graduationPeriod: '',
+		graduationYear: '',
+		categories: []
+	};
 
 	function handleSubmit() {
-		// * Return if any of the categories selected have empty templates
-		for (const selectedCategory of editableCandidate.newCategories) {
+		// * Return if any of the categories selected don't have templates
+		for (const selectedCategory of student.categories) {
 			const categorySelected = categories.find((category) => category._id === selectedCategory);
 			if (categorySelected && categorySelected.templates < 1) {
 				error = 'Al menos una de las categorias seleccionadas no tiene documentos.';
@@ -41,9 +45,9 @@
 		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
-		Object.keys(editableCandidate).forEach((key) => formData.append(key, editableCandidate[key]));
-		fetch(`http://localhost:4000/candidates/${$page.params.candidate}`, {
-			method: 'PUT',
+		Object.keys(student).forEach((key) => formData.append(key, student[key]));
+		fetch('http://localhost:4000/students', {
+			method: 'POST',
 			body: formData
 		})
 			.then((res) => {
@@ -61,52 +65,73 @@
 				}
 				error = null;
 				isPending = false;
-				candidate = data;
-				editableCandidate = { ...data, newCategories: [] };
-				isOpen = false;
+				handleCancel();
+				refetchStudents();
 			})
 			.catch((err) => {
-				error = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
 
 	function handleCancel() {
-		editableCandidate = { ...candidate, newCategories: [] };
+		student = {
+			name: '',
+			number: '',
+			level: '',
+			campus: '',
+			genre: '',
+			active: '',
+			career: '',
+			phone: '',
+			personalEmail: '',
+			modality: '',
+			terminationPeriod: '',
+			terminationYear: '',
+			graduationPeriod: '',
+			graduationYear: '',
+			categories: []
+		};
 		error = null;
 		isOpen = false;
 	}
 </script>
 
 <Modal bind:isOpen>
-	<button class="edit" slot="trigger" let:open on:click={open}>
-		<Icon src={Pencil} />
+	<button class="create" slot="trigger" let:open on:click={open}>
+		<div><Icon src={AccountPlus} /></div>
+		<span>Alumno</span>
 	</button>
 
 	<!--Header-->
-	<span slot="header"> Editar candidato </span>
+	<span slot="header"> Crear alumno </span>
 
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">
-		<CandidateContent bind:categories bind:candidate={editableCandidate} />
+		<StudentContent bind:categories bind:student />
 		{#if error}
 			<ErrorToast bind:error />
 		{/if}
+		<!--
+		{#if categories.length < 1}
+			<WarningToast>Parece que no hay categorias, crea una antes de crear alumnos.</WarningToast>
+		{/if}
+		-->
 
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-			<button disabled={disableSubmit} class="submit" type="submit">
+			<button disabled={categories.length < 1} class="submit" type="submit">
 				{#if isPending}
 					<Loading />
 				{:else}
-					Editar
+					Crear
 				{/if}
 			</button>
 		</div>
 	</form>
 </Modal>
 
-<style lang="scss">
+<style>
 	form {
 		display: flex;
 		flex-direction: column;
@@ -118,42 +143,45 @@
 		gap: 1rem;
 	}
 
-	button {
-		padding: 1rem;
-	}
-
-	button.edit {
-		padding: 0.5rem;
+	button.create {
+		width: 100%;
 		cursor: pointer;
 		display: flex;
 		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		padding: 1rem;
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
 	}
-	button.edit:hover {
-		background-color: var(--area-color);
+	button.create:hover {
+		border: 2px solid var(--blue-color);
 	}
-
-	button.edit:focus {
+	button.create:focus {
 		border: 2px solid var(--green-color);
+	}
+	button.create:active {
+		border: 2px solid var(--blue-color);
 	}
 
 	button.submit {
 		width: 100%;
-		background-color: var(--blue-color);
-		border: 2px solid var(--blue-color);
+		padding: 1rem;
+		background-color: var(--darker-green-color);
+		border: 2px solid var(--green-color);
 		cursor: pointer;
 	}
 	button.submit:hover {
-		background: var(--blue-color);
+		background: var(--green-color);
 	}
 
 	button.submit:active {
-		background-color: var(--blue-color);
+		background-color: var(--darker-green-color);
 	}
 
 	button.cancel {
 		width: 100%;
+		padding: 1rem;
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
 		cursor: pointer;

@@ -23,7 +23,7 @@
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(archive).forEach((key) => formData.append(key, archive[key]));
-		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives`, {
+		fetch(`http://localhost:4000/students/${$page.params.student}/archives`, {
 			method: 'POST',
 			body: formData
 		})

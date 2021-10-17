@@ -1,10 +1,10 @@
 <script>
 	import { goto } from '$app/navigation';
+	import { fade } from 'svelte/transition';
 	import Icon from '$lib/components/Icon.svelte';
 	import OpenInNew from '$lib/icons/open-in-new.svelte';
-	import { fade, slide } from 'svelte/transition';
 
-	export let candidates;
+	export let students;
 </script>
 
 <table in:fade={{ duration: 200 }}>
@@ -18,20 +18,20 @@
 		<th class="status">Estatus</th>
 		<th class="link">Ver</th>
 	</tr>
-	{#each candidates as candidate, i}
+	{#each students as student, i}
 		<tr transition:fade|local={{ duration: 200 }}>
 			<td class="id">{i + 1}</td>
-			<td class="name">{candidate.name}</td>
-			<td class="number">{candidate.number}</td>
-			<td class="level">{candidate.level}</td>
-			<td class="campus"> {candidate.campus}</td>
-			<td class="termination">{candidate.terminationPeriod} {candidate.terminationYear}</td>
+			<td class="name">{student.name}</td>
+			<td class="number">{student.number}</td>
+			<td class="level">{student.level}</td>
+			<td class="campus"> {student.campus}</td>
+			<td class="termination">{student.terminationPeriod} {student.terminationYear}</td>
 			<td class="status flex">
-				<div class={candidate.status.toLowerCase()} />
-				<span>{candidate.status}</span>
+				<div class={student.status.toLowerCase()} />
+				<span>{student.status}</span>
 			</td>
 			<td class="link">
-				<button on:click={() => goto(`/candidates/${candidate._id}/documents`)}>
+				<button on:click={() => goto(`/students/${student._id}/documents`)}>
 					<span><Icon src={OpenInNew} /></span>
 				</button>
 			</td>

@@ -11,7 +11,7 @@
 		years
 	} from '$lib/data';
 
-	export let candidate;
+	export let student;
 	export let categories = [];
 </script>
 
@@ -20,7 +20,7 @@
 	<div class="row">
 		<div class="field width-75">
 			<span>Nombre</span>
-			<input required type="text" bind:value={candidate.name} placeholder="Escribe un nombre" />
+			<input required type="text" bind:value={student.name} placeholder="Escribe un nombre" />
 		</div>
 
 		<div class="field width-25">
@@ -28,7 +28,7 @@
 			<input
 				required
 				type="text"
-				bind:value={candidate.number}
+				bind:value={student.number}
 				maxlength="10"
 				placeholder="Escribe una matricula"
 			/>
@@ -39,7 +39,7 @@
 	<div class="row">
 		<div class="field width-25">
 			<span>Nivel</span>
-			<select required bind:value={candidate.level} on:change={() => (candidate.career = '')}>
+			<select required bind:value={student.level} on:change={() => (student.career = '')}>
 				<option disabled selected value> Selecciona una opción </option>
 				{#each levels as level}
 					<option value={level}>{level}</option>
@@ -49,7 +49,7 @@
 
 		<div class="field width-25">
 			<span>Campus</span>
-			<select required bind:value={candidate.campus}>
+			<select required bind:value={student.campus}>
 				<option disabled selected value> Selecciona un campus </option>
 				{#each campuses as campus}
 					<option value={campus}>{campus}</option>
@@ -59,7 +59,7 @@
 
 		<div class="field width-25">
 			<span>Genero</span>
-			<select required bind:value={candidate.genre}>
+			<select required bind:value={student.genre}>
 				<option disabled selected value> Selecciona un genero </option>
 				<option value="Hombre">Hombre</option>
 				<option value="Mujer">Mujer</option>
@@ -68,7 +68,7 @@
 
 		<div class="field width-25">
 			<span>Estatus</span>
-			<select required bind:value={candidate.active}>
+			<select required bind:value={student.active}>
 				<option disabled selected value> Selecciona un estatus </option>
 				<option value="Activo">Activo</option>
 				<option value="Inactivo">Inactivo</option>
@@ -80,30 +80,30 @@
 	<div class="row">
 		<div class="field width-100">
 			<span>Carrera</span>
-			{#if candidate.level === 'Bachillerato'}
-				<select bind:value={candidate.career}>
+			{#if student.level === 'Bachillerato'}
+				<select bind:value={student.career}>
 					<option disabled selected value> No aplica </option>
 				</select>
 			{:else}
-				<select required bind:value={candidate.career}>
-					{#if candidate.level === '' || candidate.level === undefined}
+				<select required bind:value={student.career}>
+					{#if student.level === '' || student.level === undefined}
 						<option disabled selected value> Selecciona un nivel </option>
-					{:else if candidate.level === 'Profesional'}
+					{:else if student.level === 'Profesional'}
 						<option disabled selected value> Selecciona una carrera profesional </option>
 						{#each careersProfesional as career}
 							<option value={career}>{career}</option>
 						{/each}
-					{:else if candidate.level === 'Ejecutivo'}
+					{:else if student.level === 'Ejecutivo'}
 						<option disabled selected value> Selecciona una carrera ejecutiva </option>
 						{#each careersEjecutive as career}
 							<option value={career}>{career}</option>
 						{/each}
-					{:else if candidate.level === 'Maestria'}
+					{:else if student.level === 'Maestria'}
 						<option disabled selected value> Selecciona una maestria </option>
 						{#each careersMaster as career}
 							<option value={career}>{career}</option>
 						{/each}
-					{:else if candidate.level === 'Especialidad'}
+					{:else if student.level === 'Especialidad'}
 						<option disabled selected value> Selecciona una especialidad </option>
 						{#each careersSpecialty as career}
 							<option value={career}>{career}</option>
@@ -118,7 +118,7 @@
 	<div class="row">
 		<div class="field width-25">
 			<span>Telefono</span>
-			<input required type="tel" bind:value={candidate.phone} placeholder="Escribe un telefono" />
+			<input required type="tel" bind:value={student.phone} placeholder="Escribe un telefono" />
 		</div>
 
 		<div class="field width-75">
@@ -127,7 +127,7 @@
 				required
 				type="email"
 				placeholder="Escribe un correo personal"
-				bind:value={candidate.personalEmail}
+				bind:value={student.personalEmail}
 			/>
 		</div>
 	</div>
@@ -136,7 +136,7 @@
 	<div class="row">
 		<div class="field width-30">
 			<span>Modalidad</span>
-			<select required bind:value={candidate.modality}>
+			<select required bind:value={student.modality}>
 				<option disabled selected value> Selecciona una modalidad </option>
 				{#each modalities as modality}
 					<option value={modality}>{modality}</option>
@@ -147,13 +147,13 @@
 		<div class="field width-35">
 			<span>Periodo de terminación</span>
 			<div class="width-100">
-				<select required class="width-75" bind:value={candidate.terminationPeriod}>
+				<select required class="width-75" bind:value={student.terminationPeriod}>
 					<option disabled selected value> Selecciona un periodo </option>
 					{#each periods as period}
 						<option value={period}>{period}</option>
 					{/each}
 				</select>
-				<select required class="width-25" bind:value={candidate.terminationYear}>
+				<select required class="width-25" bind:value={student.terminationYear}>
 					<option disabled selected value> Año </option>
 					{#each years as year}
 						<option value={year}>{year}</option>
@@ -165,13 +165,13 @@
 		<div class="field width-35">
 			<span>Periodo de Graduación</span>
 			<div class="width-100">
-				<select required class="width-75" bind:value={candidate.graduationPeriod}>
+				<select required class="width-75" bind:value={student.graduationPeriod}>
 					<option disabled selected value> Selecciona un periodo </option>
 					{#each periods as period}
 						<option value={period}>{period}</option>
 					{/each}
 				</select>
-				<select required class="width-25" bind:value={candidate.graduationYear}>
+				<select required class="width-25" bind:value={student.graduationYear}>
 					<option disabled selected value> Año </option>
 					{#each years as year}
 						<option value={year}>{year}</option>
@@ -187,13 +187,13 @@
 			<div class="field">
 				<span>Categorias de documentos</span>
 				<div class="categories">
-					{#if candidate.newCategories}
+					{#if student.newCategories}
 						{#each categories as category}
 							<div class="category">
 								<input
 									type="checkbox"
 									id={category._id}
-									bind:group={candidate.newCategories}
+									bind:group={student.newCategories}
 									value={category._id}
 								/>
 								<label for={category._id}>
@@ -207,7 +207,7 @@
 								<input
 									type="checkbox"
 									id={category._id}
-									bind:group={candidate.categories}
+									bind:group={student.categories}
 									value={category._id}
 								/>
 								<label for={category._id}>

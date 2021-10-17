@@ -15,7 +15,7 @@
 
 	function fetchData() {
 		isPending = true;
-		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/observations`)
+		fetch(`http://localhost:4000/students/${$page.params.student}/observations`)
 			.then((res) => res.json())
 			.then((data) => {
 				observations = data;
@@ -34,7 +34,7 @@
 </script>
 
 <svelte:head>
-	<title>Observaciones del candidato • Tecmilenio</title>
+	<title>Observaciones del alumno • Tecmilenio</title>
 </svelte:head>
 
 <div class="container">

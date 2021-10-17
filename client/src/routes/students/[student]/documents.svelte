@@ -1,10 +1,10 @@
 <script>
 	import { page } from '$app/stores';
 	import Spinner from '$lib/components/Spinner.svelte';
-	import CreateArchive from '$lib/modals/archive/CreateArchive.svelte';
-	import DeleteArchive from '$lib/modals/archive/DeleteArchive.svelte';
-	import EditArchive from '$lib/modals/archive/EditArchive.svelte';
-	import ViewArchive from '$lib/modals/archive/ViewArchive.svelte';
+	import DeleteDocument from '$lib/modals/document/DeleteDocument.svelte';
+	import EditDocument from '$lib/modals/document/EditDocument.svelte';
+	import UploadDocument from '$lib/modals/document/UploadDocument.svelte';
+	import ViewDocument from '$lib/modals/document/ViewDocument.svelte';
 	import { userStore } from '$lib/stores';
 	import { convertDataToFile } from '$lib/utils';
 	import { onMount, setContext } from 'svelte';
@@ -12,40 +12,37 @@
 
 	let isPending = true;
 	let error = null;
-	let archives = [];
+	let documents;
 
 	function fetchData() {
-		isPending = true;
-		fetch(`http://localhost:4000/candidates/${$page.params.candidate}/archives`)
+		fetch(`http://localhost:4000/students/${$page.params.student}/documents`)
 			.then((res) => res.json())
 			.then((data) => {
-				if (data.error) {
-					error = data.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				archives = data;
+				documents = data;
 
 				// Converts data to files
-				archives.forEach(
-					(archive) => (archive.file = convertDataToFile(archive.file, archive._id))
-				);
+				documents.forEach((document) => {
+					document.example = convertDataToFile(document.example, document._id);
+					if (document.file) {
+						document.file = convertDataToFile(document.file, document._id);
+					}
+				});
+				error = null;
 				isPending = false;
 			})
 			.catch((err) => {
-				error = err;
+				error = err.message;
 				isPending = false;
 			});
 	}
-	setContext('refetchArchives', fetchData);
+	setContext('refetchDocuments', fetchData);
 	onMount(() => {
 		fetchData();
 	});
 </script>
 
 <svelte:head>
-	<title>Archivos del candidato • Tecmilenio</title>
+	<title>Documentos del alumno • Tecmilenio</title>
 </svelte:head>
 
 <div class="container">
@@ -57,16 +54,17 @@
 		<span>Something went wrong</span>
 	{:else}
 		<div in:fade={{ duration: 200 }} class="container">
-			{#if $userStore.role !== 'user'}
-				<CreateArchive />
-			{/if}
-
-			{#each archives as archive}
-				<div out:fade|local={{ duration: 200 }} class="button">
-					<ViewArchive {archive} />
+			{#each documents as document (document._id)}
+				<div in:fade={{ duration: 200 }} out:fade|local={{ duration: 200 }} class="button">
+					<ViewDocument {document} />
+					{#if $userStore.role === 'user' && document.status !== 'Completo'}
+						<UploadDocument {document} />
+					{/if}
 					{#if $userStore.role !== 'user'}
-						<EditArchive {archive} />
-						<DeleteArchive {archive} />
+						{#if document.file}
+							<EditDocument {document} />
+						{/if}
+						<DeleteDocument {document} />
 					{/if}
 				</div>
 			{/each}
@@ -86,7 +84,6 @@
 		width: 100%;
 		border: 2px solid var(--border-color);
 	}
-
 	div.spinner {
 		display: flex;
 		flex-flow: column;

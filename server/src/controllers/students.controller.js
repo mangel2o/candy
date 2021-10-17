@@ -1,5 +1,5 @@
 import Mongoose from "mongoose";
-import Candidate from "../models/Candidate.js";
+import Student from "../models/Student.js";
 import Template from "../models/Template.js";
 import Document from "../models/Document.js";
 import Observation from "../models/Observation.js";
@@ -7,21 +7,16 @@ import User from "../models/User.js";
 import Archive from "../models/Archive.js";
 import fs from "fs";
 
-/**
- * * Creates a new candidate and user
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
-export const createCandidate = async (req, res) => {
+
+export const createStudent = async (req, res) => {
    // * Gets values
    const data = req.fields;
    data.number = data.number.toLowerCase();
-   const categoryIds = data.categories.split(',');
+   const categoryIds = data.categories ? data.categories.split(',') : null;
 
    // * Checks if the candidate already exists
-   const candidateExist = await Candidate.findOne({ number: data.number }).lean();
-   if (candidateExist) return res.json({ error: "Esta matricula ya esta en uso" });
+   const studentExist = await Student.findOne({ number: data.number }).lean();
+   if (studentExist) return res.json({ error: "Esta matricula ya esta en uso" });
 
    // TODO: Create a random generated password
 
@@ -31,7 +26,7 @@ export const createCandidate = async (req, res) => {
       number: data.number,
       campus: data.campus,
       personalEmail: data.personalEmail,
-      institutionalEmail: data.number + "@tecmilenio.mx",
+      institutionalEmail: "al" + data.number + "@tecmilenio.mx",
       password: await User.encryptPassword("password"),
       role: "user"
    }).save();
@@ -39,7 +34,7 @@ export const createCandidate = async (req, res) => {
    // TODO: Implement a way of sending emails to newly created users/candidates
 
    // * Creates a new candidate
-   const candidateCreated = await new Candidate({
+   const studentCreated = await new Student({
       name: data.name,
       number: data.number,
       level: data.level,
@@ -49,107 +44,97 @@ export const createCandidate = async (req, res) => {
       career: data.career,
       phone: data.phone,
       personalEmail: data.personalEmail,
-      institutionalEmail: data.number + "@tecmilenio.mx",
+      institutionalEmail: "al" + data.number + "@tecmilenio.mx",
       modality: data.modality,
       terminationPeriod: data.terminationPeriod,
       terminationYear: data.terminationYear,
       graduationPeriod: data.graduationPeriod,
       graduationYear: data.graduationYear,
       status: "Vacio",
-      categories: categoryIds,
       owner: userCreated._id,
       createdBy: data.authorId,
    })
 
-   // * Creates the documents for the candidate based on the categories selected
-   for (const categoryId of categoryIds) {
-      const templates = await Template.find({ category: categoryId }).lean();
-      for (const template of templates) {
-         const documentCreated = await new Document({
-            name: template.name,
-            description: template.description,
-            category: template.category,
-            comment: "",
-            status: "Vacio",
-            examplePath: template.examplePath,
-            template: template._id,
-            owner: candidateCreated._id,
-            createdBy: data.authorId
-         }).save();
-         candidateCreated.documents.push(documentCreated._id);
+   if (categoryIds) {
+      studentCreated.categories = categoryIds;
+      // * Creates the documents for the candidate based on the categories selected
+      for (const categoryId of categoryIds) {
+         const templates = await Template.find({ category: categoryId }).lean();
+         for (const template of templates) {
+            const documentCreated = await new Document({
+               name: template.name,
+               description: template.description,
+               category: template.category,
+               comment: "",
+               status: "Vacio",
+               examplePath: template.examplePath,
+               template: template._id,
+               owner: studentCreated._id,
+               createdBy: data.authorId
+            }).save();
+            studentCreated.documents.push(documentCreated._id);
+         }
       }
    }
 
+
+
    // * Saves the candidate
-   candidateCreated.save();
+   studentCreated.save();
 
    // * Sends the created candidate as the response
-   res.json(candidateCreated);
+   res.json(studentCreated);
 }
 
-/**
- * * Gets all existing candidates
- * @param {*} req 
- * @param {*} res 
- */
-export const getCandidates = async (req, res) => {
+
+export const getStudents = async (req, res) => {
    // * Finds all candidates and sends them to the client
-   const candidates = await Candidate.find().lean();
-   res.json(candidates);
+   const students = await Student.find().lean();
+   res.json(students);
 }
 
-/**
- * * Gets candidate by id
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
-export const getCandidateById = async (req, res) => {
+
+export const getStudentById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
-   const candidateId = req.params.candidateId;
-   if (!Mongoose.Types.ObjectId.isValid(candidateId)) return res.json({ error: "Este candidato no existe" });
+   const studentId = req.params.studentId;
+   if (!Mongoose.Types.ObjectId.isValid(studentId)) return res.json({ error: "Este alumno no existe" });
 
    // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId).lean().populate("categories");
-   if (!candidateExist) return res.json({ error: "Este candidato no existe" });
+   const studentExist = await Student.findById(studentId).lean().populate("categories");
+   if (!studentExist) return res.json({ error: "Este alumno no existe" });
 
    // * Sends the candidate as response
-   res.json(candidateExist);
+   res.json(studentExist);
 }
 
-/**
- * * Updates candidate by id
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
-export const updateCandidateById = async (req, res) => {
+
+export const updateStudentById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
-   const candidateId = req.params.candidateId;
-   if (!Mongoose.Types.ObjectId.isValid(candidateId)) return res.json({ error: "Este candidato no existe" });
+   const studentId = req.params.studentId;
+   if (!Mongoose.Types.ObjectId.isValid(studentId)) return res.json({ error: "Este alumno no existe" });
 
    // * Gets values
    const data = req.fields;
    data.number = data.number.toLowerCase();
    const categoryIds = data.newCategories ? data.newCategories.split(',') : [];
 
-   // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId).lean();
-   if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
+   // * Checks if the student exists
+   const studentExist = await Student.findById(studentId).lean();
+   if (!studentExist) return res.json({ error: "Este alumno ya no existe" });
 
-   // * Checks if the new candidate's number isn't used already
-   const candidateExistByNumber = await Candidate.findOne({ _id: { $ne: candidateId }, number: data.number }).lean();
-   if (candidateExistByNumber) return res.json({ error: "Esta matricula ya esta en uso" });
+   // * Checks if the new student's number isn't used already
+   const studentExistByNumber = await Student.findOne({ _id: { $ne: studentId }, number: data.number }).lean();
+   if (studentExistByNumber) return res.json({ error: "Esta matricula ya esta en uso" });
 
    // * Updates the user based on the candidate data
    await User.findByIdAndUpdate(
-      candidateId,
+      studentId,
       {
          name: data.name,
          number: data.number,
          campus: data.campus,
          personalEmail: data.personalEmail,
-         institutionalEmail: data.number + "@tecmilenio.mx",
+         institutionalEmail: "al" + data.number + "@tecmilenio.mx",
       }
    ).lean();
 
@@ -165,7 +150,7 @@ export const updateCandidateById = async (req, res) => {
             status: "Vacio",
             examplePath: template.examplePath,
             template: template._id,
-            owner: candidateId,
+            owner: studentId,
             createdBy: data.authorId
          }).save();
          documentIds.push(documentCreated._id);
@@ -173,8 +158,8 @@ export const updateCandidateById = async (req, res) => {
    }
 
    // * Updates the existing candidate with the new values
-   const candidateUpdated = await Candidate.findByIdAndUpdate(
-      candidateId,
+   const candidateUpdated = await Student.findByIdAndUpdate(
+      studentId,
       {
          name: data.name,
          number: data.number,
@@ -203,31 +188,26 @@ export const updateCandidateById = async (req, res) => {
    res.send(candidateUpdated);
 }
 
-/**
- * * Deletes candidate by id
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
-export const deleteCandidateById = async (req, res) => {
+
+export const deleteStudentById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
-   const candidateId = req.params.candidateId;
-   if (!Mongoose.Types.ObjectId.isValid(candidateId)) return res.json({ error: "Este candidato no existe" });
+   const studentId = req.params.studentId;
+   if (!Mongoose.Types.ObjectId.isValid(studentId)) return res.json({ error: "Este candidato no existe" });
 
    // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId).lean();
-   if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
+   const studentExist = await Student.findById(studentId).lean();
+   if (!studentExist) return res.json({ error: "Este candidato ya no existe" });
 
    // * Deletes the candidate
-   const candidateDeleted = await Candidate.findByIdAndDelete(candidateId).lean();
+   const studentDeleted = await Student.findByIdAndDelete(studentId).lean();
 
    // * Deletes the user
-   await User.findOneAndDelete({ number: candidateDeleted.number }).lean();
+   await User.findOneAndDelete({ number: studentDeleted.number }).lean();
 
    // * Deletes all documents from the candidate
-   const documents = await Document.find({ owner: candidateId }).lean();
+   const documents = await Document.find({ owner: studentId }).lean();
    if (documents) {
-      await Document.deleteMany({ owner: candidateId });
+      await Document.deleteMany({ owner: studentId });
       for (const document of documents) {
          if (document.filepath) {
             fs.unlinkSync(document.filepath);
@@ -236,23 +216,23 @@ export const deleteCandidateById = async (req, res) => {
    }
 
    // * Deletes all archives from the candidate
-   const archives = await Archive.find({ owner: candidateId }).lean();
+   const archives = await Archive.find({ owner: studentId }).lean();
    if (archives) {
-      await Archive.deleteMany({ owner: candidateId });
+      await Archive.deleteMany({ owner: studentId });
       for (const archive of archives) {
          fs.unlinkSync(archive.filepath);
       }
    }
 
    // * Deletes all observations from the candidate
-   await Observation.deleteMany({ owner: candidateId });
+   await Observation.deleteMany({ owner: studentId });
 
    // * Sends a success response
    res.json({ success: "Se realizo la operación exitosamente" });
 }
 
 
-export const createCandidatesWithExcel = async (req, res) => {
+export const createStudentsWithExcel = async (req, res) => {
    // TODO: USE xlsx OR ExcelJS to create candidates with an excel
 }
 

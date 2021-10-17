@@ -1,6 +1,4 @@
 <script>
-	import { goto } from '$app/navigation';
-
 	import ClickOutside from '$lib/components/ClickOutside.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Account from '$lib/icons/account.svelte';
@@ -57,6 +55,7 @@
 	}
 
 	div.dropcontent {
+		z-index: 10;
 		position: absolute;
 		background-color: var(--area-color);
 		right: 0;

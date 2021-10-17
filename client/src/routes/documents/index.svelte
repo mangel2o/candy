@@ -2,4 +2,4 @@
 	<title>Documentos • Tecmilenio</title>
 </svelte:head>
 
-<h1>This is documents</h1>
+<h1>Documentos</h1>

@@ -1,6 +1,6 @@
 <script>
-	export let entries;
-	export let limit;
+	export let entries = 0;
+	export let limit = 0;
 
 	function handleChange() {
 		if (entries < 1) {

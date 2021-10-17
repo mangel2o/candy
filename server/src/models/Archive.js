@@ -6,7 +6,7 @@ const ArchiveSchema = new Schema({
    description: String,
    filepath: String,
    owner: {
-      ref: 'User',
+      ref: 'Student',
       type: Schema.Types.ObjectId,
    },
    createdBy: {

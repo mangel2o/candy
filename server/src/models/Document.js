@@ -17,7 +17,7 @@ const DocumentSchema = new Schema({
       type: Schema.Types.ObjectId,
    },
    owner: {
-      ref: 'Candidate',
+      ref: 'Student',
       type: Schema.Types.ObjectId,
    },
    createdBy: {

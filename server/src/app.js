@@ -2,14 +2,14 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from "cors";
 import formidable from 'express-formidable'
-import candidatesRoutes from "./routes/candidates.routes.js";
+import studentsRoutes from "./routes/students.routes.js";
 import documentsRoutes from "./routes/documents.routes.js";
 import loginRoutes from './routes/login.routes.js';
 import { createUsers, createDirs } from './libs/initialSetup.js';
 import Category from './models/Category.js';
 import Template from './models/Template.js';
 import User from "./models/User.js";
-import Candidate from './models/Candidate.js';
+import Candidate from './models/Student.js';
 
 const app = express();
 createUsers();
@@ -23,7 +23,7 @@ app.use(formidable({
 }));
 
 app.use('/documents', documentsRoutes);
-app.use('/candidates', candidatesRoutes);
+app.use('/students', studentsRoutes);
 app.use('/login', loginRoutes);
 
 export default app;

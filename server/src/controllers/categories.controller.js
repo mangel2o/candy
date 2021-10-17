@@ -2,15 +2,10 @@ import Mongoose from "mongoose";
 import fs from "fs";
 import Category from "../models/Category.js";
 import Template from "../models/Template.js";
-import Candidate from "../models/Candidate.js";
+import Student from "../models/Student.js";
 import { standardizeValue } from "../libs/utils.js";
 
-/**
- * * Creates a new category
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
+
 export const createCategory = async (req, res) => {
    // * Initializes values
    const { name, description, authorId } = req.fields;
@@ -32,23 +27,14 @@ export const createCategory = async (req, res) => {
    res.json(categoryCreated)
 }
 
-/**
- * * Gets all existing categories
- * @param {*} req 
- * @param {*} res 
- */
+
 export const getCategories = async (req, res) => {
    // * Finds all categories and sends them to the client
    const categoriesFound = await Category.find().lean();
    res.json(categoriesFound);
 }
 
-/**
- * * Gets category by id
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
+
 export const getCategoryById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
    const categoryId = req.params.categoryId;
@@ -62,12 +48,7 @@ export const getCategoryById = async (req, res) => {
    res.json(categoryExist);
 }
 
-/**
- * * Updates category by id
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
+
 export const updateCategoryById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
    const categoryId = req.params.categoryId;
@@ -100,12 +81,6 @@ export const updateCategoryById = async (req, res) => {
    res.json(categoryUpdated);
 }
 
-/**
- * * Deletes category by id
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
 export const deleteCategoryById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
    const categoryId = req.params.categoryId;
@@ -116,8 +91,8 @@ export const deleteCategoryById = async (req, res) => {
    if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
 
    // * If there are no candidates created with this category, then the category can be deleted
-   const candidatesExist = await Candidate.findOne({ categories: { $in: categoryId } }).lean();
-   if (candidatesExist) {
+   const studentsExist = await Student.findOne({ categories: { $in: categoryId } }).lean();
+   if (studentsExist) {
       return res.json({ error: "Esta categoria no se puede eliminar" });
    } else {
       // * Deletes the category

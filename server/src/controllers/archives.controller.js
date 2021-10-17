@@ -1,18 +1,18 @@
 import Archive from "../models/Archive.js";
 import Mongoose from "mongoose";
-import Candidate from "../models/Candidate.js";
+import Student from "../models/Student.js";
 import fs from "fs";
 import path from "path";
 
 export const createArchive = async (req, res) => {
    // * Initializes values
-   const candidateId = req.params.candidateId;
+   const studentId = req.params.studentId;
    const { name, description, authorId } = req.fields;
    const tempFile = req.files.file;
 
-   // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId).lean();
-   if (!candidateExist) return res.json({ warning: "Este candidato ya no existe" });
+   // * Checks if the student exists
+   const studentExist = await Student.findById(studentId).lean();
+   if (!studentExist) return res.json({ warning: "Este candidato ya no existe" });
 
    // * Creates a new archive
    const newId = new Mongoose.Types.ObjectId();
@@ -21,12 +21,12 @@ export const createArchive = async (req, res) => {
       name: name,
       description: description,
       filepath: path.join(process.cwd(), "uploads", "archives", newId + ".pdf"),
-      owner: candidateId,
+      owner: studentId,
       createdBy: authorId,
    }).save();
 
    // * Adds the new template id to the category
-   await Candidate.findByIdAndUpdate(candidateExist, { $push: { archives: archiveCreated._id } }).lean();
+   await Student.findByIdAndUpdate(studentExist, { $push: { archives: archiveCreated._id } }).lean();
 
    // * Creates the file in the current working directory
    fs.writeFileSync(archiveCreated.filepath, fs.readFileSync(tempFile.path));
@@ -39,34 +39,34 @@ export const createArchive = async (req, res) => {
 
 export const getArchives = async (req, res) => {
    // * Gets the parameters
-   const candidateId = req.params.candidateId;
+   const studentId = req.params.studentId;
 
    // * Finds all templates from the respective category
-   const archivesFound = await Archive.find({ owner: candidateId }).lean();
+   const archivesFound = await Archive.find({ owner: studentId }).lean();
 
    // * Creates a new array of templates with the data of the corresponding filepaths
-   let candidatesComputed = [];
+   let studentsComputed = [];
    for (let i = 0; i < archivesFound.length; i++) {
-      candidatesComputed.push({ ...archivesFound[i], file: fs.readFileSync(archivesFound[i].filepath) });
+      studentsComputed.push({ ...archivesFound[i], file: fs.readFileSync(archivesFound[i].filepath) });
    }
 
    // * Sends the templates as response
-   res.json(candidatesComputed);
+   res.json(studentsComputed);
 }
 
 
 export const updateArchiveById = async (req, res) => {
    // * Initializes values
-   const candidateId = req.params.candidateId;
+   const studentId = req.params.studentId;
    const archiveId = req.params.archiveId;
    const { name, description, authorId } = req.fields;
    const tempFile = req.files.file;
 
-   // * Checks if the category exists
-   const candidateExist = await Candidate.findById(candidateId).lean();
-   if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
+   // * Checks if the student exists
+   const studentExist = await Student.findById(studentId).lean();
+   if (!studentExist) return res.json({ error: "Este candidato ya no existe" });
 
-   // * Check if the template exists, if not then delete the temporal file
+   // * Check if the archive exists, if not then delete the temporal file
    const archiveExist = await Archive.findById(archiveId).lean();
    if (!archiveExist) {
       if (tempFile) {
@@ -75,7 +75,7 @@ export const updateArchiveById = async (req, res) => {
       return res.json({ error: "Este archivo ya no existe" });
    }
 
-   // * Updates the template with new values
+   // * Updates the archive with new values
    const archiveUpdated = await Archive.findByIdAndUpdate(
       archiveId,
       {
@@ -101,14 +101,14 @@ export const updateArchiveById = async (req, res) => {
 
 export const deleteArchiveById = async (req, res) => {
    // * Gets the parameters
-   const candidateId = req.params.candidateId;
+   const studentId = req.params.studentId;
    const archiveId = req.params.archiveId;
 
-   // * Checks if the category exists
-   const candidateExist = await Candidate.findById(candidateId).lean();
-   if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
+   // * Checks if the student exists
+   const studentExist = await Student.findById(studentId).lean();
+   if (!studentExist) return res.json({ error: "Este candidato ya no existe" });
 
-   // * Checks if the template exists
+   // * Checks if the archive exists
    const archiveExist = await Archive.findById(archiveId).lean();
    if (!archiveExist) return res.json({ error: "Este archivo ya no existe" });
 
@@ -119,7 +119,7 @@ export const deleteArchiveById = async (req, res) => {
    fs.unlinkSync(archiveDeleted.filepath);
 
    // * Removes the template id from the corresponding category
-   await Candidate.findByIdAndUpdate(candidateId, { $pull: { archives: archiveId } }).lean();
+   await Student.findByIdAndUpdate(studentId, { $pull: { archives: archiveId } }).lean();
 
    // * Sends a success response
    res.json({ success: "Se realizo la operación exitosamente" });

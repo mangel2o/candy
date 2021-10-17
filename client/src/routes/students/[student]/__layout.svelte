@@ -6,10 +6,10 @@
 	import Archive from '$lib/icons/archive.svelte';
 	import ChevronDown from '$lib/icons/chevron-down.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import EditCandidate from '$lib/modals/candidate/EditCandidate.svelte';
-	import DeleteCandidate from '$lib/modals/candidate/DeleteCandidate.svelte';
+	import EditStudent from '$lib/modals/student/EditStudent.svelte';
+	import DeleteStudent from '$lib/modals/student/DeleteStudent.svelte';
 	import Account from '$lib/icons/account.svelte';
-	import CandidateInfo from '$lib/components/CandidateInfo.svelte';
+	import StudentInfo from '$lib/components/StudentInfo.svelte';
 	import { onMount, setContext } from 'svelte';
 	import { userStore } from '$lib/stores';
 	import Spinner from '$lib/components/Spinner.svelte';
@@ -19,23 +19,23 @@
 	let error = null;
 	let isCategoriesActive = false;
 	let categories;
-	let candidate;
+	let student;
 
 	function fetchData() {
 		Promise.all([
-			fetch(`http://localhost:4000/candidates/${$page.params.candidate}`).then((res) => res.json()),
+			fetch(`http://localhost:4000/students/${$page.params.student}`).then((res) => res.json()),
 			fetch(`http://localhost:4000/documents`).then((res) => res.json())
 		])
-			.then(([dataCandidate, dataCategories]) => {
-				if (dataCandidate.error) {
-					error = dataCandidate.error;
+			.then(([dataStudent, dataCategories]) => {
+				if (dataStudent.error) {
+					error = dataStudent.error;
 					isPending = false;
 					return;
 				}
 				error = null;
-				candidate = dataCandidate;
+				student = dataStudent;
 				categories = dataCategories.filter(
-					(category) => !candidate.categories.find(({ _id }) => category._id === _id)
+					(category) => !student.categories.find(({ _id }) => category._id === _id)
 				);
 				isPending = false;
 			})
@@ -45,7 +45,7 @@
 			});
 	}
 
-	setContext('refetchCandidate', fetchData);
+	setContext('refetchStudent', fetchData);
 	onMount(() => {
 		fetchData();
 	});
@@ -67,15 +67,15 @@
 
 			<!--INFO-->
 			<div class="info">
-				<CandidateInfo {candidate} />
+				<StudentInfo {student} />
 			</div>
 
 			{#if $userStore.role !== 'user'}
 				<!--OPTIONS-->
 				<div class="options">
 					<div class="upper">
-						<EditCandidate {categories} bind:candidate />
-						<DeleteCandidate />
+						<EditStudent {categories} bind:student />
+						<DeleteStudent />
 					</div>
 
 					<button
@@ -94,7 +94,7 @@
 				<span class="text">Categorias de documentos</span>
 				<span class="divider" />
 				<div class="categories-container">
-					{#each candidate.categories as category}
+					{#each student.categories as category}
 						<div class="category">
 							{category.name}
 						</div>
@@ -108,19 +108,19 @@
 			<ButtonLink
 				name={'Documentos'}
 				icon={FileDocumentMultiple}
-				path={`/candidates/${$page.params.candidate}/documents`}
+				path={`/students/${$page.params.student}/documents`}
 			/>
 
 			<ButtonLink
 				name={'Observaciones'}
 				icon={CommentTextMultiple}
-				path={`/candidates/${$page.params.candidate}/observations`}
+				path={`/students/${$page.params.student}/observations`}
 			/>
 
 			<ButtonLink
 				name={'Archivos'}
 				icon={Archive}
-				path={`/candidates/${$page.params.candidate}/archives`}
+				path={`/students/${$page.params.student}/archives`}
 			/>
 
 			<span class="bottom-border" />
@@ -128,7 +128,7 @@
 
 		<!--CONTENT-->
 		<div class="content">
-			{#key candidate}
+			{#key student}
 				<slot />
 			{/key}
 		</div>

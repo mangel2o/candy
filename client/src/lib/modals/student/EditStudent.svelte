@@ -1,30 +1,48 @@
 <script>
 	import Modal from '$lib/components/Modal.svelte';
-	import Plus from '$lib/icons/plus.svelte';
+	import Pencil from '$lib/icons/pencil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
+	import StudentContent from './StudentContent.svelte';
 	import { getContext } from 'svelte';
-	import ObservationContent from './ObservationContent.svelte';
-	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';
+	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 
-	let refetchObservations = getContext('refetchObservations');
-	let isOpen = false;
+	const refetchStudent = getContext('refetchStudent');
 	let isPending = false;
+	let isOpen = false;
 	let error = null;
-	let observation = {
-		name: '',
-		comment: ''
-	};
+
+	export let student;
+	export let categories = [];
+	let editableStudent = { ...student, newCategories: [] };
+
+	let disableSubmit;
+	$: if (editableStudent.newCategories.length > 0) {
+		disableSubmit = false;
+	} else {
+		disableSubmit = Object.keys(student).every(
+			(key) => editableStudent.hasOwnProperty(key) && editableStudent[key] === student[key]
+		);
+	}
 
 	function handleSubmit() {
+		// * Return if any of the categories selected have empty templates
+		for (const selectedCategory of editableStudent.newCategories) {
+			const categorySelected = categories.find((category) => category._id === selectedCategory);
+			if (categorySelected && categorySelected.templates < 1) {
+				error = 'Al menos una de las categorias seleccionadas no tiene documentos.';
+				return;
+			}
+		}
+
 		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
-		Object.keys(observation).forEach((key) => formData.append(key, observation[key]));
-		fetch(`http://localhost:4000/students/${$page.params.student}/observations`, {
-			method: 'POST',
+		Object.keys(editableStudent).forEach((key) => formData.append(key, editableStudent[key]));
+		fetch(`http://localhost:4000/students/${$page.params.student}`, {
+			method: 'PUT',
 			body: formData
 		})
 			.then((res) => {
@@ -42,56 +60,51 @@
 				}
 				error = null;
 				isPending = false;
-				handleCancel();
-				refetchObservations();
+				refetchStudent();
+				editableStudent = { ...data, newCategories: [] };
+				isOpen = false;
 			})
 			.catch((err) => {
-				error = err.message;
+				error = err;
 				isPending = false;
 			});
-
-		handleCancel();
-		refetchObservations();
 	}
 
 	function handleCancel() {
-		observation = {
-			name: '',
-			comment: ''
-		};
+		editableStudent = { ...student, newCategories: [] };
+		error = null;
 		isOpen = false;
 	}
 </script>
 
 <Modal bind:isOpen>
-	<button class="create" slot="trigger" let:open on:click={open}>
-		<Icon src={Plus} />
-		<span>Crear observación</span>
+	<button class="edit" slot="trigger" let:open on:click={open}>
+		<Icon src={Pencil} />
 	</button>
 
 	<!--Header-->
-	<span slot="header"> Crear observación </span>
+	<span slot="header"> Editar alumno </span>
 
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">
-		<ObservationContent bind:observation />
+		<StudentContent bind:categories bind:student={editableStudent} />
 		{#if error}
 			<ErrorToast bind:error />
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-			<button class="submit" type="submit">
+			<button disabled={disableSubmit} class="submit" type="submit">
 				{#if isPending}
 					<Loading />
 				{:else}
-					Crear
+					Editar
 				{/if}
 			</button>
 		</div>
 	</form>
 </Modal>
 
-<style>
+<style lang="scss">
 	form {
 		display: flex;
 		flex-direction: column;
@@ -103,46 +116,42 @@
 		gap: 1rem;
 	}
 
-	button.create {
-		width: 100%;
+	button {
+		padding: 1rem;
+	}
+
+	button.edit {
+		padding: 0.5rem;
 		cursor: pointer;
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		gap: 6px;
-		padding: 1rem;
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
 	}
-	button.create:hover {
+	button.edit:hover {
 		background-color: var(--area-color);
-		border: 2px solid var(--blue-color);
 	}
-	button.create:focus {
+
+	button.edit:focus {
 		border: 2px solid var(--green-color);
-	}
-	button.create:active {
-		border: 2px solid var(--blue-color);
 	}
 
 	button.submit {
 		width: 100%;
-		padding: 1rem;
-		background-color: var(--darker-green-color);
-		border: 2px solid var(--green-color);
+		background-color: var(--blue-color);
+		border: 2px solid var(--blue-color);
 		cursor: pointer;
 	}
 	button.submit:hover {
-		background: var(--green-color);
+		background: var(--blue-color);
 	}
 
 	button.submit:active {
-		background-color: var(--darker-green-color);
+		background-color: var(--blue-color);
 	}
 
 	button.cancel {
 		width: 100%;
-		padding: 1rem;
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
 		cursor: pointer;

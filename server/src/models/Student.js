@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
-const CandidateSchema = new Schema({
+const StudentSchema = new Schema({
    name: String,
    number: {
       type: String,
@@ -54,4 +54,4 @@ const CandidateSchema = new Schema({
    timestamps: true,
 })
 
-export default model('Candidate', CandidateSchema);
+export default model('Student', StudentSchema);

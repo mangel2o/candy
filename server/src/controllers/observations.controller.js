@@ -1,39 +1,39 @@
 import Observation from "../models/Observation.js";
 import Mongoose from "mongoose";
-import Candidate from "../models/Candidate.js";
+import Student from "../models/Student.js";
 
 export const createObservation = async (req, res) => {
    // * Initializes values
-   const candidateId = req.params.candidateId;
+   const studentId = req.params.studentId;
    const { name, comment, authorId } = req.fields;
 
-   // * Checks if the candidate exists
-   const candidateExist = await Candidate.findById(candidateId).lean();
-   if (!candidateExist) return res.json({ warning: "Este candidato ya no existe" });
+   // * Checks if the student exists
+   const studentExist = await Student.findById(studentId).lean();
+   if (!studentExist) return res.json({ warning: "Este candidato ya no existe" });
 
-   // * Creates a new archive
+   // * Creates a new observation
    const newId = new Mongoose.Types.ObjectId();
    const observationCreated = await new Observation({
       _id: newId,
       name: name,
       comment: comment,
-      owner: candidateId,
+      owner: studentId,
       createdBy: authorId,
    }).save();
 
-   // * Adds the new template id to the category
-   await Candidate.findByIdAndUpdate(candidateExist, { $push: { observations: observationCreated._id } }).lean();
+   // * Adds the new observation id to the student
+   await Student.findByIdAndUpdate(studentExist, { $push: { observations: observationCreated._id } }).lean();
 
-   // * Sends the created template as response
+   // * Sends the created observation as response
    res.json(observationCreated);
 }
 
 export const getObservations = async (req, res) => {
    // * Gets the parameters
-   const candidateId = req.params.candidateId;
+   const studentId = req.params.studentId;
 
-   // * Finds all observations from the respective candidate
-   const observationsFound = await Observation.find({ owner: candidateId }).lean();
+   // * Finds all observations from the respective student
+   const observationsFound = await Observation.find({ owner: studentId }).lean();
 
    // * Sends the observations as response
    res.json(observationsFound);
@@ -41,20 +41,19 @@ export const getObservations = async (req, res) => {
 
 export const updateObservationById = async (req, res) => {
    // * Initializes values
-   const candidateId = req.params.candidateId;
+   const studentId = req.params.studentId;
    const observationId = req.params.observationId;
    const { name, comment, authorId } = req.fields;
 
-   // * Checks if the category exists
-   const candidateExist = await Candidate.findById(candidateId).lean();
-   if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
+   // * Checks if the student exists
+   const studentExist = await Student.findById(studentId).lean();
+   if (!studentExist) return res.json({ error: "Este candidato ya no existe" });
 
-   // * Check if the template exists, if not then delete the temporal file
+   // * Check if the observation exists
    const observationExist = await Observation.findById(observationId).lean();
    if (!observationExist) return res.json({ error: "Esta observación ya no existe" });
 
-
-   // * Updates the template with new values
+   // * Updates the observation with new values
    const observationUpdated = await Observation.findByIdAndUpdate(
       observationId,
       {
@@ -71,22 +70,22 @@ export const updateObservationById = async (req, res) => {
 
 export const deleteObservationById = async (req, res) => {
    // * Gets the parameters
-   const candidateId = req.params.candidateId;
+   const studentId = req.params.studentId;
    const observationId = req.params.observationId;
 
-   // * Checks if the category exists
-   const candidateExist = await Candidate.findById(candidateId).lean();
-   if (!candidateExist) return res.json({ error: "Este candidato ya no existe" });
+   // * Checks if the student exists
+   const studentExist = await Student.findById(studentId).lean();
+   if (!studentExist) return res.json({ error: "Este candidato ya no existe" });
 
-   // * Checks if the template exists
+   // * Checks if the observation exists
    const observationExist = await Observation.findById(observationId).lean();
    if (!observationExist) return res.json({ error: "Esta observación ya no existe" });
 
    // * Deletes the archive
    const observationDeleted = await Observation.findByIdAndDelete(observationId).lean();
 
-   // * Removes the template id from the corresponding category
-   await Candidate.findByIdAndUpdate(candidateId, { $pull: { observations: observationId } }).lean();
+   // * Removes the observation id from the corresponding student
+   await Student.findByIdAndUpdate(studentId, { $pull: { observations: observationId } }).lean();
 
    // * Sends a success response
    res.json({ success: "Se realizo la operación exitosamente" });

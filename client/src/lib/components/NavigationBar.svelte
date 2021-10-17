@@ -13,14 +13,14 @@
 		<div class="nav-btns">
 			{#if $userStore}
 				{#if $userStore.role === 'admin'}
-					<a href="/candidates">Candidatos</a>
+					<a href="/students">Alumnos</a>
 					<a href="/documents">Documentos</a>
 					<a href="/admin">Administración</a>
 				{:else if $userStore.role === 'moderator'}
-					<a href="/candidates">Candidatos</a>
+					<a href="/students">Alumnos</a>
 					<a href="/documents">Documentos</a>
 				{:else}
-					<a href={`/candidates/${$userStore.candidateId}/documents`}>Tu Perfil</a>
+					<a href={`/students/${$userStore.studentId}/documents`}>Tu Perfil</a>
 				{/if}
 			{:else}
 				<span>Cargando...</span>

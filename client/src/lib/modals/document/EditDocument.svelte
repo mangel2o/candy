@@ -28,7 +28,7 @@
 		formData.append('comment', editableDocument.comment);
 		formData.append('status', editableDocument.status);
 		fetch(
-			`http://localhost:4000/candidates/${$page.params.candidate}/documents/${document._id}/update`,
+			`http://localhost:4000/students/${$page.params.student}/documents/${document._id}/update`,
 			{
 				method: 'PUT',
 				body: formData

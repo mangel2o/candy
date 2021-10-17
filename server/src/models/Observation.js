@@ -5,7 +5,7 @@ const ObservationSchema = new Schema({
    name: String,
    comment: String,
    owner: {
-      ref: 'User',
+      ref: 'Student',
       type: Schema.Types.ObjectId,
    },
    createdBy: {

@@ -18,7 +18,7 @@
 	async function handleSubmit() {
 		isPending = true;
 		fetch(
-			`http://localhost:4000/candidates/${$page.params.candidate}/observations/${observation._id}`,
+			`http://localhost:4000/students/${$page.params.student}/observations/${observation._id}`,
 			{ method: 'DELETE' }
 		)
 			.then((res) => {

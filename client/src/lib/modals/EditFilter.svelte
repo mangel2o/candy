@@ -6,9 +6,9 @@
 	import FilterMenu from '$lib/icons/filter-menu.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 
-	export let candidates = [];
-	export let filteredCandidates = [];
-	export let entries;
+	export let students = [];
+	export let filteredStudents = [];
+	export let entries = 0;
 	let isPending = false;
 	let isOpen = false;
 	let filters = [];
@@ -41,18 +41,18 @@
 
 	function handleFilter() {
 		isPending = true;
-		filteredCandidates = candidates.filter((candidate) => {
+		filteredStudents = students.filter((student) => {
 			for (const key of filters) {
 				if (
 					parameters[key].toString() !== '' &&
-					parameters[key].toString() !== candidate[key].toString()
+					parameters[key].toString() !== student[key].toString()
 				) {
 					return false;
 				}
 			}
 			return true;
 		});
-		entries = filteredCandidates.length;
+		entries = filteredStudents.length;
 		isPending = false;
 		isOpen = false;
 	}
@@ -67,8 +67,8 @@
 			terminationPeriod: '',
 			terminationYear: ''
 		};
-		filteredCandidates = candidates;
-		entries = candidates.length;
+		filteredStudents = students;
+		entries = students.length;
 		isOpen = false;
 	}
 </script>

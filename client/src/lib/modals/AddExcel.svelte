@@ -26,7 +26,7 @@
 	</button>
 
 	<!--Header-->
-	<span slot="header">Crear candidatos con Excel</span>
+	<span slot="header">Crear alumnos con Excel</span>
 
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">

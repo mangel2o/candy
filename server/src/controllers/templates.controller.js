@@ -5,12 +5,7 @@ import fs from "fs";
 import path from "path";
 import Document from "../models/Document.js";
 
-/**
- * * Creates a new template
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
+
 export const createTemplate = async (req, res) => {
    // * Initializes values
    const categoryId = req.params.categoryId;
@@ -43,11 +38,7 @@ export const createTemplate = async (req, res) => {
    res.json(templateCreated);
 }
 
-/**
- * * Gets all existing templates
- * @param {*} req 
- * @param {*} res 
- */
+
 export const getTemplates = async (req, res) => {
    // * Gets the parameters
    const categoryId = req.params.categoryId;
@@ -65,12 +56,7 @@ export const getTemplates = async (req, res) => {
    res.json(templatesComputed);
 }
 
-/**
- * * Updates template by id
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
+
 export const updateTemplateById = async (req, res) => {
    // * Initializes values
    const categoryId = req.params.categoryId;
@@ -115,12 +101,7 @@ export const updateTemplateById = async (req, res) => {
    res.json({ success: "Se realizo la operación exitosamente" });
 }
 
-/**
- * * Deletes template by id
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
+
 export const deleteTemplateById = async (req, res) => {
    // * Gets the parameters
    const categoryId = req.params.categoryId;

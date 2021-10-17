@@ -1,4 +1,4 @@
-import Candidate from "../models/Candidate.js";
+import Student from "../models/Student.js";
 import User from "../models/User.js";
 
 export const signIn = async (req, res) => {
@@ -12,7 +12,6 @@ export const signIn = async (req, res) => {
          $or:
             [
                { institutionalEmail: identificator },
-               { personalEmail: identificator },
                { number: identificator }
             ]
       }
@@ -25,8 +24,8 @@ export const signIn = async (req, res) => {
 
    let user = { ...userExist };
    if (userExist.role === "user") {
-      const candidateFound = await Candidate.findOne({ number: userExist.number }).lean();
-      user.candidateId = candidateFound._id;
+      const studentFound = await Student.findOne({ number: userExist.number }).lean();
+      user.studentId = studentFound._id;
    }
 
    // * Sends the user as response
