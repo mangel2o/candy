@@ -53,12 +53,12 @@
 	</button>
 
 	<!--Header-->
-	<span class="header" slot="header"> Eliminar candidato </span>
+	<span class="header" slot="header"> Eliminar alumno </span>
 
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">
 		<DeleteContent>
-			<span class="delete">¿Deseas eliminar este candidato?</span>
+			<span class="delete">¿Deseas eliminar este alumno?</span>
 			<span class="delete"> Esta acción es irreversible</span>
 		</DeleteContent>
 		{#if error}

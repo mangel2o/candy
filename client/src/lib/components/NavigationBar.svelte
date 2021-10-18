@@ -12,6 +12,7 @@
 		</a>
 		<div class="nav-btns">
 			{#if $userStore}
+				<a href="/">Inicio</a>
 				{#if $userStore.role === 'admin'}
 					<a href="/students">Alumnos</a>
 					<a href="/documents">Documentos</a>

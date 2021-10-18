@@ -16,7 +16,10 @@
 
 	function fetchData() {
 		fetch(`http://localhost:4000/students/${$page.params.student}/documents`)
-			.then((res) => res.json())
+			.then((res) => {
+				console.log(res);
+				return res.json();
+			})
 			.then((data) => {
 				documents = data;
 

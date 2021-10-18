@@ -7,14 +7,30 @@
 	import StudentsTable from '$lib/components/StudentsTable.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
 	import { onMount, setContext } from 'svelte';
-	import { getData } from '$lib/fetcher';
+	import { getData, fetcher } from '$lib/fetcher';
+	import { get } from 'svelte/store';
 
-	// let { d, p, e } = getData([
-	// 	`http://localhost:4000/candidates`,
-	// 	`http://localhost:4000/documents`
-	// ]);
-	// $: [d1, d2] = [...$d];
-	// $: console.log('second:', d1, d2);
+	const [[data1, data2], err] = fetcher(
+		[`http://localhost:4000/students`, `http://localhost:4000/documents`],
+		() => {
+			const dataObject = {
+				original: null,
+				filterable: null,
+				entries: 0,
+				limit: 0
+			};
+			return [dataObject];
+		},
+		([students, categories]) => {
+			const dataObject = {
+				original: students,
+				filterable: students,
+				entries: students.length,
+				limit: students.length
+			};
+			return [dataObject, categories];
+		}
+	);
 
 	let isPending = true;
 	let error;
@@ -62,6 +78,12 @@
 </svelte:head>
 
 <div class="container">
+	{#if $data1}
+		<h1>Data 1: {$data1.entries}</h1>
+		<h1>Data 2: {$data2}</h1>
+		<h1>Error {$err}</h1>
+	{/if}
+
 	<div class="tools">
 		<QuantityEntries bind:entries bind:limit />
 		<div class="options">
