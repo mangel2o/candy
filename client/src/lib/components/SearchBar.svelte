@@ -5,11 +5,23 @@
 	import Close from '$lib/icons/close.svelte';
 
 	let isFocused = false;
-	export let searchQuery = '';
-	export let searchParameter = 'name';
+	export let students;
+	let searchQuery = '';
+	let searchParameter = 'name';
+
+	$: students.searchable = students.filterable.filter((student) =>
+		student[searchParameter].toString().toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
+	function handleChange() {
+		students.entries = students.searchable.length;
+		students.limit = students.searchable.length;
+	}
 
 	function handleCancel() {
 		searchQuery = '';
+		students.entries = students.filterable.length;
+		students.limit = students.filterable.length;
 	}
 </script>
 
@@ -34,6 +46,7 @@
 			autocomplete="off"
 			placeholder="Buscar alumno..."
 			bind:value={searchQuery}
+			on:input={handleChange}
 		/>
 		<button on:click={handleCancel} class:inactive={!searchQuery}>
 			<Icon src={Close} />

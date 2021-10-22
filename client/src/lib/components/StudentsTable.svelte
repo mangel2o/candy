@@ -5,6 +5,8 @@
 	import OpenInNew from '$lib/icons/open-in-new.svelte';
 
 	export let students;
+
+	$: students.sliceable = students.searchable.slice(0, students.entries);
 </script>
 
 <table in:fade={{ duration: 200 }}>
@@ -18,7 +20,7 @@
 		<th class="status">Estatus</th>
 		<th class="link">Ver</th>
 	</tr>
-	{#each students as student, i}
+	{#each students.sliceable as student, i}
 		<tr transition:fade|local={{ duration: 200 }}>
 			<td class="id">{i + 1}</td>
 			<td class="name">{student.name}</td>

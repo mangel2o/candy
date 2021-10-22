@@ -31,6 +31,7 @@
 				if (res.ok) {
 					return res.json();
 				} else {
+					console.log(res.body);
 					throw new Error('Parece que algo salio mal');
 				}
 			})

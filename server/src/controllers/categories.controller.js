@@ -15,7 +15,6 @@ export const createCategory = async (req, res) => {
    const categoryExist = await Category.findOne({ name: standardizedName }).lean();
    if (categoryExist) return res.json({ error: "Esta categoria ya existe" });
 
-
    // * Creates a new category
    const categoryCreated = await new Category({
       name: standardizedName,

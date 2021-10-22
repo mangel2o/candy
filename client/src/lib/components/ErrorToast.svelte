@@ -1,14 +1,21 @@
 <script>
 	import Icon from '$lib/components/Icon.svelte';
 	import Close from '$lib/icons/close.svelte';
-	import { fade } from 'svelte/transition';
+	import { slide } from 'svelte/transition';
 	export let error;
+	let prevError = error;
 </script>
 
-<div in:fade={{ duration: 200 }} class="container">
+<div in:slide={{ duration: 200 }} out:slide|local={{ duration: 200 }} class="container">
 	<div class="error">
 		<span class="tag">ERROR: </span>
-		<span>{error}</span>
+		<span>
+			{#if error}
+				{error}
+			{:else}
+				{prevError}
+			{/if}
+		</span>
 	</div>
 	<button type="button" on:click={() => (error = null)}>
 		<Icon src={Close} />

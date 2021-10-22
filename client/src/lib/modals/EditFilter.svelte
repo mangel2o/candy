@@ -6,10 +6,8 @@
 	import FilterMenu from '$lib/icons/filter-menu.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 
-	export let students = [];
-	export let filteredStudents = [];
-	export let entries = 0;
-	let isPending = false;
+	export let students;
+	let loading = false;
 	let isOpen = false;
 	let filters = [];
 	let parameters = {
@@ -18,7 +16,9 @@
 		campus: '',
 		modality: '',
 		terminationPeriod: '',
-		terminationYear: ''
+		terminationYear: '',
+		graduationPeriod: '',
+		graduationYear: ''
 	};
 
 	function handleCheckbox(param) {
@@ -40,8 +40,8 @@
 	}
 
 	function handleFilter() {
-		isPending = true;
-		filteredStudents = students.filter((student) => {
+		loading = true;
+		students.filterable = students.original.filter((student) => {
 			for (const key of filters) {
 				if (
 					parameters[key].toString() !== '' &&
@@ -52,8 +52,13 @@
 			}
 			return true;
 		});
-		entries = filteredStudents.length;
-		isPending = false;
+
+		const originalLength = students.original.length;
+		const filterableLength = students.filterable.length;
+		const searchableLength = students.searchable.length;
+		students.entries = getEntries(filterableLength, searchableLength, originalLength);
+		students.limit = getLimit(filterableLength, searchableLength, originalLength);
+		loading = false;
 		isOpen = false;
 	}
 
@@ -65,11 +70,37 @@
 			campus: '',
 			modality: '',
 			terminationPeriod: '',
-			terminationYear: ''
+			terminationYear: '',
+			graduationPeriod: '',
+			graduationYear: ''
 		};
-		filteredStudents = students;
-		entries = students.length;
+		students.filterable = [...students.original];
+
+		const originalLength = students.original.length;
+		const filterableLength = students.filterable.length;
+		const searchableLength = students.searchable.length;
+		students.entries = getEntries(filterableLength, searchableLength, originalLength);
+		students.limit = getLimit(filterableLength, searchableLength, originalLength);
 		isOpen = false;
+	}
+
+	function getEntries(filterableLength, searchableLength, originalLength) {
+		return filterableLength <= originalLength
+			? filterableLength
+			: filterableLength <= searchableLength
+			? filterableLength
+			: searchableLength;
+	}
+
+	function getLimit(filterableLength, searchableLength, originalLength) {
+		console.log('filterable: ', filterableLength);
+		console.log('searchable: ', searchableLength);
+
+		return filterableLength >= searchableLength
+			? searchableLength
+			: filterableLength <= originalLength
+			? filterableLength
+			: originalLength;
 	}
 </script>
 
@@ -282,7 +313,7 @@
 		<div class="buttons">
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="button" on:click={handleFilter}>
-				{#if isPending}
+				{#if loading}
 					<Loading />
 				{:else}
 					Filtrar

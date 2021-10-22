@@ -1,26 +1,16 @@
 <script>
-	export let entries = 0;
-	export let limit = 0;
+	export let students;
 
-	function handleChange() {
-		if (entries < 1) {
-			entries = 1;
-		} else if (entries > limit) {
-			entries = limit;
-		}
+	$: if (students.entries < 0) {
+		students.entries = 0;
+	} else if (students.entries > students.limit) {
+		students.entries = students.limit;
 	}
 </script>
 
 <label for="quantity">
 	Mostrar
-	<input
-		bind:value={entries}
-		on:change={handleChange}
-		id="quantity"
-		type="number"
-		min="1"
-		max={limit}
-	/>
+	<input bind:value={students.entries} id="quantity" type="number" min="1" max={students.limit} />
 	Entradas
 </label>
 
