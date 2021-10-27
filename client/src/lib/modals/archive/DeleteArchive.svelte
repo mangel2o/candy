@@ -3,49 +3,33 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
-	import { getContext } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import { requester } from '$lib/fetcher';
 
-	const refetchArchives = getContext('refetchArchives');
+	const dispatch = createEventDispatcher();
+	const [request, loading, err] = requester();
 	let isOpen = false;
-	let isPending = false;
-	let error = null;
-
 	export let archive;
 
 	function handleSubmit() {
-		isPending = true;
-
-		fetch(`http://localhost:4000/students/${$page.params.student}/archives/${archive._id}`, {
-			method: 'DELETE'
-		})
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					throw new Error('Parece que algo salio mal');
+		request(
+			{
+				url: `http://localhost:4000/students/${$page.params.student}/archives/${archive._id}`,
+				method: 'delete'
+			},
+			{
+				finalize: (fetchedData) => {
+					handleCancel();
+					dispatch('request', fetchedData.data);
 				}
-			})
-			.then((data) => {
-				if (data.error) {
-					error = data.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				isPending = false;
-				isOpen = false;
-				refetchArchives();
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+			}
+		);
 	}
 
 	function handleCancel() {
-		error = null;
+		$err = null;
 		isOpen = false;
 	}
 </script>
@@ -65,13 +49,13 @@
 			<span class="delete">¿Deseas eliminar este archivo?</span>
 			<span class="delete"> Esta acción es irreversible</span>
 		</DeleteContent>
-		{#if error}
-			<ErrorToast bind:error />
+		{#if $err}
+			<ErrorToast bind:error={$err} />
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
-				{#if isPending}
+				{#if $loading}
 					Loading...
 				{:else}
 					Delete

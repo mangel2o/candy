@@ -3,34 +3,30 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Delete from '$lib/icons/delete.svelte';
 	import DeleteContent from '$lib/modals/DeleteContent.svelte';
-	import { getContext } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import Loading from '$lib/components/Loading.svelte';
+	import { requester } from '$lib/fetcher';
 
-	let refetchDocuments = getContext('refetchDocuments');
+	const dispatch = createEventDispatcher();
+	const [request, loading, err] = requester();
 	let isOpen = false;
-	let isPending = false;
-	let error;
-
 	export let document;
 
 	function handleSubmit() {
-		isPending = true;
-		fetch(`http://localhost:4000/students/${$page.params.students}/documents/${document._id}`, {
-			method: 'DELETE'
-		})
-			.then((res) => res.json())
-			.then((data) => {
-				error = null;
-				isPending = false;
-				handleCancel();
-				refetchDocuments();
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+		request(
+			{
+				url: `http://localhost:4000/students/${$page.params.student}/documents/${document._id}`,
+				method: 'delete'
+			},
+			{
+				finalize: (doc) => {
+					handleCancel();
+					dispatch('request', doc.data);
+				}
+			}
+		);
 	}
 
 	function handleCancel() {
@@ -53,13 +49,13 @@
 			<span class="delete">¿Deseas eliminar este documento?</span>
 			<span class="delete"> Esta acción es irreversible</span>
 		</DeleteContent>
-		{#if error}
-			<ErrorToast bind:error />
+		{#if $err}
+			<ErrorToast bind:error={$err} />
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
-				{#if isPending}
+				{#if $loading}
 					<Loading />
 				{:else}
 					Eliminar

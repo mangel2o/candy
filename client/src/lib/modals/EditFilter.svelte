@@ -10,16 +10,7 @@
 	let loading = false;
 	let isOpen = false;
 	let filters = [];
-	let parameters = {
-		status: '',
-		level: '',
-		campus: '',
-		modality: '',
-		terminationPeriod: '',
-		terminationYear: '',
-		graduationPeriod: '',
-		graduationYear: ''
-	};
+	let parameters = {};
 
 	function handleCheckbox(param) {
 		if (!filters.includes(param)) {
@@ -53,54 +44,15 @@
 			return true;
 		});
 
-		const originalLength = students.original.length;
-		const filterableLength = students.filterable.length;
-		const searchableLength = students.searchable.length;
-		students.entries = getEntries(filterableLength, searchableLength, originalLength);
-		students.limit = getLimit(filterableLength, searchableLength, originalLength);
 		loading = false;
 		isOpen = false;
 	}
 
 	function handleCancel() {
 		filters = [];
-		parameters = {
-			status: '',
-			level: '',
-			campus: '',
-			modality: '',
-			terminationPeriod: '',
-			terminationYear: '',
-			graduationPeriod: '',
-			graduationYear: ''
-		};
+		parameters = {};
 		students.filterable = [...students.original];
-
-		const originalLength = students.original.length;
-		const filterableLength = students.filterable.length;
-		const searchableLength = students.searchable.length;
-		students.entries = getEntries(filterableLength, searchableLength, originalLength);
-		students.limit = getLimit(filterableLength, searchableLength, originalLength);
 		isOpen = false;
-	}
-
-	function getEntries(filterableLength, searchableLength, originalLength) {
-		return filterableLength <= originalLength
-			? filterableLength
-			: filterableLength <= searchableLength
-			? filterableLength
-			: searchableLength;
-	}
-
-	function getLimit(filterableLength, searchableLength, originalLength) {
-		console.log('filterable: ', filterableLength);
-		console.log('searchable: ', searchableLength);
-
-		return filterableLength >= searchableLength
-			? searchableLength
-			: filterableLength <= originalLength
-			? filterableLength
-			: originalLength;
 	}
 </script>
 

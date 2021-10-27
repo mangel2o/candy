@@ -2,17 +2,17 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Pencil from '$lib/icons/pencil.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import { getContext } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
 	import ObservationContent from './ObservationContent.svelte';
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import { userStore } from '$lib/stores';
 	import Loading from '$lib/components/Loading.svelte';
+	import { requester } from '$lib/fetcher';
 
-	let refetchObservations = getContext('refetchObservations');
+	const dispatch = createEventDispatcher();
+	const [request, loading, err] = requester();
 	let isOpen = false;
-	let isPending = false;
-	let error = null;
 
 	export let observation;
 	let editableObservation = { ...observation };
@@ -23,47 +23,33 @@
 	);
 
 	function handleSubmit() {
-		isPending = true;
+		$loading = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(editableObservation).forEach((key) =>
 			formData.append(key, editableObservation[key])
 		);
 
-		fetch(
-			`http://localhost:4000/students/${$page.params.student}/observations/${observation._id}`,
+		request(
 			{
-				method: 'PUT',
-				body: formData
+				url: `http://localhost:4000/students/${$page.params.student}/observations/${observation._id}`,
+				method: 'put',
+				data: formData
+			},
+			{
+				finalize: (fetchedData) => {
+					editableObservation = { ...fetchedData.data };
+					$err = null;
+					isOpen = false;
+					dispatch('request', fetchedData.data);
+				}
 			}
-		)
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					throw new Error('Parece que algo salio mal');
-				}
-			})
-			.then((data) => {
-				if (data.error) {
-					error = data.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				isPending = false;
-				isOpen = false;
-				refetchObservations();
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+		);
 	}
 
 	function handleCancel() {
 		editableObservation = { ...observation };
-		error = null;
+		$err = null;
 		isOpen = false;
 	}
 </script>
@@ -79,13 +65,13 @@
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">
 		<ObservationContent bind:observation={editableObservation} />
-		{#if error}
-			<ErrorToast bind:error />
+		{#if $err}
+			<ErrorToast bind:error={$err} />
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button disabled={disableSubmit} class="submit" type="submit">
-				{#if isPending}
+				{#if $loading}
 					<Loading />
 				{:else}
 					Editar

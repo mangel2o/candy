@@ -1,5 +1,5 @@
 import { writable, get } from "svelte/store";
-
+import axios from "axios";
 const cache = new Map();
 
 export const fetcher = (urls, options = {}) => {
@@ -7,63 +7,115 @@ export const fetcher = (urls, options = {}) => {
    const data = new Array(urls.length).fill(null).map(() => writable(null));
    const loading = writable(true);
    const error = writable(null);
+   const progress = writable(0);
+   const controller = new AbortController();
 
-   if (cache.has(key)) {
-      for (let i = 0; i < urls.length; i++) {
-         data[i].set(cache.get(urls[i]));
+   // * Updates the fetched and cached data
+   const update = (oldValue, newValue) => {
+      const cachedData = cache.get(key);
+      for (let i = 0; i < cachedData.length; i++) {
+         if (cachedData[i].data === oldValue) {
+            cachedData[i].data = newValue;
+            data[i].set(newValue);
+            cache.set(key, cachedData);
+            break;
+         }
       }
-   } else if (options.init) {
+   }
+
+   // * Loads data from cache if there's any
+   if (cache.has(key)) {
+      const cachedData = cache.get(key);
+      for (let i = 0; i < cachedData.length; i++) {
+         data[i].set(cachedData[i].data);
+      }
+      loading.set(false);
+   } else if (!cache.has(key) && options.init) {
       const defaultData = options.init();
       for (let i = 0; i < urls.length; i++) {
          data[i].set(defaultData[i]);
       }
    }
-   const refetch = async () => {
-      await Promise.all(urls.map((url) => fetch(url)))
-         .then((responses) => Promise.all(responses.map((response) => response.json())))
+
+   // * Fetches the data
+   const refetch = (displayLoading = true) => {
+      progress.set(0);
+      loading.set(displayLoading);
+      let currentProgress = 0;
+
+      const promises = urls.map((url) => {
+         return axios.get(url, {
+            onDownloadProgress: progressEvent => {
+               const total = progressEvent.total;
+               const current = progressEvent.loaded;
+               let percentCompleted = Math.floor(current / total * (100 / urls.length));
+               if (urls.length > 1 && percentCompleted === 100 / urls.length) {
+                  currentProgress = percentCompleted;
+               }
+               progress.set(currentProgress + percentCompleted);
+            },
+            signal: controller.signal,
+         })
+      })
+
+      Promise.all(promises)
          .then((fetchedData) => {
             if (options.edit) {
                fetchedData = options.edit(fetchedData);
             }
+
             for (let i = 0; i < fetchedData.length; i++) {
-               data[i].set(fetchedData[i]);
-               cache.set(urls[i], fetchedData[i]);
+               data[i].set(fetchedData[i].data);
             }
             cache.set(key, fetchedData);
             loading.set(false);
-
          })
          .catch((err) => {
-            error.set(err)
-            loading.set(false);
+            if (err.response) {
+               error.set(err.response.data)
+               loading.set(false);
+            }
          });
    }
-   refetch();
-   return [data, loading, error, refetch];
+
+   if (!cache.has(key)) {
+      refetch();
+   }
+   if (options.alwaysFetch && cache.has(key)) {
+      refetch(false);
+   }
+
+   return [data, loading, error, refetch, update, progress, controller];
 }
 
-/**
- * const [[data1, data2], isPen, err] = fetcher(
-      [`http://localhost:4000/students`, `http://localhost:4000/documents`],
-      {
-         init: () => {
-            const data = {
-               original: null,
-               filterable: null,
-               entries: 0,
-               limit: 0
-            };
-            return [data, null];
-         },
-         edit: ([students, categories]) => {
-            const data = {
-               original: students,
-               filterable: students,
-               entries: students.length,
-               limit: students.length
-            };
-            return [data, categories];
-         }
-      }
-   );
- */
+export const requester = () => {
+   const data = writable(null);
+   const loading = writable(false);
+   const error = writable(null);
+
+   // * Makes a fetch request for post, put or delete
+   const request = (config, options = {}) => {
+      loading.set(true);
+      axios.request(config)
+         .then((fetchedData) => {
+            if (options.edit) {
+               fetchedData = options.edit(fetchedData);
+            }
+            data.set(fetchedData.data);
+            error.set(null);
+            loading.set(false);
+            if (options.finalize) {
+               options.finalize(fetchedData);
+            }
+         })
+         .catch((err) => {
+            if (err.response) {
+               error.set(err.response.data)
+               loading.set(false);
+            }
+         });
+   }
+
+
+   return [request, loading, error, data];
+}

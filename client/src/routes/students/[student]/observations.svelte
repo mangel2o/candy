@@ -1,35 +1,47 @@
 <script>
 	import { page } from '$app/stores';
 	import Spinner from '$lib/components/Spinner.svelte';
+	import { fetcher } from '$lib/fetcher';
 	import CreateObservation from '$lib/modals/observation/CreateObservation.svelte';
 	import DeleteObservation from '$lib/modals/observation/DeleteObservation.svelte';
 	import EditObservation from '$lib/modals/observation/EditObservation.svelte';
 	import ViewObservation from '$lib/modals/observation/ViewObservation.svelte';
 	import { userStore } from '$lib/stores';
-	import { onMount, setContext } from 'svelte';
-	import { fade } from 'svelte/transition';
+	import { getContext, onDestroy, onMount, setContext } from 'svelte';
+	import { fade, slide } from 'svelte/transition';
+	import * as animateScroll from 'svelte-scrollto';
+	import Stairs from '$lib/loaders/Stairs.svelte';
 
-	let observations = [];
-	let isPending = true;
-	let error = null;
+	const refetchPage = getContext('refetchPage');
+	const [[observations], loading, error, refetch, update, progress, controller] = fetcher([
+		`http://localhost:4000/students/${$page.params.student}/observations`
+	]);
+	$refetchPage = refetch;
 
-	function fetchData() {
-		isPending = true;
-		fetch(`http://localhost:4000/students/${$page.params.student}/observations`)
-			.then((res) => res.json())
-			.then((data) => {
-				observations = data;
-				error = null;
-				isPending = false;
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+	function handleCreate(event) {
+		update($observations, [...$observations, event.detail]);
+		animateScroll.scrollToBottom({ delay: 200 });
 	}
-	setContext('refetchObservations', fetchData);
-	onMount(() => {
-		fetchData();
+
+	function handleEdit(event) {
+		update(
+			$observations,
+			$observations.map((observation) => {
+				if (observation._id === event.detail._id) return event.detail;
+				return observation;
+			})
+		);
+	}
+
+	function handleDelete(event) {
+		update(
+			$observations,
+			$observations.filter((observation) => observation._id !== event.detail._id)
+		);
+	}
+
+	onDestroy(() => {
+		controller.abort();
 	});
 </script>
 
@@ -38,24 +50,26 @@
 </svelte:head>
 
 <div class="container">
-	{#if isPending}
-		<div class="spinner">
-			<Spinner />
+	{#if $loading}
+		<div in:fade={{ duration: 200 }} out:slide|local={{ duration: 200 }} class="loader">
+			<Stairs />
+			<h1>Cargando</h1>
+			{$progress}%
 		</div>
-	{:else if error}
+	{:else if $error}
 		<span>Something went wrong</span>
 	{:else}
 		<div in:fade={{ duration: 200 }} class="container">
 			{#if $userStore.role !== 'user'}
-				<CreateObservation />
+				<CreateObservation on:request={handleCreate} />
 			{/if}
 
-			{#each observations as observation}
+			{#each $observations as observation}
 				<div out:fade|local={{ duration: 200 }} class="button">
 					<ViewObservation {observation} />
 					{#if $userStore.role !== 'user'}
-						<EditObservation {observation} />
-						<DeleteObservation {observation} />
+						<EditObservation {observation} on:request={handleEdit} />
+						<DeleteObservation {observation} on:request={handleDelete} />
 					{/if}
 				</div>
 			{/each}
@@ -76,12 +90,11 @@
 		border: 2px solid var(--border-color);
 	}
 
-	div.spinner {
+	div.loader {
 		display: flex;
 		flex-flow: column;
 		justify-content: center;
 		align-items: center;
 		width: 100%;
-		height: 16rem;
 	}
 </style>

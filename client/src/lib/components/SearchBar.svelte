@@ -13,15 +13,8 @@
 		student[searchParameter].toString().toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
-	function handleChange() {
-		students.entries = students.searchable.length;
-		students.limit = students.searchable.length;
-	}
-
 	function handleCancel() {
 		searchQuery = '';
-		students.entries = students.filterable.length;
-		students.limit = students.filterable.length;
 	}
 </script>
 
@@ -46,7 +39,6 @@
 			autocomplete="off"
 			placeholder="Buscar alumno..."
 			bind:value={searchQuery}
-			on:input={handleChange}
 		/>
 		<button on:click={handleCancel} class:inactive={!searchQuery}>
 			<Icon src={Close} />
@@ -58,7 +50,7 @@
 	div {
 		display: flex;
 		align-items: center;
-		width: 500px;
+		width: 480px;
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
 	}

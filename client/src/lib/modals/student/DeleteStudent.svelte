@@ -7,41 +7,47 @@
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import { goto } from '$app/navigation';
 	import Loading from '$lib/components/Loading.svelte';
+	import { requester } from '$lib/fetcher';
+	import { studentsStore, updateStudentsStore } from '$lib/stores';
+	import { createEventDispatcher } from 'svelte';
+	import { get } from 'svelte/store';
 
+	const dispatch = createEventDispatcher();
+	const [request, loading, err] = requester();
 	let isOpen = false;
-	let isPending = false;
-	let error;
 
 	function handleSubmit() {
-		fetch(`http://localhost:4000/candidates/${$page.params.candidate}`, {
-			method: 'DELETE'
-		})
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					throw new Error('Parece que algo salio mal');
+		request(
+			{
+				url: `http://localhost:4000/students/${$page.params.student}`,
+				method: 'delete'
+			},
+			{
+				finalize: (fetchedData) => {
+					const oldStudentsStore = $studentsStore;
+					const oldStudents = get(oldStudentsStore);
+					const newStudents = { ...oldStudents };
+
+					// * Resets the students table at /students
+					newStudents.original = oldStudents.original.filter(
+						(student) => student._id !== fetchedData.data._id
+					);
+					newStudents.filterable = newStudents.original;
+					newStudents.searchable = newStudents.original;
+					newStudents.sliceable = newStudents.original;
+					newStudents.entries = newStudents.original.length;
+					newStudents.limit = newStudents.original.length;
+
+					$updateStudentsStore(oldStudents, newStudents);
+					handleCancel();
+					goto('/students');
 				}
-			})
-			.then((data) => {
-				if (data.error) {
-					error = data.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				isPending = false;
-				isOpen = false;
-				goto('/candidates');
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+			}
+		);
 	}
 
 	function handleCancel() {
-		error = null;
+		$err = null;
 		isOpen = false;
 	}
 </script>
@@ -61,13 +67,13 @@
 			<span class="delete">¿Deseas eliminar este alumno?</span>
 			<span class="delete"> Esta acción es irreversible</span>
 		</DeleteContent>
-		{#if error}
-			<ErrorToast bind:error />
+		{#if $err}
+			<ErrorToast bind:error={$err} />
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
-				{#if isPending}
+				{#if $loading}
 					<Loading />
 				{:else}
 					Eliminar

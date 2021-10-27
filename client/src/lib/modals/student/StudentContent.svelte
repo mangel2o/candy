@@ -27,9 +27,8 @@
 			<span>Matricula</span>
 			<input
 				required
-				type="text"
+				type="number"
 				bind:value={student.number}
-				maxlength="10"
 				placeholder="Escribe una matricula"
 			/>
 		</div>
@@ -332,5 +331,17 @@
 
 	input[type='checkbox']:checked + label:focus {
 		border: 2px solid var(--green-color);
+	}
+
+	/* Chrome, Safari, Edge, Opera */
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	/* Firefox */
+	input[type='number'] {
+		-moz-appearance: textfield;
 	}
 </style>

@@ -3,17 +3,18 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import AccountPlus from '$lib/icons/account-plus.svelte';
 	import StudentContent from './StudentContent.svelte';
-	import { getContext } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
 	import { userStore } from '$lib/stores';
 	import WarningToast from '$lib/components/WarningToast.svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import Loading from '$lib/components/Loading.svelte';
+	import { requester } from '$lib/fetcher';
 
-	const refetchStudents = getContext('refetchStudents');
+	const students = getContext('students');
+	const dispatch = createEventDispatcher();
+	const [request, loading, err] = requester();
 	export let categories = [];
-	let isPending = false;
 	let isOpen = false;
-	let error = null;
 	let student = {
 		name: '',
 		number: '',
@@ -37,41 +38,36 @@
 		for (const selectedCategory of student.categories) {
 			const categorySelected = categories.find((category) => category._id === selectedCategory);
 			if (categorySelected && categorySelected.templates < 1) {
-				error = 'Al menos una de las categorias seleccionadas no tiene documentos.';
+				$err = 'Al menos una de las categorias seleccionadas no tiene documentos.';
 				return;
 			}
 		}
-
-		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(student).forEach((key) => formData.append(key, student[key]));
-		fetch('http://localhost:4000/students', {
-			method: 'POST',
-			body: formData
-		})
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					throw new Error('Parece que algo salio mal');
+
+		request(
+			{
+				url: `http://localhost:4000/students`,
+				method: 'post',
+				data: formData
+			},
+			{
+				finalize: (fetchedData) => {
+					const newStudents = { ...$students };
+
+					// * Resets the students table at /students
+					newStudents.original = [...$students.original, fetchedData.data];
+					newStudents.filterable = newStudents.original;
+					newStudents.searchable = newStudents.original;
+					newStudents.sliceable = newStudents.original;
+					newStudents.entries = newStudents.original.length;
+					newStudents.limit = newStudents.original.length;
+					handleCancel();
+					dispatch('request', newStudents);
 				}
-			})
-			.then((data) => {
-				if (data.error) {
-					error = data.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				isPending = false;
-				handleCancel();
-				refetchStudents();
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+			}
+		);
 	}
 
 	function handleCancel() {
@@ -92,7 +88,7 @@
 			graduationYear: '',
 			categories: []
 		};
-		error = null;
+		$err = null;
 		isOpen = false;
 	}
 </script>
@@ -109,8 +105,8 @@
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">
 		<StudentContent bind:categories bind:student />
-		{#if error}
-			<ErrorToast bind:error />
+		{#if $err}
+			<ErrorToast bind:error={$err} />
 		{/if}
 		<!--
 		{#if categories.length < 1}
@@ -121,7 +117,7 @@
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button disabled={categories.length < 1} class="submit" type="submit">
-				{#if isPending}
+				{#if $loading}
 					<Loading />
 				{:else}
 					Crear

@@ -7,7 +7,7 @@
 </script>
 
 <a href={path} class:active={$page.path === path}>
-	<span><Icon src={icon} /></span>
+	<Icon src={icon} />
 	<span> {name}</span>
 </a>
 
@@ -15,8 +15,10 @@
 	a {
 		cursor: pointer;
 		display: flex;
+		justify-content: center;
+		align-items: center;
 		gap: 0.5rem;
-		padding: 0.5rem 1rem;
+		padding: 1rem;
 		border-bottom: 2px solid var(--border-color);
 		background-color: transparent;
 	}

@@ -4,103 +4,78 @@
 	import FileDocumentMultiple from '$lib/icons/file-document-multiple.svelte';
 	import CommentTextMultiple from '$lib/icons/comment-text-multiple.svelte';
 	import Archive from '$lib/icons/archive.svelte';
-	import ChevronDown from '$lib/icons/chevron-down.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import EditStudent from '$lib/modals/student/EditStudent.svelte';
-	import DeleteStudent from '$lib/modals/student/DeleteStudent.svelte';
-	import Account from '$lib/icons/account.svelte';
 	import StudentInfo from '$lib/components/StudentInfo.svelte';
-	import { onMount, setContext } from 'svelte';
+	import { onDestroy, setContext } from 'svelte';
 	import { userStore } from '$lib/stores';
-	import Spinner from '$lib/components/Spinner.svelte';
 	import { fade, slide } from 'svelte/transition';
+	import { fetcher } from '$lib/fetcher';
+	import StudentOptions from '$lib/components/StudentOptions.svelte';
+	import StudentAvatar from '$lib/components/StudentAvatar.svelte';
+	import StudentCategories from '$lib/components/StudentCategories.svelte';
+	import { writable } from 'svelte/store';
+	import Reload from '$lib/icons/reload.svelte';
+	import Stairs from '$lib/loaders/Stairs.svelte';
+	import { goto } from '$app/navigation';
 
-	let isPending = true;
-	let error = null;
-	let isCategoriesActive = false;
-	let categories;
-	let student;
-
-	function fetchData() {
-		Promise.all([
-			fetch(`http://localhost:4000/students/${$page.params.student}`).then((res) => res.json()),
-			fetch(`http://localhost:4000/documents`).then((res) => res.json())
-		])
-			.then(([dataStudent, dataCategories]) => {
-				if (dataStudent.error) {
-					error = dataStudent.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				student = dataStudent;
-				categories = dataCategories.filter(
-					(category) => !student.categories.find(({ _id }) => category._id === _id)
+	const [[student, categories], loading, error, refetch, update, progress, controller] = fetcher(
+		[`http://localhost:4000/students/${$page.params.student}`, `http://localhost:4000/documents`],
+		{
+			edit: ([student, categories]) => {
+				categories.data = categories.data.filter(
+					(category) => !student.data.categories.find(({ _id }) => category._id === _id)
 				);
-				isPending = false;
-			})
-			.catch((err) => {
-				error = err;
-				isPending = false;
-			});
-	}
 
-	setContext('refetchStudent', fetchData);
-	onMount(() => {
-		fetchData();
+				return [student, categories];
+			},
+			alwaysFetch: true
+		}
+	);
+	let isCategoriesActive = false;
+
+	const refetchPage = writable(() => {});
+	const refetchDocumentsPage = writable(() => {});
+
+	// * For children components
+	setContext('student', student);
+	setContext('categories', categories);
+	setContext('refetchDocumentsPage', refetchDocumentsPage);
+
+	// * For slot components
+	setContext('refetchStudent', refetch);
+	setContext('refetchPage', refetchPage);
+
+	onDestroy(() => {
+		controller.abort();
 	});
 </script>
 
 <div class="container">
-	{#if isPending}
-		<div class="spinner">
-			<Spinner />
+	{#if $loading}
+		<div in:fade={{ duration: 200 }} out:slide={{ duration: 200 }} class="loader">
+			<Stairs />
+			<h1>Cargando</h1>
+			{$progress}%
 		</div>
-	{:else if error}
-		<span>Something went wrong: {error}</span>
+	{:else if $error}
+		<span>Something went wrong: {$error}</span>
 	{:else}
-		<div in:fade={{ duration: 200 }} class="user">
+		<div in:fade={{ duration: 200 }} class="user-container">
 			<!--AVATAR-->
-			<div class="avatar">
-				<Icon src={Account} size={'96'} />
-			</div>
+			<StudentAvatar />
 
 			<!--INFO-->
-			<div class="info">
-				<StudentInfo {student} />
-			</div>
+			<StudentInfo student={$student} />
 
+			<!--OPTIONS-->
 			{#if $userStore.role !== 'user'}
-				<!--OPTIONS-->
-				<div class="options">
-					<div class="upper">
-						<EditStudent {categories} bind:student />
-						<DeleteStudent />
-					</div>
-
-					<button
-						class:isCategoriesActive
-						on:click={() => (isCategoriesActive = !isCategoriesActive)}
-					>
-						<Icon rotate={isCategoriesActive} src={ChevronDown} />
-					</button>
-				</div>
+				<StudentOptions bind:isCategoriesActive />
 			{/if}
 		</div>
 
 		<!--CATEGORIES-->
 		{#if isCategoriesActive}
-			<div in:slide={{ duration: 200 }} out:slide|local={{ duration: 200 }} class="categories">
-				<span class="text">Categorias de documentos</span>
-				<span class="divider" />
-				<div class="categories-container">
-					{#each student.categories as category}
-						<div class="category">
-							{category.name}
-						</div>
-					{/each}
-				</div>
-			</div>
+			<StudentCategories />
 		{/if}
 
 		<!--NAVEGATION-->
@@ -124,15 +99,17 @@
 			/>
 
 			<span class="bottom-border" />
+			<button on:click={$refetchPage}>
+				<span class="btn-span"><Icon src={Reload} /></span>
+				<span class="btn-span"> Recargar </span>
+			</button>
 		</div>
 
 		<!--CONTENT-->
-		<div class="content">
-			{#key student}
-				<slot />
-			{/key}
-		</div>
 	{/if}
+</div>
+<div class="content">
+	<slot />
 </div>
 
 <style>
@@ -142,83 +119,13 @@
 		gap: 1rem;
 	}
 
-	div.user {
+	div.user-container {
 		display: flex;
 		gap: 1rem;
-	}
-
-	div.avatar {
-		width: 12rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	div.avatar,
-	div.info {
-		background-color: var(--area-color);
-		border: 2px solid var(--border-color);
-	}
-
-	div.info {
-		flex-grow: 1;
-		padding: 20px;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		overflow-wrap: normal;
-	}
-
-	div.options {
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-	}
-
-	div.upper {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-
-	div.categories {
-		display: flex;
-		width: 100%;
-		height: 56px;
-		border: 2px solid var(--border-color);
-		background-color: var(--area-color);
-		align-items: center;
-		gap: 1rem;
-	}
-	div.categories span.text {
-		width: 12%;
-		color: var(--focus-color);
-		text-align: right;
-	}
-
-	div.categories span.divider {
-		width: 2px;
-		height: 2rem;
-		background-color: var(--focus-color);
-	}
-
-	div.categories-container {
-		width: 100%;
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	div.category {
-		padding: 10px;
-		border: 2px dashed var(--green-color);
-		border-radius: 0.5rem;
 	}
 
 	div.navigation {
 		display: flex;
-		margin-top: 6px;
 	}
 
 	span.bottom-border {
@@ -227,27 +134,34 @@
 	}
 
 	button {
-		display: flex;
 		cursor: pointer;
-		background-color: var(--input-color);
-		border: 2px solid var(--border-color);
-		padding: 0.5rem;
-	}
-	button:hover {
-		background-color: var(--area-color);
-		border: 2px solid var(--blue-color);
-	}
-
-	button:focus {
-		border: 2px solid var(--green-color);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 1rem;
+		border-bottom: 2px solid var(--border-color);
+		background-color: transparent;
 	}
 
-	div.spinner {
+	button:hover > * {
+		color: var(--placeholder-color);
+		fill: var(--placeholder-color);
+	}
+
+	.btn-span {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	div.loader {
 		display: flex;
 		flex-flow: column;
 		justify-content: center;
 		align-items: center;
 		width: 100%;
-		height: 16rem;
+		margin-top: 2rem;
+		margin-bottom: 8rem;
 	}
 </style>

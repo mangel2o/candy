@@ -14,7 +14,7 @@ export const createTemplate = async (req, res) => {
 
    // * Checks if the category exists
    const categoryExist = await Category.findById(categoryId).lean();
-   if (!categoryExist) return res.json({ warning: "Esta categoría no existe" });
+   if (!categoryExist) return res.status(500).json("Esta categoría no existe");
 
    // * Creates a new template
    const newId = new Mongoose.Types.ObjectId();
@@ -31,11 +31,13 @@ export const createTemplate = async (req, res) => {
    await Category.findByIdAndUpdate(categoryId, { $push: { templates: templateCreated._id } }).lean();
 
    // * Creates the file in the current working directory
-   fs.writeFileSync(templateCreated.examplePath, fs.readFileSync(tempFile.path));
+   const templateComputed = { ...templateCreated._doc };
+   templateComputed.example = fs.readFileSync(tempFile.path)
+   fs.writeFileSync(templateCreated.examplePath, templateComputed.example);
    fs.unlinkSync(tempFile.path);
 
    // * Sends the created template as response
-   res.json(templateCreated);
+   res.json(templateComputed);
 }
 
 
@@ -47,7 +49,7 @@ export const getTemplates = async (req, res) => {
    const templatesFound = await Template.find({ category: categoryId }).lean();
 
    // * Creates a new array of templates with the data of the corresponding filepaths
-   let templatesComputed = [];
+   const templatesComputed = [];
    for (let i = 0; i < templatesFound.length; i++) {
       templatesComputed.push({ ...templatesFound[i], example: fs.readFileSync(templatesFound[i].examplePath) });
    }
@@ -66,7 +68,7 @@ export const updateTemplateById = async (req, res) => {
 
    // * Checks if the category exists
    const categoryExist = await Category.findById(categoryId).lean();
-   if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
+   if (!categoryExist) return res.status(500).json("Esta categoria ya no existe");
 
    // * Check if the template exists, if not then delete the temporal file
    const templateExist = await Template.findById(templateId).lean();
@@ -74,7 +76,7 @@ export const updateTemplateById = async (req, res) => {
       if (tempFile) {
          fs.unlinkSync(tempFile.path);
       }
-      return res.json({ error: "Este documento ya no existe" });
+      return res.status(500).json("Este documento ya no existe");
    }
 
    // * Updates the template with new values
@@ -97,8 +99,12 @@ export const updateTemplateById = async (req, res) => {
       fs.unlinkSync(tempFile.path);
    }
 
+   // * Reads the archive file
+   const templateComputed = { ...templateUpdated };
+   templateComputed.example = fs.readFileSync(templateComputed.examplePath);
+
    // * Sends a success response
-   res.json({ success: "Se realizo la operación exitosamente" });
+   res.json(templateComputed);
 }
 
 
@@ -128,8 +134,8 @@ export const deleteTemplateById = async (req, res) => {
 
       // * Removes the template id from the corresponding category
       await Category.findByIdAndUpdate(categoryId, { $pull: { templates: templateId } }).lean();
-   }
 
-   // * Sends a success response
-   res.json({ success: "Se realizo la operación exitosamente" });
+      // * Sends a success response
+      return res.json(templateDeleted);
+   }
 }

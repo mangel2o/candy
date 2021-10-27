@@ -3,54 +3,39 @@
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import CategoryContent from '$lib/modals/category/CategoryContent.svelte';
-	import { getContext } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
 	import { userStore } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import Loading from '$lib/components/Loading.svelte';
+	import { requester } from '$lib/fetcher';
 
-	const refetchCategories = getContext('refetchCategories');
-	let isPending = false;
+	const dispatch = createEventDispatcher();
+	const [request, loading, err] = requester();
 	let isOpen = false;
-	let error = null;
 	let category = {
 		name: '',
 		description: ''
 	};
 
 	function handleSubmit() {
-		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(category).forEach((key) => formData.append(key, category[key]));
-		fetch('http://localhost:4000/documents', {
-			method: 'POST',
-			body: formData
-		})
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					console.log(res.body);
-					throw new Error('Parece que algo salio mal');
+
+		request(
+			{
+				url: 'http://localhost:4000/documents',
+				method: 'post',
+				data: formData
+			},
+			{
+				finalize: (fetchedData) => {
+					handleCancel();
+					dispatch('request', fetchedData.data);
 				}
-			})
-			.then((data) => {
-				if (data.error) {
-					error = data.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				isPending = false;
-				handleCancel();
-				refetchCategories();
-				goto(`/documents/${data._id}`);
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+			}
+		);
 	}
 
 	function handleCancel() {
@@ -58,7 +43,7 @@
 			name: '',
 			description: ''
 		};
-		error = null;
+		$err = null;
 		isOpen = false;
 	}
 </script>
@@ -75,14 +60,15 @@
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">
 		<CategoryContent bind:category />
-		{#if error}
-			<ErrorToast bind:error />
+		{#if $err}
+			<ErrorToast bind:error={$err} />
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
-				{#if isPending}
+				{#if $loading}
 					<Loading />
+					{$loading}
 				{:else}
 					Crear
 				{/if}

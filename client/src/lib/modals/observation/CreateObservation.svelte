@@ -2,56 +2,40 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Plus from '$lib/icons/plus.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import { getContext } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
 	import ObservationContent from './ObservationContent.svelte';
 	import { page } from '$app/stores';
 	import { userStore } from '$lib/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import Loading from '$lib/components/Loading.svelte';
+	import { requester } from '$lib/fetcher';
 
-	let refetchObservations = getContext('refetchObservations');
+	const dispatch = createEventDispatcher();
+	const [request, loading, err] = requester();
 	let isOpen = false;
-	let isPending = false;
-	let error = null;
 	let observation = {
 		name: '',
 		comment: ''
 	};
 
 	function handleSubmit() {
-		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(observation).forEach((key) => formData.append(key, observation[key]));
-		fetch(`http://localhost:4000/students/${$page.params.student}/observations`, {
-			method: 'POST',
-			body: formData
-		})
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					throw new Error('Parece que algo salio mal');
-				}
-			})
-			.then((data) => {
-				if (data.error) {
-					error = data.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				isPending = false;
-				handleCancel();
-				refetchObservations();
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
 
-		handleCancel();
-		refetchObservations();
+		request(
+			{
+				url: `http://localhost:4000/students/${$page.params.student}/observations`,
+				method: 'post',
+				data: formData
+			},
+			{
+				finalize: (fetchedData) => {
+					handleCancel();
+					dispatch('request', fetchedData.data);
+				}
+			}
+		);
 	}
 
 	function handleCancel() {
@@ -75,13 +59,13 @@
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">
 		<ObservationContent bind:observation />
-		{#if error}
-			<ErrorToast bind:error />
+		{#if $err}
+			<ErrorToast bind:error={$err} />
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">
-				{#if isPending}
+				{#if $loading}
 					<Loading />
 				{:else}
 					Crear

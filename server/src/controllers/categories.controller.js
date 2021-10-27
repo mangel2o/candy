@@ -13,7 +13,7 @@ export const createCategory = async (req, res) => {
 
    // * Checks if category's name is in use
    const categoryExist = await Category.findOne({ name: standardizedName }).lean();
-   if (categoryExist) return res.json({ error: "Esta categoria ya existe" });
+   if (categoryExist) return res.status(500).json("Esta categoria ya existe");
 
    // * Creates a new category
    const categoryCreated = await new Category({
@@ -37,11 +37,11 @@ export const getCategories = async (req, res) => {
 export const getCategoryById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
    const categoryId = req.params.categoryId;
-   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.json({ error: "Esta categoria no existe" });
+   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.status(500).json("Esta categoria no existe");
 
    // * Checks if the category exists
    const categoryExist = await Category.findById(categoryId).lean();
-   if (!categoryExist) return res.json({ error: "Esta categoria no existe" });
+   if (!categoryExist) return res.status(500).json("Esta categoria no existe");
 
    // * Sends the category as response
    res.json(categoryExist);
@@ -51,19 +51,19 @@ export const getCategoryById = async (req, res) => {
 export const updateCategoryById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
    const categoryId = req.params.categoryId;
-   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.json({ error: "Esta categoria no existe" });
+   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.status(500).json("Esta categoria no existe");
 
    // * Gets values
    const { name, description, authorId, } = req.fields;
 
    // * Checks if the category exists
    const categoryExist = await Category.findById(categoryId).lean();
-   if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
+   if (!categoryExist) return res.status(500).json("Esta categoria ya no existe");
 
    // * Checks if the new category's name isn't used already
    const standardizedName = standardizeValue(name);
    const categoryExistByName = await Category.findOne({ _id: { $ne: categoryId }, name: standardizedName }).lean();
-   if (categoryExistByName) return res.json({ error: "Esta categoria ya existe" });
+   if (categoryExistByName) return res.status(500).json("Esta categoria ya existe");
 
    // * Updates the existing category with the new values
    const categoryUpdated = await Category.findByIdAndUpdate(
@@ -83,19 +83,19 @@ export const updateCategoryById = async (req, res) => {
 export const deleteCategoryById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
    const categoryId = req.params.categoryId;
-   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.json({ error: "Esta categoria no existe" });
+   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.status(500).json("Esta categoria no existe");
 
    // * Checks if the category exists
    const categoryExist = await Category.findById(categoryId).lean();
-   if (!categoryExist) return res.json({ error: "Esta categoria ya no existe" });
+   if (!categoryExist) return res.status(500).json("Esta categoria ya no existe");
 
    // * If there are no candidates created with this category, then the category can be deleted
    const studentsExist = await Student.findOne({ categories: { $in: categoryId } }).lean();
    if (studentsExist) {
-      return res.json({ error: "Esta categoria no se puede eliminar" });
+      return res.status(500).json("Esta categoria no se puede eliminar");
    } else {
       // * Deletes the category
-      await Category.findByIdAndDelete(categoryId).lean();
+      const categoryDeleted = await Category.findByIdAndDelete(categoryId).lean();
 
       // * Deletes the files corresponding to this category
       const templatesFound = await Template.find({ category: categoryId }).lean();
@@ -105,9 +105,9 @@ export const deleteCategoryById = async (req, res) => {
 
       // * Deletes all templates corresponding to this category
       await Template.deleteMany({ category: categoryId });
-   }
 
-   // * Sends a success response
-   res.json({ success: "Se realizo la operación exitosamente" });
+      // * Sends the deleted category
+      return res.json(categoryDeleted);
+   }
 }
 

@@ -9,7 +9,11 @@ import { createUsers, createDirs } from './libs/initialSetup.js';
 import Category from './models/Category.js';
 import Template from './models/Template.js';
 import User from "./models/User.js";
-import Candidate from './models/Student.js';
+import Student from './models/Student.js';
+import Archive from './models/Archive.js';
+import Document from './models/Document.js';
+import Observation from './models/Observation.js';
+
 
 const app = express();
 createUsers();

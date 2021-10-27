@@ -8,86 +8,121 @@
 	import ViewTemplate from '$lib/modals/template/ViewTemplate.svelte';
 	import DeleteCategory from '$lib/modals/Category/DeleteCategory.svelte';
 	import EditCategory from '$lib/modals/Category/EditCategory.svelte';
-	import { onMount, setContext } from 'svelte';
+	import { getContext, onDestroy, onMount, setContext } from 'svelte';
 	import { convertDataToFile } from '$lib/utils';
 	import Spinner from '$lib/components/Spinner.svelte';
-	import { fade } from 'svelte/transition';
+	import * as animateScroll from 'svelte-scrollto';
+	import { fade, slide } from 'svelte/transition';
+	import { fetcher } from '$lib/fetcher';
+	import Stairs from '$lib/loaders/Stairs.svelte';
+	import Reload from '$lib/icons/reload.svelte';
 
-	let isPending = true;
-	let error = null;
-	let category;
-	let templates = [];
-
-	function fetchData() {
-		Promise.all([
-			fetch(`http://localhost:4000/documents/${$page.params.category}`).then((res) => res.json()),
-			fetch(`http://localhost:4000/documents/${$page.params.category}/templates`).then((res) =>
-				res.json()
-			)
-		])
-			.then(([dataCategory, dataTemplates]) => {
-				if (dataCategory.error) {
-					error = dataCategory.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				category = dataCategory;
-				templates = dataTemplates;
-
+	const categories = getContext('categories');
+	const updateCategories = getContext('updateCategories');
+	const [[category, templates], loading, error, refetch, update, progress, controller] = fetcher(
+		[
+			`http://localhost:4000/documents/${$page.params.category}`,
+			`http://localhost:4000/documents/${$page.params.category}/templates`
+		],
+		{
+			edit: ([category, templates]) => {
 				// Converts data to files
-				templates.forEach(
-					(template) => (template.example = convertDataToFile(template.example, template._id))
-				);
-				isPending = false;
-			})
-			.catch((err) => {
-				error = err;
-				isPending = false;
-			});
+				templates.data.forEach((template) => {
+					template.example = convertDataToFile(template.example, template._id);
+				});
+				return [category, templates];
+			}
+		}
+	);
+
+	function handleCreateTemplate(event) {
+		update($templates, [...$templates, event.detail]);
+		animateScroll.scrollToBottom({ delay: 200 });
 	}
-	setContext('refetchCategory', fetchData);
-	onMount(() => {
-		isPending = true;
-		fetchData();
+
+	function handleEditTemplate(event) {
+		update(
+			$templates,
+			$templates.map((category) => {
+				if (category._id === event.detail._id) return event.detail;
+				return category;
+			})
+		);
+	}
+
+	function handleDeleteTemplate(event) {
+		update(
+			$templates,
+			$templates.filter((template) => template._id !== event.detail._id)
+		);
+	}
+
+	function handleEditCategory(event) {
+		updateCategories(
+			$categories,
+			$categories.map((category) => {
+				if (category._id === event.detail._id) return event.detail;
+				return category;
+			})
+		);
+
+		update($category, event.detail);
+	}
+
+	function handleDeleteCategory(event) {
+		updateCategories(
+			$categories,
+			$categories.filter((category) => category._id !== event.detail._id)
+		);
+	}
+
+	onDestroy(() => {
+		controller.abort();
 	});
 </script>
 
 <div class="container">
-	{#if isPending}
-		<div class="spinner">
-			<Spinner />
+	{#if $loading}
+		<div in:fade={{ duration: 200 }} out:slide|local={{ duration: 200 }} class="loader">
+			<Stairs />
+			<h1>Cargando</h1>
+			{$progress}
 		</div>
-	{:else if error}
-		<span>Something went wrong: {error}</span>
+	{:else if $error}
+		<span>Something went wrong: {$error}</span>
 	{:else}
-		<div transition:fade|local={{ duration: 200 }} class="content">
+		<div in:fade={{ duration: 200 }} out:slide|local={{ duration: 200 }} class="content">
 			<div class="category">
 				<div class="title">
 					<div class="icon"><Icon src={FileDocumentMultiple} size={'28'} /></div>
 					<div>
-						{category.name}
+						{$category.name}
 					</div>
 				</div>
-				<div class="buttons">
-					<EditCategory {category} />
-					<DeleteCategory />
+				<div class="category-buttons">
+					<EditCategory category={$category} on:request={handleEditCategory} />
+					<DeleteCategory on:request={handleDeleteCategory} />
+					<button on:click={refetch}>
+						<Icon src={Reload} />
+					</button>
 				</div>
 			</div>
 			<div class="description">
 				<div class="tag">Descripción</div>
-				<div>{category.description}</div>
+				<div>{$category.description}</div>
 			</div>
 		</div>
 
-		<CreateTemplate />
-		{#each templates as template (template._id)}
-			<div in:fade={{ duration: 200 }} out:fade|local={{ duration: 200 }} class="button">
-				<ViewTemplate {template} />
-				<EditTemplate {template} />
-				<DeleteTemplate {template} />
-			</div>
-		{/each}
+		<CreateTemplate on:request={handleCreateTemplate} />
+		<div class="template-buttons" in:fade={{ duration: 200 }} out:slide|local={{ duration: 200 }}>
+			{#each $templates as template (template._id)}
+				<div in:fade={{ duration: 200 }} out:slide|local={{ duration: 200 }} class="button">
+					<ViewTemplate {template} />
+					<EditTemplate {template} on:request={handleEditTemplate} />
+					<DeleteTemplate {template} on:request={handleDeleteTemplate} />
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
 
@@ -103,6 +138,17 @@
 		display: flex;
 		border: 2px solid var(--border-color);
 		width: 100%;
+	}
+
+	button {
+		padding: 1rem;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		background-color: var(--input-color);
+	}
+	button:hover {
+		background-color: var(--area-color);
 	}
 
 	div.icon {
@@ -131,9 +177,15 @@
 		padding-top: 1rem;
 	}
 
-	div.buttons {
+	div.category-buttons {
 		display: flex;
 		align-items: center;
+	}
+
+	div.template-buttons {
+		display: flex;
+		flex-flow: column;
+		gap: 1rem;
 	}
 
 	div.category {
@@ -149,12 +201,11 @@
 		padding: 0 1rem 1rem 1rem;
 	}
 
-	div.spinner {
+	div.loader {
 		display: flex;
 		flex-flow: column;
 		justify-content: center;
 		align-items: center;
 		width: 100%;
-		height: 10rem;
 	}
 </style>

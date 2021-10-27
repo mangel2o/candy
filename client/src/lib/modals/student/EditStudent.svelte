@@ -8,12 +8,12 @@
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import Loading from '$lib/components/Loading.svelte';
+	import { requester } from '$lib/fetcher';
 
 	const refetchStudent = getContext('refetchStudent');
-	let isPending = false;
+	const refetchDocumentsPage = getContext('refetchDocumentsPage');
+	const [request, loading, err] = requester();
 	let isOpen = false;
-	let error = null;
-
 	export let student;
 	export let categories = [];
 	let editableStudent = { ...student, newCategories: [] };
@@ -32,47 +32,36 @@
 		for (const selectedCategory of editableStudent.newCategories) {
 			const categorySelected = categories.find((category) => category._id === selectedCategory);
 			if (categorySelected && categorySelected.templates < 1) {
-				error = 'Al menos una de las categorias seleccionadas no tiene documentos.';
+				$err = 'Al menos una de las categorias seleccionadas no tiene documentos.';
 				return;
 			}
 		}
 
-		isPending = true;
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(editableStudent).forEach((key) => formData.append(key, editableStudent[key]));
-		fetch(`http://localhost:4000/students/${$page.params.student}`, {
-			method: 'PUT',
-			body: formData
-		})
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					throw new Error('Parece que algo salio mal');
+		request(
+			{
+				url: `http://localhost:4000/students/${$page.params.student}`,
+				method: 'put',
+				data: formData
+			},
+			{
+				finalize: (student) => {
+					refetchStudent(false);
+					if (editableStudent.newCategories.length > 0) {
+						$refetchDocumentsPage();
+					}
+					editableStudent = { ...student.data, newCategories: [] };
+					isOpen = false;
 				}
-			})
-			.then((data) => {
-				if (data.error) {
-					error = data.error;
-					isPending = false;
-					return;
-				}
-				error = null;
-				isPending = false;
-				refetchStudent();
-				editableStudent = { ...data, newCategories: [] };
-				isOpen = false;
-			})
-			.catch((err) => {
-				error = err;
-				isPending = false;
-			});
+			}
+		);
 	}
 
 	function handleCancel() {
 		editableStudent = { ...student, newCategories: [] };
-		error = null;
+		$err = null;
 		isOpen = false;
 	}
 </script>
@@ -88,13 +77,13 @@
 	<!--Content-->
 	<form on:submit|preventDefault={handleSubmit} slot="content">
 		<StudentContent bind:categories bind:student={editableStudent} />
-		{#if error}
-			<ErrorToast bind:error />
+		{#if $err}
+			<ErrorToast bind:error={$err} />
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button disabled={disableSubmit} class="submit" type="submit">
-				{#if isPending}
+				{#if $loading}
 					<Loading />
 				{:else}
 					Editar

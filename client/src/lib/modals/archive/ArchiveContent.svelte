@@ -23,7 +23,7 @@
 	</div>
 	<div class="row">
 		<div class="field">
-			<span class="tag">Archivo de ejemplo</span>
+			<span class="tag">Archivo</span>
 			<label class={archive.file ? 'uploaded' : 'not-uploaded'}>
 				<input required={archive.file ? false : true} name="file" type="file" bind:files />
 				{#if archive.file}

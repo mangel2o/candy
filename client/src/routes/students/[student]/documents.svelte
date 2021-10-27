@@ -1,45 +1,58 @@
 <script>
 	import { page } from '$app/stores';
-	import Spinner from '$lib/components/Spinner.svelte';
+	import { fetcher } from '$lib/fetcher';
+	import Stairs from '$lib/loaders/Stairs.svelte';
 	import DeleteDocument from '$lib/modals/document/DeleteDocument.svelte';
 	import EditDocument from '$lib/modals/document/EditDocument.svelte';
 	import UploadDocument from '$lib/modals/document/UploadDocument.svelte';
 	import ViewDocument from '$lib/modals/document/ViewDocument.svelte';
 	import { userStore } from '$lib/stores';
 	import { convertDataToFile } from '$lib/utils';
-	import { onMount, setContext } from 'svelte';
-	import { fade } from 'svelte/transition';
+	import { getContext, onDestroy } from 'svelte';
+	import { fade, slide } from 'svelte/transition';
 
-	let isPending = true;
-	let error = null;
-	let documents;
-
-	function fetchData() {
-		fetch(`http://localhost:4000/students/${$page.params.student}/documents`)
-			.then((res) => {
-				return res.json();
-			})
-			.then((data) => {
-				documents = data;
-
+	const refetchPage = getContext('refetchPage');
+	const refetchDocumentsPage = getContext('refetchDocumentsPage');
+	const refetchStudent = getContext('refetchStudent');
+	const [[documents], loading, error, refetch, update, progress, controller] = fetcher(
+		[`http://localhost:4000/students/${$page.params.student}/documents`],
+		{
+			edit: ([documents]) => {
 				// Converts data to files
-				documents.forEach((document) => {
+				documents.data.forEach((document) => {
 					document.example = convertDataToFile(document.example, document._id);
 					if (document.file) {
 						document.file = convertDataToFile(document.file, document._id);
 					}
 				});
-				error = null;
-				isPending = false;
+				return [documents];
+			}
+		}
+	);
+	$refetchPage = refetch;
+	$refetchDocumentsPage = refetch;
+
+	function handleEdit(event) {
+		update(
+			$documents,
+			$documents.map((document) => {
+				if (document._id === event.detail._id) return event.detail;
+				return document;
 			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+		);
+		refetchStudent(false);
 	}
-	setContext('refetchDocuments', fetchData);
-	onMount(() => {
-		fetchData();
+
+	function handleDelete(event) {
+		update(
+			$documents,
+			$documents.filter((document) => document._id !== event.detail._id)
+		);
+		refetchStudent(false);
+	}
+
+	onDestroy(() => {
+		controller.abort();
 	});
 </script>
 
@@ -48,25 +61,27 @@
 </svelte:head>
 
 <div class="container">
-	{#if isPending}
-		<div class="spinner">
-			<Spinner />
+	{#if $loading}
+		<div in:fade={{ duration: 200 }} out:slide|local={{ duration: 200 }} class="loader">
+			<Stairs />
+			<h1>Cargando</h1>
+			{$progress}%
 		</div>
-	{:else if error}
+	{:else if $error}
 		<span>Something went wrong</span>
 	{:else}
 		<div in:fade={{ duration: 200 }} class="container">
-			{#each documents as document (document._id)}
+			{#each $documents as document (document._id)}
 				<div in:fade={{ duration: 200 }} out:fade|local={{ duration: 200 }} class="button">
 					<ViewDocument {document} />
 					{#if $userStore.role === 'user' && document.status !== 'Completo'}
-						<UploadDocument {document} />
+						<UploadDocument {document} on:request={handleEdit} />
 					{/if}
 					{#if $userStore.role !== 'user'}
 						{#if document.file}
-							<EditDocument {document} />
+							<EditDocument {document} on:request={handleEdit} />
 						{/if}
-						<DeleteDocument {document} />
+						<DeleteDocument {document} on:request={handleDelete} />
 					{/if}
 				</div>
 			{/each}
@@ -86,12 +101,11 @@
 		width: 100%;
 		border: 2px solid var(--border-color);
 	}
-	div.spinner {
+	div.loader {
 		display: flex;
 		flex-flow: column;
 		justify-content: center;
 		align-items: center;
 		width: 100%;
-		height: 16rem;
 	}
 </style>

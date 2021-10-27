@@ -10,9 +10,9 @@ export const getDocuments = async (req, res) => {
    const documentsFound = await Document.find({ owner: studentId }).lean();
 
    // * Creates a new array of documents with the data of the corresponding filepaths
-   let documentsComputed = [];
+   const documentsComputed = [];
    for (let i = 0; i < documentsFound.length; i++) {
-      let documentComputed = { ...documentsFound[i] };
+      const documentComputed = { ...documentsFound[i] };
       documentComputed.example = fs.readFileSync(documentComputed.examplePath);
 
       if (documentComputed.filepath) {
@@ -33,7 +33,7 @@ export const uploadDocumentById = async (req, res) => {
 
    // * Checks if the student exists
    const studentExist = await Student.findById(studentId).lean();
-   if (!studentExist) return res.json({ warning: "Este candidato ya no existe" });
+   if (!studentExist) return res.status(500).json("Este candidato ya no existe");
 
    // * Checks if the document exists, if not then delete the temporal file
    const documentExist = await Document.findById(documentId).lean();
@@ -41,7 +41,7 @@ export const uploadDocumentById = async (req, res) => {
       if (tempFile) {
          fs.unlinkSync(tempFile.path);
       }
-      return res.json({ error: "Este documento ya no existe" });
+      return res.status(500).json("Este documento ya no existe");
    }
 
    // * Updates the document with new values
@@ -54,31 +54,38 @@ export const uploadDocumentById = async (req, res) => {
       { new: true }
    ).lean();
 
-   // * Updates the candidate status to pending
+   // * Updates the student status to pending
    await Student.findByIdAndUpdate(studentId, { status: "Pendiente" }, { new: true }).lean();
+
+
 
    // * Creates the file in the current working directory
    fs.writeFileSync(documentUpdated.filepath, fs.readFileSync(tempFile.path));
    fs.unlinkSync(tempFile.path);
 
-   // * Sends the created document as response
-   res.json(documentUpdated);
+   // * Reads the archive file
+   const documentComputed = { ...documentUpdated };
+   documentComputed.example = fs.readFileSync(documentComputed.examplePath);
+   documentComputed.file = fs.readFileSync(documentComputed.filepath);
+
+   // * Sends the updated document as response
+   res.json(documentComputed);
 }
 
 
 export const updateDocumentById = async (req, res) => {
    // * Initializes values
-   const candidateId = req.params.candidateId;
+   const studentId = req.params.studentId;
    const documentId = req.params.documentId;
    const { comment, status, authorId } = req.fields;
 
    // * Checks if the student exists
-   const studentExist = await Student.findById(candidateId).lean();
-   if (!studentExist) return res.json({ error: "Este candidato ya no existe" });
+   const studentExist = await Student.findById(studentId).lean();
+   if (!studentExist) return res.status(500).json("Este alumno ya no existe");
 
    // * Checks if the document exists, if not then delete the temporal file
    const documentExist = await Document.findById(documentId).lean();
-   if (!documentExist) return res.json({ error: "Este documento ya no existe" });
+   if (!documentExist) return res.status(500).json("Este documento ya no existe");
 
    // * Updates the document with new values
    const documentUpdated = await Document.findByIdAndUpdate(
@@ -91,10 +98,15 @@ export const updateDocumentById = async (req, res) => {
       { new: true }
    ).lean();
 
-   updateStudentStatus(candidateId, status);
+   updateStudentStatus(studentId, status);
 
-   // * Sends a success response
-   res.json({ success: "Se realizo la operación exitosamente" });
+   // * Reads the document file
+   const documentComputed = { ...documentUpdated };
+   documentComputed.example = fs.readFileSync(documentComputed.examplePath);
+   documentComputed.file = fs.readFileSync(documentComputed.filepath);
+
+   // * Sends the updated document as response
+   res.json(documentComputed);
 }
 
 
@@ -105,11 +117,11 @@ export const deleteDocumentById = async (req, res) => {
 
    // * Checks if the student exists
    const studentExist = await Student.findById(studentId).lean();
-   if (!studentExist) return res.json({ error: "Este candidato ya no existe" });
+   if (!studentExist) return res.status(500).json("Este candidato ya no existe");
 
    // * Checks if the document exists
    const documentExist = await Document.findById(documentId).lean();
-   if (!documentExist) return res.json({ error: "Este documento ya no existe" });
+   if (!documentExist) return res.status(500).json("Este documento ya no existe");
 
    // * Deletes the document 
    const documentDeleted = await Document.findByIdAndDelete(documentId).lean();
@@ -119,7 +131,7 @@ export const deleteDocumentById = async (req, res) => {
       fs.unlinkSync(documentDeleted.filepath);
    }
 
-   // * Checks if there are documents with the same category remaining, if not then pull the id from the candidate
+   // * Checks if there are documents with the same category remaining, if not then pull the id from the student
    const studentDocuments = await Document.find({ owner: studentId, category: documentDeleted.category }).lean();
    if (studentDocuments.length < 1) {
       await Student.findByIdAndUpdate(
@@ -129,14 +141,15 @@ export const deleteDocumentById = async (req, res) => {
       ).lean();
    }
 
-   // * Sends a success response
-   res.json({ success: "Se realizo la operación exitosamente" });
+   // * Sends the deleted document as response
+   res.json(documentDeleted);
 }
 
 const updateStudentStatus = async (studentId, updatedStatus) => {
    const studentDocuments = await Document.find({ owner: studentId }).lean().select("status");
    const documents = studentDocuments.filter((document) => document.status !== "Vacio");
 
+   // * Changes the student's status in order of priority
    if (documents.every((document) => document.status === updatedStatus)) {
       await Student.findByIdAndUpdate(studentId, { status: updatedStatus }, { new: true }).lean();
    } else if (documents.some((document) => document.status === "Pendiente")) {

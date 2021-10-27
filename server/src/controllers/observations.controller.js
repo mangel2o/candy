@@ -9,7 +9,7 @@ export const createObservation = async (req, res) => {
 
    // * Checks if the student exists
    const studentExist = await Student.findById(studentId).lean();
-   if (!studentExist) return res.json({ warning: "Este candidato ya no existe" });
+   if (!studentExist) return res.status(500).json("Este candidato ya no existe");
 
    // * Creates a new observation
    const newId = new Mongoose.Types.ObjectId();
@@ -20,6 +20,7 @@ export const createObservation = async (req, res) => {
       owner: studentId,
       createdBy: authorId,
    }).save();
+   console.log(observationCreated);
 
    // * Adds the new observation id to the student
    await Student.findByIdAndUpdate(studentExist, { $push: { observations: observationCreated._id } }).lean();
@@ -47,11 +48,11 @@ export const updateObservationById = async (req, res) => {
 
    // * Checks if the student exists
    const studentExist = await Student.findById(studentId).lean();
-   if (!studentExist) return res.json({ error: "Este candidato ya no existe" });
+   if (!studentExist) return res.status(500).json("Este candidato ya no existe");
 
    // * Check if the observation exists
    const observationExist = await Observation.findById(observationId).lean();
-   if (!observationExist) return res.json({ error: "Esta observación ya no existe" });
+   if (!observationExist) return res.status(500).json("Esta observación ya no existe");
 
    // * Updates the observation with new values
    const observationUpdated = await Observation.findByIdAndUpdate(
@@ -65,7 +66,7 @@ export const updateObservationById = async (req, res) => {
    ).lean();
 
    // * Sends a success response
-   res.json({ success: "Se realizo la operación exitosamente" });
+   res.json(observationUpdated);
 }
 
 export const deleteObservationById = async (req, res) => {
@@ -75,11 +76,11 @@ export const deleteObservationById = async (req, res) => {
 
    // * Checks if the student exists
    const studentExist = await Student.findById(studentId).lean();
-   if (!studentExist) return res.json({ error: "Este candidato ya no existe" });
+   if (!studentExist) return res.status(500).json("Este candidato ya no existe");
 
    // * Checks if the observation exists
    const observationExist = await Observation.findById(observationId).lean();
-   if (!observationExist) return res.json({ error: "Esta observación ya no existe" });
+   if (!observationExist) return res.status(500).json("Esta observación ya no existe");
 
    // * Deletes the archive
    const observationDeleted = await Observation.findByIdAndDelete(observationId).lean();
@@ -88,7 +89,7 @@ export const deleteObservationById = async (req, res) => {
    await Student.findByIdAndUpdate(studentId, { $pull: { observations: observationId } }).lean();
 
    // * Sends a success response
-   res.json({ success: "Se realizo la operación exitosamente" });
+   res.json(observationDeleted);
 }
 
 

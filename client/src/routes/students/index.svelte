@@ -5,12 +5,17 @@
 	import AddExcel from '$lib/modals/AddExcel.svelte';
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import StudentsTable from '$lib/components/StudentsTable.svelte';
-	import Spinner from '$lib/components/Spinner.svelte';
-	import { setContext } from 'svelte';
+	import { onDestroy, setContext } from 'svelte';
 	import { fetcher } from '$lib/fetcher';
-	import { get } from 'svelte/store';
+	import Icon from '$lib/components/Icon.svelte';
+	import Reload from '$lib/icons/reload.svelte';
+	import Stairs from '$lib/loaders/Stairs.svelte';
+	import { fade } from 'svelte/transition';
+	import { studentsStore, updateStudentsStore } from '$lib/stores';
+	import * as animateScroll from 'svelte-scrollto';
+	import { writable } from 'svelte/store';
 
-	const [[students, categories], loading, error, refetch] = fetcher(
+	const [[students, categories], loading, error, refetch, update, progress, controller] = fetcher(
 		[`http://localhost:4000/students`, `http://localhost:4000/documents`],
 		{
 			init: () => {
@@ -25,20 +30,32 @@
 				return [data, null];
 			},
 			edit: ([students, categories]) => {
-				const data = {
-					original: students,
-					filterable: students,
-					searchable: students,
-					sliceable: students,
-					entries: students.length,
-					limit: students.length
+				const studentsData = students.data;
+				students.data = {
+					original: studentsData,
+					filterable: studentsData,
+					searchable: studentsData,
+					sliceable: studentsData,
+					entries: studentsData.length,
+					limit: studentsData.length
 				};
-				return [data, categories];
-			}
+				return [students, categories];
+			},
+			alwaysFetch: true
 		}
 	);
 
+	function handleCreate(event) {
+		update($students, event.detail);
+		animateScroll.scrollToBottom({ delay: 200 });
+	}
+	$studentsStore = students;
+	$updateStudentsStore = update;
 	setContext('refetchStudents', refetch);
+	setContext('students', students);
+	onDestroy(() => {
+		controller.abort();
+	});
 </script>
 
 <svelte:head>
@@ -49,16 +66,21 @@
 	<div class="tools">
 		<QuantityEntries bind:students={$students} />
 		<div class="options">
-			<CreateStudent bind:categories={$categories} />
+			<CreateStudent bind:categories={$categories} on:request={handleCreate} />
 			<AddExcel />
 			<EditFilter bind:students={$students} />
 			<SearchBar bind:students={$students} />
+			<button on:click={refetch}>
+				<Icon src={Reload} />
+			</button>
 		</div>
 	</div>
 
 	{#if $loading}
-		<div class="spinner">
-			<Spinner />
+		<div in:fade={{ duration: 400 }} out:fade|local={{ duration: 200 }} class="loader">
+			<Stairs />
+			<h1>Cargando</h1>
+			{$progress}%
 		</div>
 	{:else if $error}
 		<span>Something went wrong {$error}</span>
@@ -85,13 +107,30 @@
 		gap: 1rem;
 	}
 
-	div.spinner {
+	button {
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 14px;
+		background-color: var(--input-color);
+		border: 2px solid var(--border-color);
+	}
+	button:hover {
+		border: 2px solid var(--blue-color);
+	}
+
+	button:active {
+		border: 2px solid var(--green-color);
+	}
+
+	div.loader {
 		position: absolute;
 		display: flex;
 		flex-flow: column;
 		justify-content: center;
 		align-items: center;
 		width: 100%;
-		height: 30rem;
+		margin-top: 6rem;
 	}
 </style>

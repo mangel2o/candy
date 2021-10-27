@@ -2,48 +2,45 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import Upload from '$lib/icons/upload.svelte';
 	import Icon from '$lib/components/Icon.svelte';
-	import { getContext } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
 	import { page } from '$app/stores';
 	import FileDocument from '$lib/icons/file-document.svelte';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import Loading from '$lib/components/Loading.svelte';
+	import { requester } from '$lib/fetcher';
+	import { convertDataToFile } from '$lib/utils';
 
-	const refetchCandidate = getContext('refetchCandidate');
-	const refetchDocuments = getContext('refetchDocuments');
+	const dispatch = createEventDispatcher();
+	const [request, loading, err] = requester();
 	let isOpen = false;
-	let isPending = false;
-
-	export let document;
 	let files;
-	let error = null;
+	export let document;
 
 	function handleSubmit() {
-		isPending = true;
 		const formData = new FormData();
 		formData.append('file', files[0]);
-		fetch(
-			`http://localhost:4000/students/${$page.params.student}/documents/${document._id}/upload`,
+		request(
 			{
-				method: 'PUT',
-				body: formData
+				url: `http://localhost:4000/students/${$page.params.student}/documents/${document._id}/upload`,
+				method: 'put',
+				data: formData
+			},
+			{
+				finalize: (doc) => {
+					doc.data.example = convertDataToFile(doc.data.example, doc.data._id);
+					if (doc.data.file) {
+						doc.data.file = convertDataToFile(doc.data.file, doc.data._id);
+					}
+					handleCancel();
+					dispatch('request', doc.data);
+				}
 			}
-		)
-			.then((res) => res.json())
-			.then((data) => {
-				error = null;
-				isPending = false;
-				handleCancel();
-				refetchCandidate();
-				refetchDocuments();
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+		);
 	}
 
 	function handleCancel() {
 		files = null;
+		$err = null;
 		isOpen = false;
 	}
 </script>
@@ -71,13 +68,13 @@
 				{/each}
 			{/if}
 		</label>
-		{#if error}
-			<ErrorToast bind:error />
+		{#if $err}
+			<ErrorToast bind:error={$err} />
 		{/if}
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button disabled={!files} class="submit" type="submit">
-				{#if isPending}
+				{#if $loading}
 					<Loading />
 				{:else}
 					Subir
