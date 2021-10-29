@@ -2,6 +2,12 @@ import { writable, get } from "svelte/store";
 import axios from "axios";
 const cache = new Map();
 
+/**
+ * * Get requests handler
+ * @param {*} urls 
+ * @param {*} options 
+ * @returns 
+ */
 export const fetcher = (urls, options = {}) => {
    const key = urls.join();
    const data = new Array(urls.length).fill(null).map(() => writable(null));
@@ -88,6 +94,10 @@ export const fetcher = (urls, options = {}) => {
    return [data, loading, error, refetch, update, progress, controller];
 }
 
+/**
+ * * Post, put & delete requests handler
+ * @returns 
+ */
 export const requester = () => {
    const data = writable(null);
    const loading = writable(false);
@@ -115,7 +125,6 @@ export const requester = () => {
             }
          });
    }
-
 
    return [request, loading, error, data];
 }

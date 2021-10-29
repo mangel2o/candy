@@ -3,6 +3,9 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import File from '$lib/icons/file-document.svelte';
 	import { onDestroy } from 'svelte';
+	import AccountCheck from '$lib/icons/account-check.svelte';
+	import AccountEdit from '$lib/icons/account-edit.svelte';
+	import Account from '$lib/icons/account.svelte';
 
 	export let document;
 	let currentTab = document.file ? 'document' : 'example';
@@ -18,7 +21,7 @@
 <Modal>
 	<button class="view" slot="trigger" let:open on:click={open}>
 		<div class="btn">
-			<Icon src={File} />
+			<div class="icon"><Icon src={File} /></div>
 			<span>{document.name}</span>
 		</div>
 
@@ -57,28 +60,42 @@
 	/>
 
 	<!--Content-->
-	<div class="content" slot="content">
-		<div class="field">
-			<div class="title">
-				<Icon src={File} size={'30'} />
-				<div>{document.name}</div>
-			</div>
-		</div>
-		<div class="field">
-			<div class="tag">Descripción</div>
-			<div>{document.description}</div>
-		</div>
-
-		{#if document.comment}
+	<div class="container" slot="content">
+		<div class="content">
 			<div class="field">
-				<div class="tag">Comentario</div>
-				<div>{document.comment}</div>
+				<div class="title">
+					<Icon src={File} size={'30'} />
+					<div>{document.name}</div>
+				</div>
 			</div>
-		{/if}
+			<div class="field">
+				<div class="tag">Descripción</div>
+				<div>{document.description}</div>
+			</div>
 
-		<div class="field">
-			<div class="tag">Estatus</div>
-			<div class={'status-tag ' + document.status.toLowerCase()}>{document.status}</div>
+			{#if document.comment}
+				<div class="field">
+					<div class="tag">Comentario</div>
+					<div>{document.comment}</div>
+				</div>
+			{/if}
+
+			<div class="field">
+				<div class="tag">Estatus</div>
+				<div class={'status-tag ' + document.status.toLowerCase()}>{document.status}</div>
+			</div>
+		</div>
+		<div class="meta">
+			<div class="data">
+				<div class="icon"><Icon src={Account} size={'30'} /></div>
+				<div>{document.createdBy?.name}</div>
+			</div>
+			{#if document.updatedBy}
+				<div class="data">
+					<div class="icon"><Icon src={AccountEdit} size={'30'} /></div>
+					<div>{document.updatedBy?.name}</div>
+				</div>
+			{/if}
 		</div>
 	</div>
 </Modal>
@@ -89,13 +106,20 @@
 		height: 50rem;
 	}
 
-	div.content {
-		overflow-wrap: anywhere;
+	div.container {
 		width: 22rem;
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
+		justify-content: space-between;
 		padding: 0.5rem;
+		gap: 1rem;
+	}
+
+	div.content {
+		overflow-wrap: anywhere;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 
 	div.field {
@@ -120,6 +144,29 @@
 		align-items: center;
 		gap: 0.5rem;
 		font-size: 1.2rem;
+	}
+
+	div.meta {
+		overflow-wrap: anywhere;
+		width: 22rem;
+		display: flex;
+		flex-flow: column;
+		gap: 0.5rem;
+		border-top: 2px solid var(--border-color);
+		padding-top: 1.5rem;
+	}
+
+	div.data {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 1.1rem;
+	}
+
+	div.icon {
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	div.header {

@@ -19,7 +19,7 @@ export const createObservation = async (req, res) => {
       comment: comment,
       owner: studentId,
       createdBy: authorId,
-   }).save();
+   }).save().then(observation => observation.populate("createdBy"));
    console.log(observationCreated);
 
    // * Adds the new observation id to the student
@@ -34,7 +34,7 @@ export const getObservations = async (req, res) => {
    const studentId = req.params.studentId;
 
    // * Finds all observations from the respective student
-   const observationsFound = await Observation.find({ owner: studentId }).lean();
+   const observationsFound = await Observation.find({ owner: studentId }).populate(["createdBy", "updatedBy"]).lean();
 
    // * Sends the observations as response
    res.json(observationsFound);
@@ -63,7 +63,7 @@ export const updateObservationById = async (req, res) => {
          updatedBy: authorId
       },
       { new: true }
-   ).lean();
+   ).populate(["createdBy", "updatedBy"]).lean();
 
    // * Sends a success response
    res.json(observationUpdated);

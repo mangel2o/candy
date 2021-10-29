@@ -25,7 +25,7 @@ export const createTemplate = async (req, res) => {
       category: categoryId,
       examplePath: path.join(process.cwd(), "uploads", "templates", newId + ".pdf"),
       createdBy: authorId,
-   }).save();
+   }).save().then(template => template.populate('createdBy'));
 
    // * Adds the new template id to the category
    await Category.findByIdAndUpdate(categoryId, { $push: { templates: templateCreated._id } }).lean();
@@ -46,7 +46,7 @@ export const getTemplates = async (req, res) => {
    const categoryId = req.params.categoryId;
 
    // * Finds all templates from the respective category
-   const templatesFound = await Template.find({ category: categoryId }).lean();
+   const templatesFound = await Template.find({ category: categoryId }).populate(["createdBy", "updatedBy"]).lean();
 
    // * Creates a new array of templates with the data of the corresponding filepaths
    const templatesComputed = [];
@@ -88,7 +88,7 @@ export const updateTemplateById = async (req, res) => {
          updatedBy: authorId
       },
       { new: true }
-   ).lean();
+   ).populate(["createdBy", "updatedBy"]).lean();
 
    // * If theres a temporal file, updates the file corresponding to this template
    if (tempFile) {

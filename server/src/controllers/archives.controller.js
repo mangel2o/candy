@@ -23,7 +23,7 @@ export const createArchive = async (req, res) => {
       filepath: path.join(process.cwd(), "uploads", "archives", newId + ".pdf"),
       owner: studentId,
       createdBy: authorId,
-   }).save();
+   }).save().then(archive => archive.populate("createdBy"));
 
    // * Adds the new archive id to the category
    await Student.findByIdAndUpdate(studentExist, { $push: { archives: archiveCreated._id } }).lean();
@@ -43,7 +43,7 @@ export const getArchives = async (req, res) => {
    const studentId = req.params.studentId;
 
    // * Finds all archives from the respective student
-   const archivesFound = await Archive.find({ owner: studentId }).lean();
+   const archivesFound = await Archive.find({ owner: studentId }).populate(["createdBy", "updatedBy"]).lean();
 
    // * Creates a new array of archives with the data of the corresponding filepaths
    const archivesComputed = [];
@@ -85,7 +85,7 @@ export const updateArchiveById = async (req, res) => {
          updatedBy: authorId
       },
       { new: true }
-   ).lean();
+   ).populate(["createdBy", "updatedBy"]).lean();
 
    // * If theres a temporal file, updates the file corresponding to this archive
    if (tempFile) {

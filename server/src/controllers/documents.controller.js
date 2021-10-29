@@ -7,7 +7,7 @@ export const getDocuments = async (req, res) => {
    const studentId = req.params.studentId;
 
    // * Finds all documents from the respective category
-   const documentsFound = await Document.find({ owner: studentId }).lean();
+   const documentsFound = await Document.find({ owner: studentId }).populate(["createdBy", "updatedBy"]).lean();
 
    // * Creates a new array of documents with the data of the corresponding filepaths
    const documentsComputed = [];
@@ -52,7 +52,7 @@ export const uploadDocumentById = async (req, res) => {
          status: "Pendiente"
       },
       { new: true }
-   ).lean();
+   ).populate(["createdBy", "updatedBy"]).lean();
 
    // * Updates the student status to pending
    await Student.findByIdAndUpdate(studentId, { status: "Pendiente" }, { new: true }).lean();
@@ -96,7 +96,7 @@ export const updateDocumentById = async (req, res) => {
          updatedBy: authorId
       },
       { new: true }
-   ).lean();
+   ).populate(["createdBy", "updatedBy"]).lean();
 
    updateStudentStatus(studentId, status);
 
