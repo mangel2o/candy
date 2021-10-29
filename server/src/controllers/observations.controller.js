@@ -20,7 +20,6 @@ export const createObservation = async (req, res) => {
       owner: studentId,
       createdBy: authorId,
    }).save().then(observation => observation.populate("createdBy"));
-   console.log(observationCreated);
 
    // * Adds the new observation id to the student
    await Student.findByIdAndUpdate(studentExist, { $push: { observations: observationCreated._id } }).lean();
