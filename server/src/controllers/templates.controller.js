@@ -44,6 +44,7 @@ export const createTemplate = async (req, res) => {
 export const getTemplates = async (req, res) => {
    // * Gets the parameters
    const categoryId = req.params.categoryId;
+   if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.status(500).json("Esta categoria no existe");
 
    // * Finds all templates from the respective category
    const templatesFound = await Template.find({ category: categoryId }).populate(["createdBy", "updatedBy"]).lean();

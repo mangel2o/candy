@@ -41,6 +41,7 @@ export const createArchive = async (req, res) => {
 export const getArchives = async (req, res) => {
    // * Gets the parameters
    const studentId = req.params.studentId;
+   if (!Mongoose.Types.ObjectId.isValid(studentId)) return res.status(500).json("Este alumno no existe");
 
    // * Finds all archives from the respective student
    const archivesFound = await Archive.find({ owner: studentId }).populate(["createdBy", "updatedBy"]).lean();

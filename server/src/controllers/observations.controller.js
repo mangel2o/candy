@@ -31,6 +31,7 @@ export const createObservation = async (req, res) => {
 export const getObservations = async (req, res) => {
    // * Gets the parameters
    const studentId = req.params.studentId;
+   if (!Mongoose.Types.ObjectId.isValid(studentId)) return res.status(500).json("Este alumno no existe");
 
    // * Finds all observations from the respective student
    const observationsFound = await Observation.find({ owner: studentId }).populate(["createdBy", "updatedBy"]).lean();

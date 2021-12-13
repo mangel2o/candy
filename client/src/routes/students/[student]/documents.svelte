@@ -68,7 +68,7 @@
 			{$progress}%
 		</div>
 	{:else if $error}
-		<span>Something went wrong</span>
+		<span>Something went wrong: {$error}</span>
 	{:else}
 		<div in:fade={{ duration: 200 }} class="container">
 			{#each $documents as document (document._id)}

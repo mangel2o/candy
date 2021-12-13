@@ -2,9 +2,11 @@ import Document from "../models/Document.js";
 import fs from "fs";
 import path from "path";
 import Student from "../models/Student.js";
+import Mongoose from "mongoose";
 
 export const getDocuments = async (req, res) => {
    const studentId = req.params.studentId;
+   if (!Mongoose.Types.ObjectId.isValid(studentId)) return res.status(500).json("Este alumno no existe");
 
    // * Finds all documents from the respective category
    const documentsFound = await Document.find({ owner: studentId }).populate(["createdBy", "updatedBy"]).lean();
