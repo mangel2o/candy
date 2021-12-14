@@ -1,6 +1,7 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	export let exclude = [];
+	export let fullWidth = false;
 	let child;
 	const dispatch = createEventDispatcher();
 
@@ -24,6 +25,12 @@
 </script>
 
 <svelte:body on:click={onClickOutside} />
-<div bind:this={child}>
+<div class:fullWidth bind:this={child}>
 	<slot />
 </div>
+
+<style>
+	div.fullWidth {
+		width: 100%;
+	}
+</style>

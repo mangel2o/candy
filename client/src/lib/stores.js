@@ -14,5 +14,8 @@ userStore.subscribe((value) => {
 export const studentsStore = writable({});
 export const updateStudentsStore = writable(() => { });
 
+export const usersStore = writable({});
+export const updateUsersStore = writable(() => { });
+
 
 

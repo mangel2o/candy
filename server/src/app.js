@@ -5,6 +5,7 @@ import formidable from 'express-formidable'
 import studentsRoutes from "./routes/students.routes.js";
 import documentsRoutes from "./routes/documents.routes.js";
 import loginRoutes from './routes/login.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 import { createUsers, createDirs } from './libs/initialSetup.js';
 import Category from './models/Category.js';
 import Template from './models/Template.js';
@@ -14,7 +15,13 @@ import Archive from './models/Archive.js';
 import Document from './models/Document.js';
 import Observation from './models/Observation.js';
 
-
+// Category.collection.drop();
+// Template.collection.drop();
+// User.collection.drop();
+// Student.collection.drop();
+// Archive.collection.drop();
+// Document.collection.drop();
+// Observation.collection.drop();
 
 const app = express();
 createUsers();
@@ -30,5 +37,6 @@ app.use(formidable({
 app.use('/documents', documentsRoutes);
 app.use('/students', studentsRoutes);
 app.use('/login', loginRoutes);
+app.use('/users', adminRoutes);
 
 export default app;

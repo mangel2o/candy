@@ -1,23 +1,7 @@
-export function useFetch(urls) {
-   let isPending = true;
-   let error = null;
-   let data;
-
-   Promise.all(urls.map((url) => fetch(url)))
-      .then((responses) => Promise.all(responses.map((response) => response.json())))
-      .then((fetchedData) => {
-         error = null;
-         isPending = false;
-         data = fetchedData;
-      })
-      .catch((err) => {
-         error = err.message;
-         isPending = false;
-      });
-
-   return { isPending, error, data };
-}
-
+export const roles = [
+   "Moderador",
+   "Administrador"
+]
 
 export const campuses = [
    "Álvaro Obregon",

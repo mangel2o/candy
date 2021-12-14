@@ -74,10 +74,10 @@
 			{#each $documents as document (document._id)}
 				<div in:fade={{ duration: 200 }} out:fade|local={{ duration: 200 }} class="button">
 					<ViewDocument {document} />
-					{#if $userStore.role === 'user' && document.status !== 'Completo'}
+					{#if $userStore.role === 'Usuario' && document.status !== 'Completo'}
 						<UploadDocument {document} on:request={handleEdit} />
 					{/if}
-					{#if $userStore.role !== 'user'}
+					{#if $userStore.role !== 'Usuario'}
 						{#if document.file}
 							<EditDocument {document} on:request={handleEdit} />
 						{/if}

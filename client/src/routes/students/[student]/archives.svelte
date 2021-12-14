@@ -69,14 +69,14 @@
 		<span>Something went wrong</span>
 	{:else}
 		<div in:fade={{ duration: 200 }} class="container">
-			{#if $userStore.role !== 'user'}
+			{#if $userStore.role !== 'Usuario'}
 				<CreateArchive on:request={handleCreate} />
 			{/if}
 
 			{#each $archives as archive (archive._id)}
 				<div in:fade={{ duration: 200 }} out:fade|local={{ duration: 200 }} class="button">
 					<ViewArchive {archive} />
-					{#if $userStore.role !== 'user'}
+					{#if $userStore.role !== 'Usuario'}
 						<EditArchive {archive} on:request={handleEdit} />
 						<DeleteArchive {archive} on:request={handleDelete} />
 					{/if}

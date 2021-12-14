@@ -1,17 +1,11 @@
 <script>
 	import { page } from '$app/stores';
 	import { fade } from 'svelte/transition';
-	export let category;
 	export let path;
 </script>
 
-<a
-	in:fade={{ duration: 200 }}
-	out:fade|local={{ duration: 200 }}
-	href={path}
-	class:active={$page.path === path}
->
-	{category.name}
+<a in:fade={{ duration: 200 }} href={path} class:active={$page.path === path}>
+	<slot />
 </a>
 
 <style>

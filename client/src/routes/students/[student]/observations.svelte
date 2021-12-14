@@ -60,14 +60,14 @@
 		<span>Something went wrong</span>
 	{:else}
 		<div in:fade={{ duration: 200 }} class="container">
-			{#if $userStore.role !== 'user'}
+			{#if $userStore.role !== 'Usuario'}
 				<CreateObservation on:request={handleCreate} />
 			{/if}
 
 			{#each $observations as observation}
 				<div out:fade|local={{ duration: 200 }} class="button">
 					<ViewObservation {observation} />
-					{#if $userStore.role !== 'user'}
+					{#if $userStore.role !== 'Usuario'}
 						<EditObservation {observation} on:request={handleEdit} />
 						<DeleteObservation {observation} on:request={handleDelete} />
 					{/if}

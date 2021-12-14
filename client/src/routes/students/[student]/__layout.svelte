@@ -68,7 +68,7 @@
 			<StudentInfo student={$student} />
 
 			<!--OPTIONS-->
-			{#if $userStore.role !== 'user'}
+			{#if $userStore.role !== 'Usuario'}
 				<StudentOptions bind:isCategoriesActive />
 			{/if}
 		</div>

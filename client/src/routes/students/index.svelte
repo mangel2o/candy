@@ -49,9 +49,10 @@
 		update($students, event.detail);
 		animateScroll.scrollToBottom({ delay: 200 });
 	}
+
 	$studentsStore = students;
 	$updateStudentsStore = update;
-	setContext('refetchStudents', refetch);
+	//setContext('refetchStudents', refetch);
 	setContext('students', students);
 	onDestroy(() => {
 		controller.abort();

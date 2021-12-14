@@ -9,13 +9,21 @@ const UserSchema = new Schema({
       unique: true
    },
    campus: String,
+   genre: String,
+   active: String,
+   phone: String,
    personalEmail: String,
-   institutionalEmail: {
-      type: String,
-      unique: true
-   },
+   institutionalEmail: String,
    password: String,
-   role: String
+   role: String,
+   createdBy: {
+      ref: 'User',
+      type: Schema.Types.ObjectId,
+   },
+   updatedBy: {
+      ref: 'User',
+      type: Schema.Types.ObjectId,
+   }
 }, {
    timestamps: true,
 })
