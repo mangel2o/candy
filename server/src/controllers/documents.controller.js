@@ -59,8 +59,6 @@ export const uploadDocumentById = async (req, res) => {
    // * Updates the student status to pending
    await Student.findByIdAndUpdate(studentId, { status: "Pendiente" }, { new: true }).lean();
 
-
-
    // * Creates the file in the current working directory
    fs.writeFileSync(documentUpdated.filepath, fs.readFileSync(tempFile.path));
    fs.unlinkSync(tempFile.path);

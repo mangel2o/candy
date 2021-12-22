@@ -37,6 +37,6 @@ app.use(formidable({
 app.use('/documents', documentsRoutes);
 app.use('/students', studentsRoutes);
 app.use('/login', loginRoutes);
-app.use('/users', adminRoutes);
+app.use('/admin', adminRoutes);
 
 export default app;

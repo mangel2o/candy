@@ -26,7 +26,7 @@
 			<td class="role">{user.role}</td>
 			<td class="campus">{user.campus}</td>
 			<td class="link">
-				<button on:click={() => goto(`/users/${user._id}`)}>
+				<button on:click={() => goto(`/admin/${user._id}`)}>
 					<span><Icon src={OpenInNew} /></span>
 				</button>
 			</td>

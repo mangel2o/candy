@@ -90,7 +90,6 @@ export const fetcher = (urls, options = {}) => {
    if (options.alwaysFetch && cache.has(key)) {
       refetch(false);
    }
-
    return [data, loading, error, refetch, update, progress, controller];
 }
 

@@ -9,7 +9,7 @@
 <div class="container">
 	<div class="links">
 		<AdminLink path={`/admin`}>Responsables</AdminLink>
-		<AdminLink path={`/admin/log`}>Registro de acciones</AdminLink>
+		<AdminLink path={`/admin/actions`}>Registro de acciones</AdminLink>
 	</div>
 	<div class="documents">
 		<slot />

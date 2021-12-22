@@ -31,7 +31,7 @@
 
 		request(
 			{
-				url: `http://localhost:4000/users`,
+				url: `http://localhost:4000/admin`,
 				method: 'post',
 				data: formData
 			},

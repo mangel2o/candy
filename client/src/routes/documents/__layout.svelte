@@ -10,6 +10,7 @@
 	import { onDestroy, onMount, setContext } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 	import * as animateScroll from 'svelte-scrollto';
+	import { goto } from '$app/navigation';
 
 	const [[categories], loading, error, refetch, update, progress, controller] = fetcher([
 		`http://localhost:4000/documents`
@@ -22,6 +23,9 @@
 
 	setContext('categories', categories);
 	setContext('updateCategories', update);
+
+	$: if ($categories && $categories.length > 0) goto(`/documents/${$categories[0]._id}`);
+
 	onDestroy(() => {
 		controller.abort();
 	});

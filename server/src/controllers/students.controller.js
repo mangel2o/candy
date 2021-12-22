@@ -24,10 +24,13 @@ export const createStudent = async (req, res) => {
       name: data.name,
       number: data.number,
       campus: data.campus,
+      genre: data.genre,
+      active: data.active,
+      phone: data.phone,
       personalEmail: data.personalEmail,
       institutionalEmail: `al${data.number}@tecmilenio.mx`,
       password: await User.encryptPassword("password"),
-      role: "user"
+      role: "Usuario"
    }).save();
 
    // TODO: Implement a way of sending emails to newly created users/students

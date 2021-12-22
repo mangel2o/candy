@@ -16,7 +16,7 @@
 				{#if $userStore.role === 'admin'}
 					<a href="/students">Alumnos</a>
 					<a href="/documents">Documentos</a>
-					<a href="/administration">Administración</a>
+					<a href="/admin">Administración</a>
 				{:else if $userStore.role === 'moderator'}
 					<a href="/students">Alumnos</a>
 					<a href="/documents">Documentos</a>

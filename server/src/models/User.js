@@ -16,6 +16,10 @@ const UserSchema = new Schema({
    institutionalEmail: String,
    password: String,
    role: String,
+   actions: [{
+      ref: "Action",
+      type: Schema.Types.ObjectId,
+   }],
    createdBy: {
       ref: 'User',
       type: Schema.Types.ObjectId,

@@ -13,7 +13,7 @@
 	import AdminSearchBar from '$lib/components/AdminSearchBar.svelte';
 
 	const [[users], loading, error, refetch, update, progress, controller] = fetcher(
-		[`http://localhost:4000/users`],
+		[`http://localhost:4000/admin`],
 		{
 			init: () => {
 				const data = {
@@ -69,8 +69,10 @@
 		</div>
 	{:else if $error}
 		<span>Something went wrong {$error}</span>
-	{:else}
+	{:else if $users.sliceable.length}
 		<UsersTable bind:users={$users} />
+	{:else}
+		<span>Seems like there are no users</span>
 	{/if}
 </div>
 

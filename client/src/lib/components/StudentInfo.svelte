@@ -116,7 +116,7 @@
 
 	span.status {
 		color: var(--white-color);
-		border: 2px dashed var(--green-color);
+		border: 2px dashed var(--focus-color);
 		padding: 1rem;
 		border-radius: 0.5rem;
 	}

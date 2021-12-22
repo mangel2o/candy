@@ -3,6 +3,7 @@ import Mongoose from "mongoose";
 import Student from "../models/Student.js";
 import fs from "fs";
 import path from "path";
+import createAction from "../libs/actionCreator.js";
 
 export const createArchive = async (req, res) => {
    // * Initializes values
@@ -26,7 +27,10 @@ export const createArchive = async (req, res) => {
    }).save().then(archive => archive.populate("createdBy"));
 
    // * Adds the new archive id to the category
-   await Student.findByIdAndUpdate(studentExist, { $push: { archives: archiveCreated._id } }).lean();
+   await Student.findByIdAndUpdate(studentId, { $push: { archives: archiveCreated._id } }).lean();
+
+   // * Creates an action
+   createAction("Creó un nuevo archivo para el estudiante: ", authorId, { createdForStudent: studentId })
 
    // * Creates the file in the current working directory
    const archiveComputed = { ...archiveCreated._doc };
