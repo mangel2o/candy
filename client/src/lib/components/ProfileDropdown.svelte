@@ -1,4 +1,6 @@
 <script>
+	import { goto } from '$app/navigation';
+
 	import ClickOutside from '$lib/components/ClickOutside.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Account from '$lib/icons/account.svelte';
@@ -19,8 +21,22 @@
 		<!--DROPDOWN CONTENT-->
 		{#if isDropdownActive}
 			<div class="dropcontent">
-				<button> Ver perfil </button>
-				<button on:click={() => ($userStore = null)}> Cerrar sesión </button>
+				<button
+					on:click={() => {
+						isDropdownActive = false;
+						goto(`/user/${$userStore._id}`);
+					}}
+				>
+					Ver perfil
+				</button>
+				<button
+					on:click={() => {
+						isDropdownActive = false;
+						$userStore = null;
+					}}
+				>
+					Cerrar sesión
+				</button>
 			</div>
 		{/if}
 	</div>

@@ -6,6 +6,7 @@ import Observation from "../models/Observation.js";
 import User from "../models/User.js";
 import Archive from "../models/Archive.js";
 import fs from "fs";
+import createAction from "../libs/actionCreator.js";
 
 
 export const createStudent = async (req, res) => {
@@ -82,6 +83,9 @@ export const createStudent = async (req, res) => {
 
    // * Saves the student
    studentCreated.save();
+
+   // * Creates an action
+   createAction("student", "create", "Creación de estudiante", JSON.stringify(studentCreated), data.authorId, { affectedStudent: studentCreated._id })
 
    // * Sends the created student as the response
    res.json(studentCreated);
@@ -184,6 +188,9 @@ export const updateStudentById = async (req, res) => {
       }, { new: true }
    ).populate("categories").lean();
 
+   // * Creates an action
+   createAction("student", "update", "Actualización de estudiante", JSON.stringify(studentUpdated), data.authorId, { affectedStudent: studentId })
+
    // * Sends a success response
    res.send(studentUpdated);
 }
@@ -193,6 +200,7 @@ export const deleteStudentById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
    const studentId = req.params.studentId;
    if (!Mongoose.Types.ObjectId.isValid(studentId)) return res.status(500).json("Este candidato no existe");
+   const { authorId } = req.fields;
 
    // * Checks if the student exists
    const studentExist = await Student.findById(studentId).lean();
@@ -226,6 +234,9 @@ export const deleteStudentById = async (req, res) => {
 
    // * Deletes all observations from the student
    await Observation.deleteMany({ owner: studentId });
+
+   // * Creates an action
+   createAction("student", "delete", "Eliminación de estudiante", JSON.stringify(studentDeleted), authorId, { affectedStudent: studentId })
 
    // * Sends the deleted student as response
    res.json(studentDeleted);

@@ -4,6 +4,7 @@ import Category from "../models/Category.js";
 import fs from "fs";
 import path from "path";
 import Document from "../models/Document.js";
+import createAction from "../libs/actionCreator.js";
 
 
 export const createTemplate = async (req, res) => {
@@ -35,6 +36,9 @@ export const createTemplate = async (req, res) => {
    templateComputed.example = fs.readFileSync(tempFile.path)
    fs.writeFileSync(templateCreated.examplePath, templateComputed.example);
    fs.unlinkSync(tempFile.path);
+
+   // * Creates an action
+   createAction("template", "create", "Creación de plantilla", JSON.stringify(templateCreated), authorId, {})
 
    // * Sends the created template as response
    res.json(templateComputed);
@@ -104,6 +108,9 @@ export const updateTemplateById = async (req, res) => {
    const templateComputed = { ...templateUpdated };
    templateComputed.example = fs.readFileSync(templateComputed.examplePath);
 
+   // * Creates an action
+   createAction("template", "update", "Actualización de plantilla", JSON.stringify(templateUpdated), authorId, {})
+
    // * Sends a success response
    res.json(templateComputed);
 }
@@ -113,6 +120,7 @@ export const deleteTemplateById = async (req, res) => {
    // * Gets the parameters
    const categoryId = req.params.categoryId;
    const templateId = req.params.templateId;
+   const { authorId } = req.fields;
 
    // * Checks if the category exists
    const categoryExist = await Category.findById(categoryId).lean();
@@ -135,6 +143,9 @@ export const deleteTemplateById = async (req, res) => {
 
       // * Removes the template id from the corresponding category
       await Category.findByIdAndUpdate(categoryId, { $pull: { templates: templateId } }).lean();
+
+      // * Creates an action
+      createAction("template", "delete", "Eliminación de plantilla", JSON.stringify(templateDeleted), authorId, {})
 
       // * Sends a success response
       return res.json(templateDeleted);

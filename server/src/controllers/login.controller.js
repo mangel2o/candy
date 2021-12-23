@@ -23,10 +23,12 @@ export const signIn = async (req, res) => {
    if (!passwordMatches) return res.json({ error: "El usuario o contraseña son incorrectos" });
 
    let user = { ...userExist };
-   if (userExist.role === "user") {
+   if (userExist.role === "Usuario") {
       const studentFound = await Student.findOne({ number: userExist.number }).lean();
       user.studentId = studentFound._id;
    }
+
+   console.log(user._id);
 
    // * Sends the user as response
    res.json(user);

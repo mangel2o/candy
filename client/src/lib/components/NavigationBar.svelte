@@ -13,11 +13,11 @@
 		<div class="nav-btns">
 			{#if $userStore}
 				<a href="/">Inicio</a>
-				{#if $userStore.role === 'admin'}
+				{#if $userStore.role === 'Administrador'}
 					<a href="/students">Alumnos</a>
 					<a href="/documents">Documentos</a>
 					<a href="/admin">Administración</a>
-				{:else if $userStore.role === 'moderator'}
+				{:else if $userStore.role === 'Moderador'}
 					<a href="/students">Alumnos</a>
 					<a href="/documents">Documentos</a>
 				{:else}

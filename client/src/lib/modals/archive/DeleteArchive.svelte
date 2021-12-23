@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
 	import { requester } from '$lib/fetcher';
+	import { userStore } from '$lib/stores';
 
 	const dispatch = createEventDispatcher();
 	const [request, loading, err] = requester();
@@ -14,10 +15,13 @@
 	export let archive;
 
 	function handleSubmit() {
+		const formData = new FormData();
+		formData.append('authorId', $userStore._id);
 		request(
 			{
 				url: `http://localhost:4000/students/${$page.params.student}/archives/${archive._id}`,
-				method: 'delete'
+				method: 'delete',
+				data: formData
 			},
 			{
 				finalize: (fetchedData) => {

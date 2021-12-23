@@ -2,16 +2,19 @@ import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
 const ActionSchema = new Schema({
+   name: String,
+   type: String,
    description: String,
+   data: String,
    createdBy: {
       ref: 'User',
       type: Schema.Types.ObjectId,
    },
-   createdForStudent: {
+   affectedStudent: {
       ref: 'Student',
       type: Schema.Types.ObjectId,
    },
-   createdForUser: {
+   affectedUser: {
       ref: 'User',
       type: Schema.Types.ObjectId,
    }

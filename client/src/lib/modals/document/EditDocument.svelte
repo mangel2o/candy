@@ -9,6 +9,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { requester } from '$lib/fetcher';
 	import { convertDataToFile } from '$lib/utils';
+	import { userStore } from '$lib/stores';
 
 	const dispatch = createEventDispatcher();
 	const [request, loading, err] = requester();
@@ -24,6 +25,7 @@
 		const formData = new FormData();
 		formData.append('comment', editableDocument.comment);
 		formData.append('status', editableDocument.status);
+		formData.append('authorId', $userStore._id);
 
 		request(
 			{

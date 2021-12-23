@@ -9,16 +9,20 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { requester } from '$lib/fetcher';
+	import { userStore } from '$lib/stores';
 
 	const dispatch = createEventDispatcher();
 	const [request, loading, err] = requester();
 	let isOpen = false;
 
 	function handleSubmit() {
+		const formData = new FormData();
+		formData.append('authorId', $userStore._id);
 		request(
 			{
 				url: `http://localhost:4000/documents/${$page.params.category}`,
-				method: 'delete'
+				method: 'delete',
+				data: formData
 			},
 			{
 				finalize: (fetchedData) => {

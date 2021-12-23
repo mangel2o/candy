@@ -4,7 +4,7 @@ import User from "../models/User.js";
 
 export const getActions = async (req, res) => {
    // * Finds all actions
-   const actionsFound = await Action.find().lean();
+   const actionsFound = await Action.find().sort({ _id: -1 }).limit(100).lean();
    res.send(actionsFound);
 }
 
@@ -18,7 +18,7 @@ export const getActionsByUserId = async (req, res) => {
    const userExist = await User.findById(userId).lean();
    if (!userExist) return res.status(500).json("Este usuario no existe");
 
-   const actionsFound = await Action.find({ createdBy: userId }).lean();
+   const actionsFound = await Action.find({ createdBy: userId }).populate(['affectedStudent', 'affectedUser']).lean();
 
    // * Sends the user as response
    res.send(actionsFound);

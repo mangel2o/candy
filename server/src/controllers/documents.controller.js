@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import Student from "../models/Student.js";
 import Mongoose from "mongoose";
+import createAction from "../libs/actionCreator.js";
 
 export const getDocuments = async (req, res) => {
    const studentId = req.params.studentId;
@@ -105,6 +106,9 @@ export const updateDocumentById = async (req, res) => {
    documentComputed.example = fs.readFileSync(documentComputed.examplePath);
    documentComputed.file = fs.readFileSync(documentComputed.filepath);
 
+   // * Creates an action
+   createAction("document", "update", "Actualización de documento", JSON.stringify(documentUpdated), authorId, { affectedStudent: studentId })
+
    // * Sends the updated document as response
    res.json(documentComputed);
 }
@@ -114,6 +118,9 @@ export const deleteDocumentById = async (req, res) => {
    // * Initializes values
    const studentId = req.params.studentId;
    const documentId = req.params.documentId;
+
+   // * Get values
+   const { authorId } = req.fields;
 
    // * Checks if the student exists
    const studentExist = await Student.findById(studentId).lean();
@@ -140,6 +147,9 @@ export const deleteDocumentById = async (req, res) => {
          { new: true }
       ).lean();
    }
+
+   // * Creates an action
+   createAction("document", "delete", "Eliminación de documento", JSON.stringify(documentDeleted), authorId, { affectedStudent: studentId })
 
    // * Sends the deleted document as response
    res.json(documentDeleted);

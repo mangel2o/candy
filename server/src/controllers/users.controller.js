@@ -1,4 +1,5 @@
 import Mongoose from "mongoose";
+import createAction from "../libs/actionCreator.js";
 import User from "../models/User.js";
 
 export const createUser = async (req, res) => {
@@ -22,10 +23,14 @@ export const createUser = async (req, res) => {
       personalEmail: data.personalEmail,
       institutionalEmail: `al${data.number}@tecmilenio.mx`,
       password: await User.encryptPassword("password"),
-      role: data.role
+      role: data.role,
+      createdBy: data.authorId
    }).save();
 
    // TODO: Implement a way of sending emails to newly created users/students
+
+   // * Creates an action
+   createAction("user", "create", "Creación de usuario", JSON.stringify(userCreated), data.authorId, { affectedUser: userCreated._id })
 
    // * Sends the created student as the response
    res.send(userCreated);
@@ -79,9 +84,13 @@ export const updateUserById = async (req, res) => {
          campus: data.campus,
          personalEmail: data.personalEmail,
          institutionalEmail: `al${data.number}@tecmilenio.mx`,
-         role: data.role
+         role: data.role,
+         updatedBy: data.authorId
       }
    ).lean();
+
+   // * Creates an action
+   createAction("user", "update", "Actualización de usuario", JSON.stringify(userUpdated), data.authorId, { affectedUser: userId })
 
    res.send(userUpdated);
 }
@@ -91,6 +100,7 @@ export const deleteUserById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
    const userId = req.params.userId;
    if (!Mongoose.Types.ObjectId.isValid(userId)) return res.status(500).json("Este usuario no existe");
+   const { authorId } = req.fields;
 
    // * Checks if the user exists
    const userExist = await User.findById(userId).lean();
@@ -98,6 +108,9 @@ export const deleteUserById = async (req, res) => {
 
    // * Deletes the user
    const userDeleted = await User.findOneAndDelete({ number: userExist.number }).lean();
+
+   // * Creates an action
+   createAction("user", "delete", "Eliminación de usuario", JSON.stringify(userDeleted), authorId, { affectedUser: userDeleted._id })
 
    // * Sends the deleted user as response
    res.send(userDeleted);

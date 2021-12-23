@@ -14,6 +14,4 @@ router.put('/:userId', usersController.updateUserById);
 router.delete('/:userId', usersController.deleteUserById);
 router.get('/:userId/actions', actionsController.getActionsByUserId);
 
-
-
 export default router;

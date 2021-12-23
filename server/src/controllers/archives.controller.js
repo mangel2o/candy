@@ -29,14 +29,14 @@ export const createArchive = async (req, res) => {
    // * Adds the new archive id to the category
    await Student.findByIdAndUpdate(studentId, { $push: { archives: archiveCreated._id } }).lean();
 
-   // * Creates an action
-   createAction("Creó un nuevo archivo para el estudiante: ", authorId, { createdForStudent: studentId })
-
    // * Creates the file in the current working directory
    const archiveComputed = { ...archiveCreated._doc };
    archiveComputed.file = fs.readFileSync(tempFile.path);
    fs.writeFileSync(archiveCreated.filepath, archiveComputed.file);
    fs.unlinkSync(tempFile.path);
+
+   // * Creates an action
+   createAction("archive", "create", "Creacíon de archivo", JSON.stringify(archiveCreated), authorId, { affectedStudent: studentId })
 
    // * Sends the created archive as response
    res.json(archiveComputed);
@@ -105,6 +105,9 @@ export const updateArchiveById = async (req, res) => {
    const archiveComputed = { ...archiveUpdated };
    archiveComputed.file = fs.readFileSync(archiveComputed.filepath);
 
+   // * Creates an action
+   createAction("archive", "update", "Actualización de archivo", JSON.stringify(archiveUpdated), authorId, { affectedStudent: studentId })
+
    // * Sends the updated archive as response
    res.json(archiveComputed);
 }
@@ -113,6 +116,7 @@ export const deleteArchiveById = async (req, res) => {
    // * Gets the parameters
    const studentId = req.params.studentId;
    const archiveId = req.params.archiveId;
+   const { authorId } = req.fields;
 
    // * Checks if the student exists
    const studentExist = await Student.findById(studentId).lean();
@@ -130,6 +134,9 @@ export const deleteArchiveById = async (req, res) => {
 
    // * Removes the archive id from the corresponding student
    await Student.findByIdAndUpdate(studentId, { $pull: { archives: archiveId } }).lean();
+
+   // * Creates an action
+   createAction("archive", "delete", "Eliminación de archivo", JSON.stringify(archiveDeleted), authorId, { affectedStudent: studentId })
 
    // * Sends a deleted archive as response
    res.json(archiveDeleted);

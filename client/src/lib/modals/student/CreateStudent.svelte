@@ -37,11 +37,13 @@
 		// * Return if any of the categories selected don't have templates
 		for (const selectedCategory of student.categories) {
 			const categorySelected = categories.find((category) => category._id === selectedCategory);
+
 			if (categorySelected && categorySelected.templates < 1) {
 				$err = 'Al menos una de las categorias seleccionadas no tiene documentos.';
 				return;
 			}
 		}
+
 		const formData = new FormData();
 		formData.append('authorId', $userStore._id);
 		Object.keys(student).forEach((key) => formData.append(key, student[key]));
@@ -116,7 +118,7 @@
 
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
-			<button disabled={categories.length < 1} class="submit" type="submit">
+			<button class="submit" type="submit">
 				{#if $loading}
 					<Loading />
 				{:else}

@@ -24,8 +24,6 @@
 	setContext('categories', categories);
 	setContext('updateCategories', update);
 
-	$: if ($categories && $categories.length > 0) goto(`/documents/${$categories[0]._id}`);
-
 	onDestroy(() => {
 		controller.abort();
 	});

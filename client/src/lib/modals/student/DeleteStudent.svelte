@@ -8,19 +8,21 @@
 	import { goto } from '$app/navigation';
 	import Loading from '$lib/components/Loading.svelte';
 	import { requester } from '$lib/fetcher';
-	import { studentsStore, updateStudentsStore } from '$lib/stores';
+	import { studentsStore, updateStudentsStore, userStore } from '$lib/stores';
 	import { createEventDispatcher } from 'svelte';
 	import { get } from 'svelte/store';
 
-	const dispatch = createEventDispatcher();
 	const [request, loading, err] = requester();
 	let isOpen = false;
 
 	function handleSubmit() {
+		const formData = new FormData();
+		formData.append('authorId', $userStore._id);
 		request(
 			{
 				url: `http://localhost:4000/students/${$page.params.student}`,
-				method: 'delete'
+				method: 'delete',
+				data: formData
 			},
 			{
 				finalize: (fetchedData) => {

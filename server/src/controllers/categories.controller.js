@@ -4,6 +4,7 @@ import Category from "../models/Category.js";
 import Template from "../models/Template.js";
 import Student from "../models/Student.js";
 import { standardizeValue } from "../libs/utils.js";
+import createAction from "../libs/actionCreator.js";
 
 
 export const createCategory = async (req, res) => {
@@ -21,6 +22,9 @@ export const createCategory = async (req, res) => {
       description: description,
       createdBy: authorId
    }).save();
+
+   // * Creates an action
+   createAction("category", "create", "Creación de categoria", JSON.stringify(categoryCreated), authorId, {})
 
    // * Sends the new category as response
    res.json(categoryCreated)
@@ -76,6 +80,9 @@ export const updateCategoryById = async (req, res) => {
       { new: true }
    ).lean();
 
+   // * Creates an action
+   createAction("category", "update", "Actualización de categoria", JSON.stringify(categoryUpdated), authorId, {})
+
    // * Sends the updated category as response
    res.json(categoryUpdated);
 }
@@ -84,6 +91,9 @@ export const deleteCategoryById = async (req, res) => {
    // * Checks if the request parameter is a valid ObjectId
    const categoryId = req.params.categoryId;
    if (!Mongoose.Types.ObjectId.isValid(categoryId)) return res.status(500).json("Esta categoria no existe");
+
+   // * Gets values
+   const { authorId, } = req.fields;
 
    // * Checks if the category exists
    const categoryExist = await Category.findById(categoryId).lean();
@@ -105,6 +115,9 @@ export const deleteCategoryById = async (req, res) => {
 
       // * Deletes all templates corresponding to this category
       await Template.deleteMany({ category: categoryId });
+
+      // * Creates an action
+      createAction("category", "delete", "Eliminación de categoria", JSON.stringify(categoryDeleted), authorId, {})
 
       // * Sends the deleted category
       return res.json(categoryDeleted);

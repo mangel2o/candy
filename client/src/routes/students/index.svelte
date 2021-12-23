@@ -85,10 +85,8 @@
 		</div>
 	{:else if $error}
 		<span>Something went wrong {$error}</span>
-	{:else if $students.sliceable.length}
-		<StudentsTable bind:students={$students} />
 	{:else}
-		<span>Seems like there are no students</span>
+		<StudentsTable bind:students={$students} />
 	{/if}
 </div>
 

@@ -1,6 +1,7 @@
 import Observation from "../models/Observation.js";
 import Mongoose from "mongoose";
 import Student from "../models/Student.js";
+import createAction from "../libs/actionCreator.js";
 
 export const createObservation = async (req, res) => {
    // * Initializes values
@@ -23,6 +24,9 @@ export const createObservation = async (req, res) => {
 
    // * Adds the new observation id to the student
    await Student.findByIdAndUpdate(studentId, { $push: { observations: observationCreated._id } }).lean();
+
+   // * Creates an action
+   createAction("observation", "create", "Creación de observación", JSON.stringify(observationCreated), authorId, { affectedStudent: studentId })
 
    // * Sends the created observation as response
    res.json(observationCreated);
@@ -65,6 +69,9 @@ export const updateObservationById = async (req, res) => {
       { new: true }
    ).populate(["createdBy", "updatedBy"]).lean();
 
+   // * Creates an action
+   createAction("observation", "update", "Actualización de observación", JSON.stringify(observationUpdated), authorId, { affectedStudent: studentId })
+
    // * Sends a success response
    res.json(observationUpdated);
 }
@@ -73,6 +80,7 @@ export const deleteObservationById = async (req, res) => {
    // * Gets the parameters
    const studentId = req.params.studentId;
    const observationId = req.params.observationId;
+   const { authorId } = req.fields;
 
    // * Checks if the student exists
    const studentExist = await Student.findById(studentId).lean();
@@ -87,6 +95,9 @@ export const deleteObservationById = async (req, res) => {
 
    // * Removes the observation id from the corresponding student
    await Student.findByIdAndUpdate(studentId, { $pull: { observations: observationId } }).lean();
+
+   // * Creates an action
+   createAction("observation", "delete", "Eliminación de observación", JSON.stringify(observationDeleted), authorId, { affectedStudent: studentId })
 
    // * Sends a success response
    res.json(observationDeleted);

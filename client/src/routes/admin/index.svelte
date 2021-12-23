@@ -33,8 +33,7 @@
 					sliceable: usersData
 				};
 				return [users];
-			},
-			alwaysFetch: true
+			}
 		}
 	);
 
