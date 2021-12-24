@@ -76,10 +76,12 @@
 				<Icon src={OpenInNew} />
 				<span>Responsable</span>
 			</a>
-			<a href={link[action.name]}>
-				<Icon src={OpenInNew} />
-				<span>Afectado</span>
-			</a>
+			{#if action.type !== 'delete'}
+				<a href={link[action.name]}>
+					<Icon src={OpenInNew} />
+					<span>Afectado</span>
+				</a>
+			{/if}
 		</div>
 	</div>
 </Modal>
@@ -144,6 +146,7 @@
 		justify-content: space-between;
 		background-color: var(--input-color);
 		border: 2px solid var(--border-color);
+		width: 100%;
 	}
 	button.open:hover {
 		border: 2px solid var(--blue-color);

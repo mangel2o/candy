@@ -85,12 +85,6 @@
 		{#if $err}
 			<ErrorToast bind:error={$err} />
 		{/if}
-		<!--
-		{#if categories.length < 1}
-			<WarningToast>Parece que no hay categorias, crea una antes de crear alumnos.</WarningToast>
-		{/if}
-		-->
-
 		<div>
 			<button class="cancel" type="button" on:click={handleCancel}> Cancelar </button>
 			<button class="submit" type="submit">

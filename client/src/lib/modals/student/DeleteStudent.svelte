@@ -9,7 +9,6 @@
 	import Loading from '$lib/components/Loading.svelte';
 	import { requester } from '$lib/fetcher';
 	import { studentsStore, updateStudentsStore, userStore } from '$lib/stores';
-	import { createEventDispatcher } from 'svelte';
 	import { get } from 'svelte/store';
 
 	const [request, loading, err] = requester();

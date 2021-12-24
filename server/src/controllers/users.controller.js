@@ -86,7 +86,7 @@ export const updateUserById = async (req, res) => {
          institutionalEmail: `al${data.number}@tecmilenio.mx`,
          role: data.role,
          updatedBy: data.authorId
-      }
+      }, { new: true }
    ).lean();
 
    // * Creates an action

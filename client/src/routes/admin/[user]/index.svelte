@@ -9,6 +9,7 @@
 	import AdminAvatar from '$lib/components/AdminAvatar.svelte';
 	import AdminInfo from '$lib/components/AdminInfo.svelte';
 	import AdminOptions from '$lib/components/AdminOptions.svelte';
+	import ActionsList from '$lib/components/ActionsList.svelte';
 
 	const [[user, actions], loading, error, refetch, update, progress, controller] = fetcher(
 		[
@@ -17,6 +18,10 @@
 		],
 		{ alwaysFetch: true }
 	);
+
+	// * For children components
+	setContext('refetchUser', refetch);
+	setContext('user', user);
 
 	onDestroy(() => {
 		controller.abort();
@@ -46,7 +51,9 @@
 			{/if}
 		</div>
 		<!--CONTENT-->
-		<div class="content">Content goes here 🎶</div>
+		<div class="content">
+			<ActionsList actions={$actions} />
+		</div>
 	{/if}
 </div>
 
@@ -70,5 +77,12 @@
 		width: 100%;
 		margin-top: 2rem;
 		margin-bottom: 8rem;
+	}
+
+	div.content {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		width: 100%;
 	}
 </style>

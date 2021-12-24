@@ -25,7 +25,7 @@ export const createUsers = async () => {
       const values = await Promise.all([
          new User({
             name: "Miguel Ángel Castro García",
-            number: "al02865034",
+            number: 2865034,
             campus: "Las Torres",
             genre: "Hombre",
             active: "Activo",
@@ -37,7 +37,7 @@ export const createUsers = async () => {
          }).save(),
          new User({
             name: "Alberto",
-            number: "al02788124",
+            number: 2788124,
             campus: "Las Torres",
             genre: "Hombre",
             active: "Activo",
@@ -50,7 +50,7 @@ export const createUsers = async () => {
          }).save(),
          new User({
             name: "Goku",
-            number: "al02864123",
+            number: 2864123,
             campus: "Las Torres",
             genre: "Hombre",
             active: "Activo",

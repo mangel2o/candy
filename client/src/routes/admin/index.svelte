@@ -33,7 +33,8 @@
 					sliceable: usersData
 				};
 				return [users];
-			}
+			},
+			alwaysFetch: true
 		}
 	);
 
@@ -68,10 +69,8 @@
 		</div>
 	{:else if $error}
 		<span>Something went wrong {$error}</span>
-	{:else if $users.sliceable.length}
-		<UsersTable bind:users={$users} />
 	{:else}
-		<span>Seems like there are no users</span>
+		<UsersTable bind:users={$users} />
 	{/if}
 </div>
 
