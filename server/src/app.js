@@ -6,6 +6,7 @@ import studentsRoutes from "./routes/students.routes.js";
 import documentsRoutes from "./routes/documents.routes.js";
 import loginRoutes from './routes/login.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import accountRoutes from './routes/account.routes.js';
 import { createUsers, createDirs } from './libs/initialSetup.js';
 import Category from './models/Category.js';
 import Template from './models/Template.js';
@@ -38,5 +39,7 @@ app.use('/documents', documentsRoutes);
 app.use('/students', studentsRoutes);
 app.use('/login', loginRoutes);
 app.use('/admin', adminRoutes);
+app.use('/account', accountRoutes);
+
 
 export default app;

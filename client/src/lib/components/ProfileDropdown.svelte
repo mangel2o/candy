@@ -24,7 +24,7 @@
 				<button
 					on:click={() => {
 						isDropdownActive = false;
-						goto(`/user/${$userStore._id}`);
+						goto(`/account/${$userStore._id}`);
 					}}
 				>
 					Ver perfil

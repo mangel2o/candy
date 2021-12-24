@@ -4,12 +4,11 @@
 	import { userStore } from '$lib/stores';
 	import { fade, slide } from 'svelte/transition';
 	import { fetcher } from '$lib/fetcher';
-	import { writable } from 'svelte/store';
 	import Stairs from '$lib/loaders/Stairs.svelte';
-	import AdminAvatar from '$lib/components/AdminAvatar.svelte';
-	import AdminInfo from '$lib/components/AdminInfo.svelte';
 	import AdminOptions from '$lib/components/AdminOptions.svelte';
 	import ActionsList from '$lib/components/ActionsList.svelte';
+	import UserInfo from '$lib/components/UserInfo.svelte';
+	import UserAvatar from '$lib/components/UserAvatar.svelte';
 
 	const [[user, actions], loading, error, refetch, update, progress, controller] = fetcher(
 		[
@@ -40,10 +39,10 @@
 	{:else}
 		<div in:fade={{ duration: 200 }} class="user-container">
 			<!--AVATAR-->
-			<AdminAvatar />
+			<UserAvatar />
 
 			<!--INFO-->
-			<AdminInfo user={$user} />
+			<UserInfo user={$user} />
 
 			<!--OPTIONS-->
 			{#if $userStore.role === 'Administrador'}

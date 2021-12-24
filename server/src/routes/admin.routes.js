@@ -4,7 +4,6 @@ import * as actionsController from "../controllers/actions.controller.js";
 
 const router = Router();
 
-
 // ADMIN
 router.get('/', usersController.getUsers);
 router.post('/', usersController.createUser);

@@ -18,7 +18,7 @@ export const getActionsByUserId = async (req, res) => {
    const userExist = await User.findById(userId).lean();
    if (!userExist) return res.status(500).json("Este usuario no existe");
 
-   const actionsFound = await Action.find({ createdBy: userId }).populate(['affectedStudent', 'affectedUser']).lean();
+   const actionsFound = await Action.find({ createdBy: userId }).sort({ _id: -1 }).populate(['affectedStudent', 'affectedUser']).lean();
 
    // * Sends the user as response
    res.send(actionsFound);
