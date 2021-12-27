@@ -110,6 +110,7 @@ export const requester = () => {
             if (options.edit) {
                fetchedData = options.edit(fetchedData);
             }
+
             data.set(fetchedData.data);
             error.set(null);
             loading.set(false);

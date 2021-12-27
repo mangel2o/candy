@@ -15,6 +15,7 @@ import Student from './models/Student.js';
 import Archive from './models/Archive.js';
 import Document from './models/Document.js';
 import Observation from './models/Observation.js';
+import Action from './models/Action.js';
 
 // Category.collection.drop();
 // Template.collection.drop();
@@ -23,6 +24,7 @@ import Observation from './models/Observation.js';
 // Archive.collection.drop();
 // Document.collection.drop();
 // Observation.collection.drop();
+// Action.collection.drop();
 
 const app = express();
 createUsers();

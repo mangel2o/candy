@@ -5,10 +5,10 @@
 	import { onMount } from 'svelte';
 	import { userStore } from '$lib/stores';
 	import ErrorToast from '$lib/components/ErrorToast.svelte';
+	import { requester } from '$lib/fetcher';
 
-	let checked = false;
-	let isPending = false;
-	let error = null;
+	// let checked = false;
+	const [request, loading, err, data] = requester();
 
 	let user = {
 		identificator: '',
@@ -16,48 +16,33 @@
 	};
 
 	function handleSubmit() {
-		isPending = true;
 		const formData = new FormData();
 		Object.keys(user).forEach((key) => formData.append(key, user[key]));
 
-		fetch(`http://localhost:4000/login/`, {
-			method: 'POST',
-			body: formData
-		})
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					throw new Error('Parece que algo salio mal');
-				}
-			})
-			.then((data) => {
-				if (data.error) {
-					error = data.error;
-					isPending = false;
-					return;
-				}
-				const userData = ({ password, ...data }) => data;
-				$userStore = userData(data);
-				isPending = false;
+		request(
+			{
+				url: `http://localhost:4000/login`,
+				method: 'post',
+				data: formData
+			},
+			{
+				finalize: ({ data }) => {
+					const userData = ({ password, ...data }) => data;
+					$userStore = userData(data);
 
-				setTimeout(() => {
-					goto('/');
-				}, 1000);
-			})
-			.catch((err) => {
-				error = err.message;
-				isPending = false;
-			});
+					setTimeout(() => {
+						goto('/');
+					}, 1000);
+				}
+			}
+		);
 	}
 
-	onMount(() => {
-		setTimeout(() => {
-			if ($userStore) {
-				goto('/');
-			}
-		}, 1000);
-	});
+	$: setTimeout(() => {
+		if ($userStore) {
+			goto('/');
+		}
+	}, 1000);
 </script>
 
 <svelte:head>
@@ -83,23 +68,21 @@
 				<input required bind:value={user.password} type="password" placeholder="Contraseña" />
 			</div>
 
-			{#if error}
-				<ErrorToast bind:error />
+			{#if $err}
+				<ErrorToast bind:error={$err} />
 			{/if}
 
-			{#if false}
-				<div class="options-container">
+			<!-- <div class="options-container">
 					<label for="check">
 						<span><Icon src={Check} isCheckbox={true} isChecked={checked} /></span>
 						Recuerdame
 						<input bind:checked type="checkbox" id="check" />
 					</label>
 					<a href="/login/forgot-password">¿Olvidaste tu contraseña?</a>
-				</div>
-			{/if}
+				</div> -->
 
 			<button type="submit">
-				{#if isPending}
+				{#if $loading}
 					Loading...
 				{:else}
 					Iniciar sesión
@@ -155,7 +138,7 @@
 		color: var(--placeholder-color);
 	}
 
-	input[type='checkbox'] {
+	/* input[type='checkbox'] {
 		opacity: 0;
 		width: 0;
 	}
@@ -196,7 +179,7 @@
 	}
 	a:hover {
 		color: var(--white-color);
-	}
+	} */
 	button {
 		width: 100%;
 		padding: 1rem;

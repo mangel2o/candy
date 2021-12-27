@@ -68,7 +68,7 @@
 		<QuantityEntries bind:students={$students} />
 		<div class="options">
 			<CreateStudent bind:categories={$categories} on:request={handleCreate} />
-			<AddExcel />
+			<!-- <AddExcel /> -->
 			<EditFilter bind:students={$students} />
 			<SearchBar bind:students={$students} />
 			<button on:click={refetch}>

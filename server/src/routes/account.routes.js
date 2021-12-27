@@ -1,9 +1,10 @@
 import { Router } from "express";
-import * as usersController from "../controllers/users.controller.js";
+import * as accountController from "../controllers/account.controller.js";
 
 const router = Router();
 
-// USERS
-router.get('/:userId', usersController.getUserById);
+// Account
+router.put('/security/password', accountController.changePassword);
+router.get('/:userId', accountController.getUserById);
 
 export default router;
