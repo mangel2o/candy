@@ -17,6 +17,7 @@ import Document from './models/Document.js';
 import Observation from './models/Observation.js';
 import Action from './models/Action.js';
 
+// * To reset all collections in mongodb
 // Category.collection.drop();
 // Template.collection.drop();
 // User.collection.drop();

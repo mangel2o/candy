@@ -24,7 +24,7 @@
 				<button
 					on:click={() => {
 						isDropdownActive = false;
-						goto(`/account/`);
+						goto(`/account/security`);
 					}}
 				>
 					Ver perfil

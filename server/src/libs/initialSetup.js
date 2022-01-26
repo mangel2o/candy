@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import fs from "fs";
 
+// TODO: Change the way the pdfs are saved if needed
 export const createDirs = async () => {
    const base = "./uploads/";
    const dirs = [
@@ -24,41 +25,16 @@ export const createUsers = async () => {
 
       const values = await Promise.all([
          new User({
-            name: "Miguel Ángel Castro García",
-            number: 2865034,
+            name: "Admin",
+            number: 123456789,
             campus: "Las Torres",
             genre: "Hombre",
             active: "Activo",
-            phone: "8120317210",
-            personalEmail: "mangelcg.2o@outlook.com",
-            institutionalEmail: "al02865034@tecmilenio.mx",
-            password: await User.encryptPassword("password"),
+            phone: "123456789",
+            personalEmail: "admin@outlook.com",
+            institutionalEmail: "admin@tecmilenio.mx",
+            password: await User.encryptPassword("admin"),
             role: "Administrador"
-         }).save(),
-         new User({
-            name: "Alberto",
-            number: 2788124,
-            campus: "Las Torres",
-            genre: "Hombre",
-            active: "Activo",
-            phone: "8120317210",
-            personalEmail: "Alberto.2o@outlook.com",
-            institutionalEmail: "al02788124@tecmilenio.mx",
-            password: await User.encryptPassword("12345"),
-            role: "Moderador"
-
-         }).save(),
-         new User({
-            name: "Goku",
-            number: 2864123,
-            campus: "Las Torres",
-            genre: "Hombre",
-            active: "Activo",
-            phone: "8120317210",
-            personalEmail: "Goku.2o@outlook.com",
-            institutionalEmail: "al02864123@tecmilenio.mx",
-            password: await User.encryptPassword("random"),
-            role: "Usuario"
          }).save(),
       ]);
       console.log(values);
